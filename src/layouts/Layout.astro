@@ -1,21 +1,11 @@
 ---
 import '../styles/global.css'
-import { VoiceInterface } from '../components/voice/VoiceInterface'
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
-
-// Gateway config - in production, use environment variables
-const voiceConfig = {
-  groqApiKey: import.meta.env.PUBLIC_GROQ_API_KEY || '',
-  elevenLabsApiKey: import.meta.env.PUBLIC_ELEVENLABS_API_KEY || '',
-  elevenLabsVoiceId: import.meta.env.PUBLIC_ELEVENLABS_VOICE_ID || 'CwhRBWXzGAHq8TQ4Fs17',
-  gatewayUrl: import.meta.env.PUBLIC_GATEWAY_URL || 'http://localhost:18789',
-  gatewayToken: import.meta.env.PUBLIC_GATEWAY_TOKEN || '',
-};
 ---
 
 <!doctype html>
@@ -29,13 +19,5 @@ const voiceConfig = {
   </head>
   <body class="bg-slate-900 text-white min-h-screen">
     <slot />
-    
-    <!-- Voice Interface - Talk to Burt -->
-    <VoiceInterface 
-      client:load 
-      config={voiceConfig}
-      position="bottom-right"
-      theme="dark"
-    />
   </body>
 </html>
