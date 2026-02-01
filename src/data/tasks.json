@@ -1,18 +1,25 @@
 {
   "todo": [
     {
+      "id": "solana-initialize",
+      "title": "Solana: Initialize Protocol on Devnet",
+      "description": "Call initialize + initialize_treasury to set up PDAs. Install yarn first, run anchor test.",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "solana-create-loop",
+      "title": "Solana: Create First Loop (Miami)",
+      "description": "After initialization, create first geographic Loop for testing",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
       "id": "user-app-design-polish",
       "title": "User App: RN Design Polish",
       "description": "Minor visual differences from web version to fix",
       "priority": "medium",
       "category": "product"
-    },
-    {
-      "id": "solana-devnet-tests",
-      "title": "Solana: Test Devnet Instructions",
-      "description": "Call initialize, create_loop, stake instructions on devnet to verify deployment",
-      "priority": "high",
-      "category": "engineering"
     },
     {
       "id": "solana-web-interface",
@@ -102,9 +109,11 @@
     }
   ],
   "done": [
+    "✅ Solana: Program upgraded + IDL uploaded to devnet",
+    "✅ Solana: Fixed stack overflow (split Initialize into 2 steps)",
     "✅ 🚀 DEPLOYED TO DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
     "✅ Solana: Fixed IDL generation (upgraded to Anchor 0.30.1)",
-    "✅ Solana: Fixed stack overflow + name collision warnings",
+    "✅ Solana: Fixed name collision warnings",
     "✅ Voice: Groq Whisper transcription configured",
     "✅ Voice: Edge TTS enabled",
     "✅ App: Profile Setup Flow (stores in profiles.metadata)",

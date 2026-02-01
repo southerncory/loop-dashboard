@@ -1,4 +1,6 @@
 [
+  {"date": "2026-02-01", "action": "⬆️ Program upgraded on devnet + IDL uploaded"},
+  {"date": "2026-02-01", "action": "🔧 Fixed stack overflow: split Initialize into 2 steps (initialize + initialize_treasury)"},
   {"date": "2026-02-01", "action": "🚀🚀 DEPLOYED TO SOLANA DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS"},
   {"date": "2026-02-01", "action": "🎙️ Configured Groq Whisper for voice note transcription"},
   {"date": "2026-02-01", "action": "🔊 Enabled Edge TTS for voice responses"},
