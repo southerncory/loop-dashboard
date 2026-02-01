@@ -1,4 +1,10 @@
 [
+  {"date": "2026-02-01", "action": "🏪 Merchant Portal: POS operations (award + redeem flows)"},
+  {"date": "2026-02-01", "action": "🏪 Merchant Portal: Transaction history with filters"},
+  {"date": "2026-02-01", "action": "🏪 Merchant Portal: Location management (cards + reward rate sliders)"},
+  {"date": "2026-02-01", "action": "🏪 Merchant Portal: 3-step onboarding flow"},
+  {"date": "2026-02-01", "action": "🏪 Merchant Portal: Dashboard, sign up, sign in"},
+  {"date": "2026-02-01", "action": "📈 Loop Trader repo created (trading bot project)"},
   {"date": "2026-02-01", "action": "⬆️ Program upgraded on devnet + IDL uploaded"},
   {"date": "2026-02-01", "action": "🔧 Fixed stack overflow: split Initialize into 2 steps (initialize + initialize_treasury)"},
   {"date": "2026-02-01", "action": "🚀🚀 DEPLOYED TO SOLANA DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS"},

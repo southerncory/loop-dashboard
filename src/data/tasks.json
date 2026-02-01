@@ -1,6 +1,27 @@
 {
   "todo": [
     {
+      "id": "merchant-pool",
+      "title": "Merchant Portal: Pool Management",
+      "description": "Deposits, withdrawals, yield display, balance overview",
+      "priority": "high",
+      "category": "product"
+    },
+    {
+      "id": "merchant-analytics",
+      "title": "Merchant Portal: Analytics (Tiered)",
+      "description": "Free tier basics, Pro insights, Enterprise advanced",
+      "priority": "medium",
+      "category": "product"
+    },
+    {
+      "id": "merchant-deploy",
+      "title": "Merchant Portal: Deploy to Vercel",
+      "description": "Deploy merchant portal, set up merchant.looplocal.io",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
       "id": "solana-initialize",
       "title": "Solana: Initialize Protocol on Devnet",
       "description": "Call initialize + initialize_treasury to set up PDAs. Install yarn first, run anchor test.",
@@ -20,34 +41,6 @@
       "description": "Minor visual differences from web version to fix",
       "priority": "medium",
       "category": "product"
-    },
-    {
-      "id": "solana-web-interface",
-      "title": "Solana: Build Admin Interface",
-      "description": "Web UI in Command Center to interact with on-chain program",
-      "priority": "medium",
-      "category": "engineering"
-    },
-    {
-      "id": "merchant-portal",
-      "title": "Build Merchant Portal",
-      "description": "Onboarding, reward rate config, customer analytics, pool management",
-      "priority": "critical",
-      "category": "product"
-    },
-    {
-      "id": "earning-flow",
-      "title": "Implement Earning Flow",
-      "description": "POS integration for merchant to enter phone → award Cred",
-      "priority": "critical",
-      "category": "payments"
-    },
-    {
-      "id": "redemption-flow",
-      "title": "Implement Redemption Flow",
-      "description": "Phone lookup at POS for Phase 1",
-      "priority": "high",
-      "category": "payments"
     },
     {
       "id": "data-model-audit",
@@ -94,6 +87,13 @@
   ],
   "inProgress": [
     {
+      "id": "merchant-portal-build",
+      "title": "🔄 Building Merchant Portal",
+      "description": "Core complete: Auth, Dashboard, Onboarding, Locations, POS. Next: Pool, Analytics",
+      "priority": "critical",
+      "category": "product"
+    },
+    {
       "id": "react-native-rebuild",
       "title": "🔄 Rebuild App in React Native",
       "description": "Porting from React web app to Expo/React Native for App Store",
@@ -109,6 +109,14 @@
     }
   ],
   "done": [
+    "✅ Merchant Portal: Sign up / Sign in with validation",
+    "✅ Merchant Portal: Dashboard with stats, quick actions, yield info",
+    "✅ Merchant Portal: 3-step onboarding (Business → Location → Deposit)",
+    "✅ Merchant Portal: Location management with card UI + reward rate sliders",
+    "✅ Merchant Portal: POS - Award rewards flow",
+    "✅ Merchant Portal: POS - Process redemption flow",
+    "✅ Merchant Portal: Transaction history with filters",
+    "✅ Loop Trader repo created with comprehensive README + VISION.md",
     "✅ Solana: Program upgraded + IDL uploaded to devnet",
     "✅ Solana: Fixed stack overflow (split Initialize into 2 steps)",
     "✅ 🚀 DEPLOYED TO DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
