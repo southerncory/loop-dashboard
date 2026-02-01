@@ -1,0 +1,61 @@
+{
+  "network": "devnet",
+  "programId": "2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
+  "walletAddress": "5A7EDSk2X8Z5aepi55FMKvnhQbZH9feVBBVVdNh1YKTZ",
+  "explorerUrl": "https://explorer.solana.com",
+  "rpcUrl": "https://api.devnet.solana.com",
+  "deployedAt": "2026-02-01T15:26:00Z",
+  "lastUpgrade": "2026-02-01T15:35:00Z",
+  "instructions": [
+    {
+      "name": "initialize",
+      "description": "Initialize the Loop Protocol - creates config, OXO mint, bonding curve, treasury",
+      "status": "ready",
+      "requiresAuth": true
+    },
+    {
+      "name": "create_loop",
+      "description": "Create a new geographic Loop (ZIP code or airport)",
+      "status": "ready",
+      "requiresAuth": true
+    },
+    {
+      "name": "stake_user",
+      "description": "Stake USDC into a Loop's stacking pool",
+      "status": "ready",
+      "requiresAuth": false
+    },
+    {
+      "name": "buy_oxo",
+      "description": "Buy OXO tokens via bonding curve using yield",
+      "status": "ready",
+      "requiresAuth": false
+    },
+    {
+      "name": "claim_vested_oxo",
+      "description": "Claim OXO after vesting period completes",
+      "status": "ready",
+      "requiresAuth": false
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Program Config",
+      "type": "ProgramConfig",
+      "pda": ["config"],
+      "description": "Global program configuration"
+    },
+    {
+      "name": "Bonding Curve",
+      "type": "BondingCurve",
+      "pda": ["bonding_curve"],
+      "description": "OXO token bonding curve state"
+    },
+    {
+      "name": "Treasury",
+      "type": "Treasury",
+      "pda": ["treasury"],
+      "description": "Protocol treasury for buybacks"
+    }
+  ]
+}

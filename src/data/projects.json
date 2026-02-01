@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Loop Backend",
+    "slug": "oar-technologies-inc",
+    "status": "active",
+    "description": "Core backend infrastructure",
+    "stack": "Supabase (Postgres + Edge Functions)",
+    "highlights": ["15 DB migrations", "12 Edge Functions", "4 Dashboards"]
+  },
+  {
+    "name": "Marketing Site",
+    "slug": "looplocal-marketing",
+    "status": "live",
+    "description": "looplocal.io",
+    "stack": "Astro + Tailwind → Vercel",
+    "highlights": ["Deployed to Vercel", "10 pages"]
+  },
+  {
+    "name": "Support System",
+    "slug": "loop-support",
+    "status": "live",
+    "description": "AI-powered customer support",
+    "stack": "Cloudflare Workers + Supabase",
+    "highlights": ["support@looplocal.io", "Auto-ticketing"]
+  },
+  {
+    "name": "Command Center",
+    "slug": "loop-dashboard",
+    "status": "live",
+    "description": "Alex's mission control",
+    "stack": "Astro + Tailwind → Vercel",
+    "highlights": ["Projects", "Tasks", "Specs", "Decisions"]
+  },
+  {
+    "name": "Mobile App",
+    "slug": "loop-app-native",
+    "status": "in-progress",
+    "description": "Consumer app for App Store",
+    "stack": "React Native (Expo) + TypeScript",
+    "highlights": ["iOS + Android", "Orbital UI", "Supabase Auth"]
+  }
+]

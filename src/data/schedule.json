@@ -1,0 +1,65 @@
+{
+  "pilot": {
+    "name": "Cory Southern",
+    "employeeId": "890362",
+    "base": "MIA",
+    "position": "FO 737 INT REGL",
+    "projectedHours": "80:39"
+  },
+  "month": "February 2026",
+  "trips": [
+    {
+      "sequence": "21989",
+      "dates": "Feb 5-7",
+      "days": ["2026-02-05", "2026-02-06", "2026-02-07"],
+      "route": "MIA → SAT → POS → MIA",
+      "credit": "15:47",
+      "details": [
+        {"date": "2026-02-05", "dep": "MIA 0835", "arr": "SAT 1416"},
+        {"date": "2026-02-06", "dep": "SAT 0510", "arr": "POS 1525"},
+        {"date": "2026-02-07", "dep": "POS 0630", "arr": "MIA 0944"}
+      ]
+    },
+    {
+      "sequence": "22148",
+      "dates": "Feb 9-11",
+      "days": ["2026-02-09", "2026-02-10", "2026-02-11"],
+      "route": "MIA → AUS → STI → MIA",
+      "credit": "16:30",
+      "details": [
+        {"date": "2026-02-09", "dep": "MIA 0810", "arr": "AUS 1714"},
+        {"date": "2026-02-10", "dep": "AUS 0715", "arr": "STI 1550"},
+        {"date": "2026-02-11", "dep": "STI 0600", "arr": "MIA 1309"}
+      ]
+    },
+    {
+      "sequence": "22882",
+      "dates": "Feb 27 - Mar 1",
+      "days": ["2026-02-27", "2026-02-28", "2026-03-01"],
+      "route": "MIA → BNA → IAH → MIA",
+      "credit": "16:26",
+      "details": [
+        {"date": "2026-02-27", "dep": "MIA 2120", "arr": "BNA 2258"},
+        {"date": "2026-02-28", "dep": "BNA 1324", "arr": "IAH 2127"},
+        {"date": "2026-03-01", "dep": "IAH 1001", "arr": "MIA 2215"}
+      ]
+    }
+  ],
+  "daysOff": [
+    {"start": "2026-01-26", "end": "2026-02-01", "type": "VACATION"},
+    {"start": "2026-02-02", "end": "2026-02-04", "type": "OFF"},
+    {"start": "2026-02-08", "end": "2026-02-08", "type": "OFF"},
+    {"start": "2026-02-12", "end": "2026-02-12", "type": "OFF"},
+    {"start": "2026-02-13", "end": "2026-02-15", "type": "DFP"},
+    {"start": "2026-02-16", "end": "2026-02-22", "type": "VACATION"},
+    {"start": "2026-02-23", "end": "2026-02-26", "type": "DFP"}
+  ],
+  "loopWorkWindows": [
+    {"start": "2026-01-30", "end": "2026-02-01", "label": "Current vacation", "highlight": "current"},
+    {"start": "2026-02-02", "end": "2026-02-04", "label": "Before first trip", "highlight": "normal"},
+    {"start": "2026-02-08", "end": "2026-02-08", "label": "Between trips", "highlight": "normal"},
+    {"start": "2026-02-12", "end": "2026-02-15", "label": "4 days (1 off + 3 DFP)", "highlight": "normal"},
+    {"start": "2026-02-16", "end": "2026-02-22", "label": "7 day vacation block", "highlight": "big"},
+    {"start": "2026-02-23", "end": "2026-02-26", "label": "DFP before last trip", "highlight": "normal"}
+  ]
+}

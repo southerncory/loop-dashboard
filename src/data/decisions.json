@@ -1,0 +1,62 @@
+[
+  {
+    "id": "dec-001",
+    "date": "2026-01-30",
+    "category": "platform",
+    "decision": "Mobile App: React Native (Expo) for App Store",
+    "context": "Need native app for iOS App Store and Google Play. PWA not acceptable.",
+    "alternatives": ["React web app (PWA)", "Capacitor wrapper", "Swift/Kotlin native"],
+    "rationale": "React Native gives native performance, single codebase, and Expo simplifies App Store deployment. Team has React experience.",
+    "status": "final"
+  },
+  {
+    "id": "dec-002",
+    "date": "2026-01-30",
+    "category": "auth",
+    "decision": "SMS OTP via Twilio Verify (not standard Twilio SMS)",
+    "context": "Standard Twilio SMS blocked by carriers due to 10DLC requirements.",
+    "alternatives": ["Register 10DLC (takes days)", "Email only", "Twilio Verify"],
+    "rationale": "Twilio Verify bypasses 10DLC restrictions, works immediately.",
+    "status": "final"
+  },
+  {
+    "id": "dec-003",
+    "date": "2026-01-30",
+    "category": "email",
+    "decision": "Transactional email via Resend SMTP",
+    "context": "Need branded emails from looplocal.io, not Supabase default.",
+    "alternatives": ["Supabase default", "SendGrid", "Mailgun", "Cloudflare Workers + MailChannels"],
+    "rationale": "MailChannels discontinued free tier. Resend has free tier, simple SMTP setup, good DX.",
+    "status": "final"
+  },
+  {
+    "id": "dec-004",
+    "date": "2026-01-30",
+    "category": "backend",
+    "decision": "Supabase for backend (auth, database, edge functions)",
+    "context": "Need managed backend with auth, real-time, and serverless functions.",
+    "alternatives": ["Firebase", "AWS Amplify", "Custom backend"],
+    "rationale": "Supabase has excellent Postgres, row-level security, edge functions. Already invested.",
+    "status": "final"
+  },
+  {
+    "id": "dec-005",
+    "date": "2026-01-28",
+    "category": "tokenomics",
+    "decision": "OXO token with bonding curve unlock mechanism",
+    "context": "Need reward token that appreciates and has unlock/vesting mechanics.",
+    "alternatives": ["Simple points", "Fixed-price token", "External crypto"],
+    "rationale": "Bonding curve creates natural appreciation. Unlock meter gamifies holding.",
+    "status": "final"
+  },
+  {
+    "id": "dec-006",
+    "date": "2026-01-28",
+    "category": "rewards",
+    "decision": "Multi-Loop model with siloed rewards per merchant",
+    "context": "Users can belong to multiple merchant Loops, each with separate balances.",
+    "alternatives": ["Universal balance across all merchants", "Single Loop membership"],
+    "rationale": "Siloed rewards let merchants control their own pools. Users see value per relationship.",
+    "status": "final"
+  }
+]

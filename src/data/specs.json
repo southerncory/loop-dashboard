@@ -1,0 +1,39 @@
+[
+  {
+    "id": "loop-mobile-app",
+    "project": "Mobile App",
+    "title": "Loop Consumer App",
+    "status": "approved",
+    "createdAt": "2026-01-30",
+    "approvedAt": "2026-01-30",
+    "target": {
+      "platforms": ["iOS", "Android"],
+      "distribution": "App Store + Google Play",
+      "minOS": "iOS 15+, Android 10+"
+    },
+    "stack": {
+      "framework": "React Native (Expo managed)",
+      "language": "TypeScript",
+      "navigation": "React Navigation",
+      "animations": "React Native Reanimated",
+      "state": "React Context + Supabase",
+      "auth": "Supabase (Twilio Verify SMS, Resend Email)",
+      "storage": "Expo SecureStore"
+    },
+    "requirements": [
+      "Premium visual quality matching marketing site",
+      "Auth flow: Welcome → Phone/Email → OTP → Biometrics → Location → Home",
+      "Orbital UI with 3 interactive rings",
+      "HUD that changes based on ring selection",
+      "Bottom tab navigation (Home, Activity, Earn, Profile)",
+      "Face ID / Touch ID for returning users",
+      "Location permission for nearby merchants"
+    ],
+    "outOfScope": [
+      "Merchant features (separate app)",
+      "Payment processing (Phase 2)",
+      "Push notifications (post-launch)"
+    ],
+    "notes": "Rebuilding from React web app. All UI designs exist, porting to RN."
+  }
+]

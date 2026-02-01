@@ -1,0 +1,138 @@
+{
+  "todo": [
+    {
+      "id": "user-app-design-polish",
+      "title": "User App: RN Design Polish",
+      "description": "Minor visual differences from web version to fix",
+      "priority": "medium",
+      "category": "product"
+    },
+    {
+      "id": "solana-devnet-tests",
+      "title": "Solana: Test Devnet Instructions",
+      "description": "Call initialize, create_loop, stake instructions on devnet to verify deployment",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "solana-web-interface",
+      "title": "Solana: Build Admin Interface",
+      "description": "Web UI in Command Center to interact with on-chain program",
+      "priority": "medium",
+      "category": "engineering"
+    },
+    {
+      "id": "merchant-portal",
+      "title": "Build Merchant Portal",
+      "description": "Onboarding, reward rate config, customer analytics, pool management",
+      "priority": "critical",
+      "category": "product"
+    },
+    {
+      "id": "earning-flow",
+      "title": "Implement Earning Flow",
+      "description": "POS integration for merchant to enter phone → award Cred",
+      "priority": "critical",
+      "category": "payments"
+    },
+    {
+      "id": "redemption-flow",
+      "title": "Implement Redemption Flow",
+      "description": "Phone lookup at POS for Phase 1",
+      "priority": "high",
+      "category": "payments"
+    },
+    {
+      "id": "data-model-audit",
+      "title": "🔴 PRE-LAUNCH: Full Data Model Audit",
+      "description": "Walk through every table, verify math, test calculations end-to-end",
+      "priority": "critical",
+      "category": "engineering"
+    },
+    {
+      "id": "newslink-contact",
+      "title": "Contact News Link (Miami Airport)",
+      "description": "Reach out for pilot partnership - 15-20 locations",
+      "priority": "high",
+      "category": "business"
+    },
+    {
+      "id": "legal-docs",
+      "title": "Legal: Terms & Privacy Policy",
+      "description": "User ToS, merchant agreement, privacy policy",
+      "priority": "high",
+      "category": "legal"
+    },
+    {
+      "id": "pitch-deck",
+      "title": "Create Merchant Pitch Deck",
+      "description": "Value prop, ROI calculator, case studies",
+      "priority": "medium",
+      "category": "business"
+    },
+    {
+      "id": "email-templates",
+      "title": "Transactional Email Templates",
+      "description": "Welcome, earn confirmations, weekly summary",
+      "priority": "medium",
+      "category": "product"
+    },
+    {
+      "id": "resend-domain-verify",
+      "title": "Verify looplocal.io in Resend",
+      "description": "Add domain in Resend dashboard, configure DNS for branded emails",
+      "priority": "medium",
+      "category": "admin"
+    }
+  ],
+  "inProgress": [
+    {
+      "id": "react-native-rebuild",
+      "title": "🔄 Rebuild App in React Native",
+      "description": "Porting from React web app to Expo/React Native for App Store",
+      "priority": "critical",
+      "category": "product"
+    },
+    {
+      "id": "apple-dev",
+      "title": "Apple Developer Enrollment",
+      "description": "Submitted, waiting up to 48hr",
+      "priority": "medium",
+      "category": "admin"
+    }
+  ],
+  "done": [
+    "✅ 🚀 DEPLOYED TO DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
+    "✅ Solana: Fixed IDL generation (upgraded to Anchor 0.30.1)",
+    "✅ Solana: Fixed stack overflow + name collision warnings",
+    "✅ Voice: Groq Whisper transcription configured",
+    "✅ Voice: Edge TTS enabled",
+    "✅ App: Profile Setup Flow (stores in profiles.metadata)",
+    "✅ App: Session Persistence (checks onboarding on launch)",
+    "✅ App: Real Supabase Data (useUserData hook, pull-to-refresh)",
+    "✅ Solana: Basic Integration Tests (basic.test.ts)",
+    "✅ Loop Solana program builds successfully (Anchor 0.29, 509KB)",
+    "✅ Deployed to localnet (Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS)",
+    "✅ Solana toolchain installed (Rust 1.93, Solana 3.0.13, Anchor)",
+    "✅ Server disk expanded 7GB → 20GB",
+    "✅ User App scaffold (React + Vite + Tailwind + Framer Motion)",
+    "✅ Orbital View component with 3 rings",
+    "✅ HUD banner with dynamic state",
+    "✅ Bottom navigation + 4 screens",
+    "✅ Premium visual polish (gold/emerald gradients, glass-morphism)",
+    "✅ Auth flow: Welcome → Phone/Email choice → OTP → Biometrics → Location → Home",
+    "✅ Supabase phone auth (Twilio Verify)",
+    "✅ Supabase email auth (Resend SMTP)",
+    "✅ Cloudflare email worker (deployed)",
+    "✅ Protected routes + auth context",
+    "✅ Supabase backend (15 migrations, 12 Edge Functions)",
+    "✅ Marketing site (looplocal.io)",
+    "✅ Support system (support@looplocal.io → tickets)",
+    "✅ Command Center dashboard + auth",
+    "✅ OXO tokenomics schema",
+    "✅ Google Wallet configured",
+    "✅ Business model defined",
+    "✅ Design language established",
+    "✅ Domain & email configured"
+  ]
+}

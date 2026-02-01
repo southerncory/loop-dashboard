@@ -1,0 +1,1077 @@
+---
+import Layout from '../layouts/Layout.astro';
+import projects from '../data/projects.json';
+import tasks from '../data/tasks.json';
+import activity from '../data/activity.json';
+import schedule from '../data/schedule.json';
+import aaInsights from '../data/aa-insights.json';
+import specs from '../data/specs.json';
+import decisions from '../data/decisions.json';
+import checklist from '../data/checklist.json';
+
+// Calculate days until dates
+function getDaysUntil(dateStr: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  const diff = target.getTime() - today.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function getPriorityColor(priority: string): string {
+  switch (priority) {
+    case 'info': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    case 'in-progress': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'action': return 'bg-green-500/20 text-green-400 border-green-500/30';
+    case 'urgent': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'active':
+    case 'live':
+    case 'done':
+      return 'bg-green-500/20 text-green-400 border-green-500/30';
+    case 'in-progress':
+    case 'planned':
+      return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'blocked':
+      return 'bg-red-500/20 text-red-400 border-red-500/30';
+    default:
+      return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+
+// Calculate stats
+const totalProjects = projects.length;
+const totalTasks = tasks.todo.length + tasks.inProgress.length + tasks.done.length;
+const completedTasks = tasks.done.length;
+const daysUntilBidOpens = getDaysUntil(aaInsights.bidCycle.nextBidOpens);
+const daysUntilBidCloses = getDaysUntil(aaInsights.bidCycle.nextBidCloses);
+
+// Helper functions to avoid < in templates
+function isUrgent(days: number): boolean {
+  return days >= 0 && days <= 5;
+}
+function isSoon(days: number): boolean {
+  return days >= 0 && days <= 3;
+}
+function isExpired(days: number): boolean {
+  return days <= 0;
+}
+
+// Find next trip
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const nextTrip = schedule.trips.find(t => new Date(t.days[0]) >= today) || schedule.trips[0];
+const daysUntilNextTrip = nextTrip ? getDaysUntil(nextTrip.days[0]) : 0;
+
+// Pre-compute trip status for each trip
+interface TripWithStatus {
+  sequence: string;
+  dates: string;
+  days: string[];
+  route: string;
+  credit: string;
+  details: { date: string; dep: string; arr: string }[];
+  isUpcoming: boolean;
+  isCurrent: boolean;
+}
+
+const tripsWithStatus: TripWithStatus[] = schedule.trips.map(trip => {
+  const tripStart = new Date(trip.days[0]);
+  const tripEnd = new Date(trip.days[trip.days.length - 1]);
+  return {
+    ...trip,
+    isUpcoming: tripStart >= today,
+    isCurrent: tripStart <= today && tripEnd >= today
+  };
+});
+
+// Get recent activity (last 5)
+const recentActivity = activity.slice(0, 5);
+
+// Group activity by date
+const activityByDate = activity.reduce((acc, item) => {
+  if (!acc[item.date]) acc[item.date] = [];
+  acc[item.date].push(item);
+  return acc;
+}, {} as Record<string, typeof activity>);
+
+// Get next 3 todos
+const nextTodos = tasks.todo.slice(0, 3);
+
+// Calculate work window status
+interface WorkWindowWithStatus {
+  start: string;
+  end: string;
+  label: string;
+  highlight: string;
+  daysRemaining: number;
+  totalDays: number;
+  status: 'past' | 'current' | 'upcoming';
+  dateRange: string;
+}
+
+const workWindowsWithStatus: WorkWindowWithStatus[] = schedule.loopWorkWindows.map(window => {
+  const startDate = new Date(window.start);
+  const endDate = new Date(window.end);
+  endDate.setHours(23, 59, 59); // End of day
+  
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const daysUntilStart = getDaysUntil(window.start);
+  const daysUntilEnd = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  let status: 'past' | 'current' | 'upcoming';
+  let daysRemaining: number;
+  
+  if (daysUntilEnd < 0) {
+    status = 'past';
+    daysRemaining = 0;
+  } else if (daysUntilStart <= 0) {
+    status = 'current';
+    daysRemaining = daysUntilEnd + 1;
+  } else {
+    status = 'upcoming';
+    daysRemaining = totalDays;
+  }
+  
+  // Format date range
+  const startMonth = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endMonth = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const dateRange = startMonth === endMonth ? startMonth : `${startMonth} - ${endMonth}`;
+  
+  return {
+    ...window,
+    daysRemaining,
+    totalDays,
+    status,
+    dateRange
+  };
+});
+
+// Find current or next work window
+const nextWorkWindow = workWindowsWithStatus.find(w => w.status === 'current') || 
+                       workWindowsWithStatus.find(w => w.status === 'upcoming') ||
+                       workWindowsWithStatus[0];
+
+// Calculate project progress (rough estimate)
+function getProjectProgress(status: string): number {
+  switch (status) {
+    case 'live': return 100;
+    case 'active': return 60;
+    case 'in-progress': return 40;
+    case 'planned': return 10;
+    default: return 0;
+  }
+}
+---
+
+<Layout title="Loop Command Center">
+  <div class="min-h-screen bg-slate-900">
+    <!-- Header with Summary Stats -->
+    <header class="bg-slate-800/80 border-b border-slate-700 sticky top-0 z-50 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+            <h1 class="text-xl font-bold text-white">Loop Command Center</h1>
+          </div>
+          <div class="flex flex-wrap gap-4 text-sm items-center">
+            <a href="/solana" class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition-colors">
+              ⛓️ Solana
+            </a>
+            <a href="/support" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors">
+              🎧 Support
+            </a>
+            <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">Projects:</span>
+              <span class="font-semibold text-white">{totalProjects}</span>
+            </div>
+            <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">Tasks:</span>
+              <span class="font-semibold text-green-400">{completedTasks}</span>
+              <span class="text-slate-500">/</span>
+              <span class="text-slate-300">{totalTasks}</span>
+            </div>
+            <div class="h-4 w-px bg-slate-700 hidden sm:block"></div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">Next trip:</span>
+              <span class={`font-semibold ${isSoon(daysUntilNextTrip) ? 'text-yellow-400' : 'text-white'}`}>
+                {isExpired(daysUntilNextTrip) ? 'Today!' : `${daysUntilNextTrip}d`}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <!-- Tab Navigation -->
+      <nav class="mb-6">
+        <!-- Desktop Tabs -->
+        <div class="hidden sm:flex bg-slate-800 rounded-lg p-1 gap-1 flex-wrap" id="desktop-tabs">
+          <button data-tab="overview" class="tab-btn active px-4 py-2 rounded-md text-sm font-medium transition-all">Overview</button>
+          <button data-tab="projects" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">Projects</button>
+          <button data-tab="specs" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">📋 Specs</button>
+          <button data-tab="decisions" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">⚖️ Decisions</button>
+          <button data-tab="tasks" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">Tasks</button>
+          <button data-tab="schedule" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">Schedule</button>
+          <button data-tab="aa-insights" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">AA Insights</button>
+          <button data-tab="activity" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">Activity</button>
+        </div>
+        
+        <!-- Mobile Dropdown -->
+        <div class="sm:hidden">
+          <select id="mobile-tab-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500/50">
+            <option value="overview">Overview</option>
+            <option value="projects">Projects</option>
+            <option value="specs">📋 Specs</option>
+            <option value="decisions">⚖️ Decisions</option>
+            <option value="tasks">Tasks</option>
+            <option value="schedule">Schedule</option>
+            <option value="aa-insights">AA Insights</option>
+            <option value="activity">Activity</option>
+          </select>
+        </div>
+      </nav>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Overview Tab -->
+        <section id="tab-overview" class="tab-panel">
+          <!-- Quick Stats Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+              <div class="text-slate-400 text-sm mb-1">Projects</div>
+              <div class="text-3xl font-bold text-white">{totalProjects}</div>
+              <div class="text-green-400 text-xs mt-1">{projects.filter(p => p.status === 'live' || p.status === 'active').length} active</div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+              <div class="text-slate-400 text-sm mb-1">Tasks Done</div>
+              <div class="text-3xl font-bold text-green-400">{completedTasks}</div>
+              <div class="text-slate-500 text-xs mt-1">of {totalTasks} total</div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+              <div class="text-slate-400 text-sm mb-1">Next Trip</div>
+              <div class={`text-3xl font-bold ${isSoon(daysUntilNextTrip) ? 'text-yellow-400' : 'text-white'}`}>
+                {isExpired(daysUntilNextTrip) ? 'Now' : `${daysUntilNextTrip}d`}
+              </div>
+              <div class="text-slate-500 text-xs mt-1 truncate">{nextTrip?.route || 'None scheduled'}</div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+              <div class="text-slate-400 text-sm mb-1">Bid Cycle</div>
+              <div class={`text-3xl font-bold ${isUrgent(daysUntilBidOpens) ? 'text-amber-400' : 'text-white'}`}>
+                {isExpired(daysUntilBidOpens) ? 'Open!' : `${daysUntilBidOpens}d`}
+              </div>
+              <div class="text-slate-500 text-xs mt-1">until bid opens</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Next Actions -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-yellow-400">⚡</span> Next Actions
+              </h3>
+              <ul class="space-y-3">
+                {nextTodos.map((todo, i) => (
+                  <li class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-3">
+                    <span class={`font-bold ${todo.priority === 'critical' ? 'text-red-400' : todo.priority === 'high' ? 'text-orange-400' : 'text-yellow-400'}`}>{i + 1}</span>
+                    <div>
+                      <span class="text-slate-200 text-sm">{typeof todo === 'string' ? todo : todo.title}</span>
+                      {todo.category && <span class="ml-2 text-xs text-slate-500">({todo.category})</span>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <!-- Upcoming Schedule -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-sky-400">📅</span> Upcoming
+              </h3>
+              <div class="space-y-4">
+                {nextTrip && (
+                  <div class="bg-sky-500/10 border border-sky-500/30 rounded-lg p-3">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sky-400 text-sm font-medium">✈️ Next Trip</span>
+                      <span class="text-xs text-slate-400">{nextTrip.dates}</span>
+                    </div>
+                    <p class="text-white font-medium">{nextTrip.route}</p>
+                    <p class="text-slate-400 text-xs mt-1">Credit: {nextTrip.credit}</p>
+                  </div>
+                )}
+                {nextWorkWindow && (
+                  <div class={`rounded-lg p-3 border ${
+                    nextWorkWindow.status === 'current' 
+                      ? 'bg-emerald-500/10 border-emerald-500/30' 
+                      : nextWorkWindow.highlight === 'big'
+                        ? 'bg-yellow-500/10 border-yellow-500/30'
+                        : 'bg-slate-700/50 border-slate-600'
+                  }`}>
+                    <div class="flex items-center justify-between mb-1">
+                      <span class={`text-sm font-medium ${
+                        nextWorkWindow.status === 'current' ? 'text-emerald-400' :
+                        nextWorkWindow.highlight === 'big' ? 'text-yellow-400' : 'text-slate-300'
+                      }`}>💻 Work Window</span>
+                      <span class="text-xs text-slate-400">{nextWorkWindow.dateRange}</span>
+                    </div>
+                    <p class={`text-sm ${
+                      nextWorkWindow.status === 'current' ? 'text-emerald-300/70' : 'text-slate-400'
+                    }`}>
+                      {nextWorkWindow.label} • 
+                      {nextWorkWindow.status === 'current' 
+                        ? ` ${nextWorkWindow.daysRemaining} day${nextWorkWindow.daysRemaining !== 1 ? 's' : ''} left`
+                        : ` ${nextWorkWindow.totalDays} days`}
+                      {nextWorkWindow.highlight === 'big' && ' ⭐'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 lg:col-span-2">
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-cyan-400">📋</span> Recent Activity
+              </h3>
+              <div class="space-y-2">
+                {recentActivity.map((item) => (
+                  <div class="flex items-center gap-4 py-2 border-b border-slate-700/50 last:border-0">
+                    <span class="text-slate-500 text-xs font-mono w-20 shrink-0">{item.date}</span>
+                    <span class="text-slate-300 text-sm">{item.action}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Projects Tab -->
+        <section id="tab-projects" class="tab-panel hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-slate-600 transition-colors project-card">
+                <div class="p-6">
+                  <div class="flex items-start justify-between mb-3">
+                    <h3 class="text-xl font-semibold text-white">{project.name}</h3>
+                    <span class={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(project.status)}`}>
+                      {project.status}
+                    </span>
+                  </div>
+                  <p class="text-slate-400 text-sm mb-4">{project.description}</p>
+                  
+                  <!-- Progress Bar -->
+                  <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-500">Progress</span>
+                      <span class="text-slate-400">{getProjectProgress(project.status)}%</span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        class={`h-full rounded-full transition-all ${
+                          project.status === 'live' ? 'bg-green-500' :
+                          project.status === 'active' ? 'bg-blue-500' :
+                          'bg-yellow-500'
+                        }`}
+                        style={`width: ${getProjectProgress(project.status)}%`}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Details -->
+                  <details class="group">
+                    <summary class="cursor-pointer text-sm text-slate-400 hover:text-slate-300 transition-colors flex items-center gap-2">
+                      <span class="transform transition-transform group-open:rotate-90">▶</span>
+                      View highlights ({project.highlights.length})
+                    </summary>
+                    <ul class="mt-3 space-y-1 pl-4">
+                      {project.highlights.map((highlight) => (
+                        <li class="text-slate-300 text-sm flex items-center gap-2">
+                          <span class="text-green-400">•</span> {highlight}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Specs Tab -->
+        <section id="tab-specs" class="tab-panel hidden">
+          <div class="mb-6">
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+              <h3 class="text-amber-400 font-semibold flex items-center gap-2 mb-2">
+                📋 Pre-Build Checklist
+              </h3>
+              <p class="text-slate-400 text-sm mb-3">Run through before starting any major feature:</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {checklist.preBuild.items.map((item) => (
+                  <li class="flex items-start gap-2 text-sm">
+                    <span class="text-amber-400 mt-0.5">□</span>
+                    <div>
+                      <span class="text-slate-200">{item.question}</span>
+                      {item.note && <span class="text-slate-500 text-xs block">{item.note}</span>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <h2 class="text-xl font-bold text-white mb-4">Project Specifications</h2>
+          <div class="space-y-6">
+            {specs.map((spec) => (
+              <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-700">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 class="text-xl font-semibold text-white">{spec.title}</h3>
+                      <p class="text-slate-400 text-sm">{spec.project}</p>
+                    </div>
+                    <span class={`px-3 py-1 text-xs font-medium rounded-full ${spec.status === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}>
+                      {spec.status}
+                    </span>
+                  </div>
+                  <div class="flex gap-4 text-xs text-slate-500 mt-2">
+                    <span>Created: {spec.createdAt}</span>
+                    {spec.approvedAt && <span>Approved: {spec.approvedAt}</span>}
+                  </div>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                      <span class="text-purple-400">🎯</span> Target
+                    </h4>
+                    <ul class="space-y-2 text-sm">
+                      <li class="flex justify-between">
+                        <span class="text-slate-500">Platforms:</span>
+                        <span class="text-slate-200">{spec.target.platforms.join(', ')}</span>
+                      </li>
+                      <li class="flex justify-between">
+                        <span class="text-slate-500">Distribution:</span>
+                        <span class="text-slate-200">{spec.target.distribution}</span>
+                      </li>
+                      <li class="flex justify-between">
+                        <span class="text-slate-500">Min OS:</span>
+                        <span class="text-slate-200">{spec.target.minOS}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                      <span class="text-blue-400">🔧</span> Tech Stack
+                    </h4>
+                    <ul class="space-y-1 text-sm">
+                      {Object.entries(spec.stack).map(([key, value]) => (
+                        <li class="flex justify-between">
+                          <span class="text-slate-500 capitalize">{key}:</span>
+                          <span class="text-slate-200 text-right">{value}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="p-6 border-t border-slate-700">
+                  <h4 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                    <span class="text-green-400">✅</span> Requirements
+                  </h4>
+                  <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {spec.requirements.map((req) => (
+                      <li class="flex items-start gap-2 text-sm">
+                        <span class="text-green-400 mt-0.5">•</span>
+                        <span class="text-slate-300">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {spec.outOfScope && spec.outOfScope.length > 0 && (
+                  <div class="p-6 border-t border-slate-700 bg-slate-800/50">
+                    <h4 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                      <span class="text-red-400">🚫</span> Out of Scope
+                    </h4>
+                    <ul class="flex flex-wrap gap-2">
+                      {spec.outOfScope.map((item) => (
+                        <li class="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-400 text-xs">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {spec.notes && (
+                  <div class="p-4 border-t border-slate-700 bg-slate-700/30">
+                    <p class="text-slate-400 text-sm italic">📝 {spec.notes}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Decisions Tab -->
+        <section id="tab-decisions" class="tab-panel hidden">
+          <div class="mb-6">
+            <p class="text-slate-400">Architectural decisions and their rationale. Reference this before making changes.</p>
+          </div>
+
+          <div class="space-y-4">
+            {decisions.map((dec) => (
+              <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                <div class="p-4 flex items-start gap-4">
+                  <div class={`px-2 py-1 text-xs font-mono rounded ${
+                    dec.category === 'platform' ? 'bg-purple-500/20 text-purple-400' :
+                    dec.category === 'auth' ? 'bg-green-500/20 text-green-400' :
+                    dec.category === 'email' ? 'bg-blue-500/20 text-blue-400' :
+                    dec.category === 'backend' ? 'bg-orange-500/20 text-orange-400' :
+                    dec.category === 'tokenomics' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-slate-500/20 text-slate-400'
+                  }`}>
+                    {dec.category}
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-start justify-between">
+                      <h3 class="text-white font-semibold">{dec.decision}</h3>
+                      <span class="text-slate-500 text-xs">{dec.date}</span>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-1">{dec.context}</p>
+                    
+                    <details class="mt-3 group">
+                      <summary class="cursor-pointer text-sm text-slate-500 hover:text-slate-400 flex items-center gap-2">
+                        <span class="transform transition-transform group-open:rotate-90">▶</span>
+                        View details
+                      </summary>
+                      <div class="mt-3 pl-4 border-l-2 border-slate-700 space-y-3">
+                        <div>
+                          <span class="text-slate-500 text-xs uppercase">Alternatives considered:</span>
+                          <div class="flex flex-wrap gap-2 mt-1">
+                            {dec.alternatives.map((alt) => (
+                              <span class="px-2 py-0.5 bg-slate-700 rounded text-slate-400 text-xs">{alt}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span class="text-slate-500 text-xs uppercase">Rationale:</span>
+                          <p class="text-slate-300 text-sm mt-1">{dec.rationale}</p>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                  <span class={`px-2 py-1 text-xs rounded-full ${dec.status === 'final' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                    {dec.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Tasks Tab (Kanban) -->
+        <section id="tab-tasks" class="tab-panel hidden">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- To Do Column -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-yellow-400"></span> To Do
+                </h3>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                  {tasks.todo.length}
+                </span>
+              </div>
+              <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                {tasks.todo.map((task) => (
+                  <div class={`bg-slate-700/50 border rounded-lg p-3 hover:border-slate-500 transition-colors ${task.priority === 'critical' ? 'border-red-500/50' : task.priority === 'high' ? 'border-orange-500/30' : 'border-slate-600'}`}>
+                    <p class="text-slate-200 text-sm font-medium">{typeof task === 'string' ? task : task.title}</p>
+                    {task.description && <p class="text-slate-400 text-xs mt-1">{task.description}</p>}
+                    {task.category && <span class={`inline-block mt-2 text-xs px-2 py-0.5 rounded ${task.priority === 'critical' ? 'bg-red-500/20 text-red-400' : task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-600 text-slate-400'}`}>{task.category}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="bg-slate-800/50 border border-blue-500/30 rounded-xl">
+              <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></span> In Progress
+                </h3>
+                <span class="bg-blue-500/20 text-blue-400 text-xs font-medium px-2 py-1 rounded-full">
+                  {tasks.inProgress.length}
+                </span>
+              </div>
+              <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                {tasks.inProgress.map((task) => (
+                  <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 hover:border-blue-500/50 transition-colors">
+                    <p class="text-slate-200 text-sm font-medium">{typeof task === 'string' ? task : task.title}</p>
+                    {task.description && <p class="text-slate-400 text-xs mt-1">{task.description}</p>}
+                  </div>
+                ))}
+                {tasks.inProgress.length === 0 && (
+                  <p class="text-slate-500 text-sm text-center py-4">No tasks in progress</p>
+                )}
+              </div>
+            </div>
+
+            <!-- Done Column -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-green-400"></span> Done
+                </h3>
+                <span class="bg-green-500/20 text-green-400 text-xs font-medium px-2 py-1 rounded-full">
+                  {tasks.done.length}
+                </span>
+              </div>
+              <div class="p-4">
+                <details class="group">
+                  <summary class="cursor-pointer text-sm text-slate-400 hover:text-slate-300 transition-colors flex items-center gap-2 mb-3">
+                    <span class="transform transition-transform group-open:rotate-90">▶</span>
+                    Show completed ({tasks.done.length})
+                  </summary>
+                  <div class="space-y-3 max-h-[50vh] overflow-y-auto">
+                    {tasks.done.map((task) => (
+                      <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                        <p class="text-slate-400 text-sm line-through">{task}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Schedule Tab -->
+        <section id="tab-schedule" class="tab-panel hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Flying Section -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="text-sky-400">✈️</span> Flying Schedule
+                </h3>
+                <span class="text-slate-400 text-sm">{schedule.pilot.projectedHours} projected</span>
+              </div>
+              <div class="p-4 space-y-4">
+                {tripsWithStatus.map((trip) => (
+                  <details class={`group rounded-lg border overflow-hidden ${
+                    trip.isCurrent ? 'bg-sky-500/15 border-sky-500/40' :
+                    trip.isUpcoming ? 'bg-slate-700/50 border-slate-600' :
+                    'bg-slate-700/30 border-slate-700'
+                  }`}>
+                    <summary class="cursor-pointer p-4 hover:bg-slate-700/30 transition-colors">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-mono text-slate-400">SEQ {trip.sequence}</span>
+                            {trip.isCurrent && (
+                              <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-sky-500/30 text-sky-300 border border-sky-500/40">
+                                NOW
+                              </span>
+                            )}
+                          </div>
+                          <p class="text-white font-medium">{trip.route}</p>
+                          <p class="text-slate-400 text-sm">{trip.dates}</p>
+                        </div>
+                        <span class="text-sky-400 text-sm font-medium">{trip.credit}</span>
+                      </div>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2 border-t border-slate-700/50">
+                      <div class="space-y-2">
+                        {trip.details.map((leg) => (
+                          <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500 font-mono text-xs">{leg.date}</span>
+                            <span class="text-slate-300">{leg.dep} → {leg.arr}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+
+            <!-- Loop Work Windows Section -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="text-emerald-400">💻</span> Loop Work Windows
+                </h3>
+              </div>
+              <div class="p-4 space-y-3">
+                {workWindowsWithStatus.map((window) => {
+                  const isBigWindow = window.highlight === 'big';
+                  const isCurrent = window.status === 'current';
+                  const isPast = window.status === 'past';
+                  
+                  return (
+                    <div class={`rounded-lg p-4 border transition-all ${
+                      isPast
+                        ? 'bg-slate-800/50 border-slate-700 opacity-50'
+                        : isBigWindow 
+                          ? 'bg-yellow-500/10 border-yellow-500/30 hover:border-yellow-500/50' 
+                          : isCurrent 
+                            ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
+                            : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
+                    }`}>
+                      <div class="flex items-center justify-between mb-1">
+                        <p class={`font-medium ${
+                          isPast ? 'text-slate-500' :
+                          isBigWindow ? 'text-yellow-400' :
+                          isCurrent ? 'text-emerald-400' :
+                          'text-white'
+                        }`}>{window.dateRange}</p>
+                        <div class="flex items-center gap-2">
+                          {isBigWindow && !isPast && (
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500/30 text-yellow-300">
+                              ⭐ BIG
+                            </span>
+                          )}
+                          {isCurrent && (
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/30 text-emerald-300">
+                              {window.daysRemaining}d left
+                            </span>
+                          )}
+                          {isPast && (
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-600 text-slate-400">
+                              PAST
+                            </span>
+                          )}
+                          {window.status === 'upcoming' && (
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-600 text-slate-300">
+                              in {getDaysUntil(window.start)}d
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p class={`text-sm ${
+                        isPast ? 'text-slate-500' :
+                        isBigWindow ? 'text-yellow-300/70' :
+                        isCurrent ? 'text-emerald-300/70' :
+                        'text-slate-400'
+                      }`}>{window.label} • {window.totalDays} day{window.totalDays !== 1 ? 's' : ''}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Days Off Summary -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl lg:col-span-2">
+              <details class="group">
+                <summary class="cursor-pointer p-4 border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                  <h3 class="font-semibold flex items-center gap-2">
+                    <span class="transform transition-transform group-open:rotate-90">▶</span>
+                    <span class="text-purple-400">🏖️</span> Days Off Summary
+                  </h3>
+                </summary>
+                <div class="p-4">
+                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {schedule.daysOff.map((off) => {
+                      const startDate = new Date(off.start);
+                      const endDate = new Date(off.end);
+                      const dayCount = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                      const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                      const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                      const dateRange = startStr === endStr ? startStr : `${startStr} - ${endStr}`;
+                      const isPast = endDate < today;
+                      
+                      return (
+                        <div class={`rounded-lg p-3 border ${
+                          isPast ? 'opacity-50' :
+                          off.type === 'VACATION' 
+                            ? 'bg-purple-500/10 border-purple-500/30' 
+                            : off.type === 'DFP'
+                              ? 'bg-amber-500/10 border-amber-500/30'
+                              : 'bg-slate-700/50 border-slate-600'
+                        }`}>
+                          <span class={`text-xs font-medium ${
+                            off.type === 'VACATION' ? 'text-purple-400' :
+                            off.type === 'DFP' ? 'text-amber-400' :
+                            'text-slate-400'
+                          }`}>{off.type}</span>
+                          <p class="text-white text-sm mt-1">{dateRange}</p>
+                          <p class="text-slate-500 text-xs">{dayCount} day{dayCount !== 1 ? 's' : ''}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <!-- AA Insights Tab -->
+        <section id="tab-aa-insights" class="tab-panel hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Bid Cycle Countdown -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="text-amber-400">📋</span> Bid Cycle Countdown
+                </h3>
+              </div>
+              <div class="p-4 space-y-4">
+                <!-- Bid Opens -->
+                <div class={`rounded-lg p-4 border ${
+                  isUrgent(daysUntilBidOpens)
+                    ? 'bg-amber-500/15 border-amber-500/40'
+                    : 'bg-slate-700/50 border-slate-600'
+                }`}>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-slate-400 text-sm">Bid Opens</span>
+                    <span class={`text-2xl font-bold ${
+                      isUrgent(daysUntilBidOpens) ? 'text-amber-400' : 'text-white'
+                    }`}>
+                      {isExpired(daysUntilBidOpens) ? 'NOW!' : `${daysUntilBidOpens} days`}
+                    </span>
+                  </div>
+                  <p class="text-slate-300">{aaInsights.bidCycle.nextBidOpens}</p>
+                  <p class="text-slate-500 text-xs mt-1">Usually {aaInsights.bidCycle.opens}</p>
+                </div>
+
+                <!-- Bid Closes -->
+                <div class={`rounded-lg p-4 border ${
+                  isUrgent(daysUntilBidCloses)
+                    ? 'bg-red-500/15 border-red-500/40'
+                    : 'bg-slate-700/50 border-slate-600'
+                }`}>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-slate-400 text-sm">Bid Closes</span>
+                    <span class={`text-2xl font-bold ${
+                      isUrgent(daysUntilBidCloses) ? 'text-red-400' : 'text-white'
+                    }`}>
+                      {isExpired(daysUntilBidCloses) ? 'CLOSED' : `${daysUntilBidCloses} days`}
+                    </span>
+                  </div>
+                  <p class="text-slate-300">{aaInsights.bidCycle.nextBidCloses}</p>
+                  <p class="text-slate-500 text-xs mt-1">Usually {aaInsights.bidCycle.closes}</p>
+                </div>
+
+                <!-- Award -->
+                <div class="rounded-lg p-4 border bg-slate-700/50 border-slate-600">
+                  <span class="text-slate-400 text-sm block mb-1">Award Published</span>
+                  <p class="text-slate-300">{aaInsights.bidCycle.awardPublished}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl">
+              <div class="p-4 border-b border-slate-700">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <span class="text-purple-400">💡</span> Suggestions
+                </h3>
+              </div>
+              <div class="p-4 space-y-3">
+                {aaInsights.suggestions.map((item) => (
+                  <div class={`rounded-lg p-4 border ${getPriorityColor(item.priority)}`}>
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-xs font-medium uppercase tracking-wide opacity-80">{item.category}</span>
+                      <span class="text-slate-600">•</span>
+                      <span class="text-xs text-slate-500">{item.date}</span>
+                    </div>
+                    <p class="text-sm">{item.suggestion}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <!-- Research Todos -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl lg:col-span-2">
+              <details class="group" open>
+                <summary class="cursor-pointer p-4 border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                  <h3 class="font-semibold flex items-center gap-2">
+                    <span class="transform transition-transform group-open:rotate-90">▶</span>
+                    <span class="text-cyan-400">📝</span> Research Todos
+                    <span class="text-slate-500 text-sm font-normal">({aaInsights.todos.length})</span>
+                  </h3>
+                </summary>
+                <div class="p-4">
+                  <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {aaInsights.todos.map((todo) => (
+                      <li class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-3">
+                        <input type="checkbox" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-700 text-green-500 focus:ring-green-500/50" />
+                        <span class="text-slate-300 text-sm">{todo}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <!-- Activity Tab -->
+        <section id="tab-activity" class="tab-panel hidden">
+          <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+            {Object.entries(activityByDate).map(([date, items]) => (
+              <div class="border-b border-slate-700 last:border-0">
+                <div class="bg-slate-700/30 px-4 py-2 sticky top-0">
+                  <span class="text-sm font-medium text-slate-400">{date}</span>
+                </div>
+                <div class="divide-y divide-slate-700/50">
+                  {items.map((item) => (
+                    <div class="px-6 py-3 hover:bg-slate-700/20 transition-colors flex items-start gap-4">
+                      <span class="w-2 h-2 rounded-full bg-green-400 mt-2 shrink-0"></span>
+                      <span class="text-slate-300 text-sm">{item.action}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-slate-500 text-sm py-8 border-t border-slate-800 mt-8">
+      <p>Loop Command Center • Built with Astro + Tailwind</p>
+      <p class="text-xs mt-1">Last updated: {aaInsights.lastUpdated}</p>
+    </footer>
+  </div>
+</Layout>
+
+<style>
+  /* Tab Styling */
+  .tab-btn {
+    color: rgb(148 163 184);
+    transition: all 0.15s ease;
+  }
+  
+  .tab-btn:hover {
+    color: white;
+    background-color: rgba(51, 65, 85, 0.5);
+  }
+  
+  .tab-btn.active {
+    background-color: rgb(15 23 42);
+    color: white;
+    border-bottom: 2px solid rgb(34 197 94);
+  }
+
+  /* Smooth transitions */
+  .tab-panel {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Details/Summary styling */
+  details summary {
+    list-style: none;
+  }
+  
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgb(30 41 59);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgb(71 85 105);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(100 116 139);
+  }
+
+  /* Checkbox styling */
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+  
+  input[type="checkbox"]:checked {
+    background-color: rgb(34 197 94);
+    border-color: rgb(34 197 94);
+  }
+</style>
+
+<script>
+  // Tab switching logic
+  function initTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const mobileSelect = document.getElementById('mobile-tab-select') as HTMLSelectElement;
+
+    function switchTab(tabId: string) {
+      // Update buttons
+      tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+      });
+
+      // Update panels
+      tabPanels.forEach(panel => {
+        const panelId = panel.id.replace('tab-', '');
+        panel.classList.toggle('hidden', panelId !== tabId);
+      });
+
+      // Update mobile select
+      if (mobileSelect) {
+        mobileSelect.value = tabId;
+      }
+
+      // Save to localStorage
+      localStorage.setItem('activeTab', tabId);
+    }
+
+    // Desktop tab clicks
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        if (tabId) switchTab(tabId);
+      });
+    });
+
+    // Mobile select change
+    if (mobileSelect) {
+      mobileSelect.addEventListener('change', () => {
+        switchTab(mobileSelect.value);
+      });
+    }
+
+    // Restore saved tab or default to overview
+    const savedTab = localStorage.getItem('activeTab') || 'overview';
+    switchTab(savedTab);
+  }
+
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', initTabs);
+  
+  // Also initialize on Astro page navigation (for View Transitions)
+  document.addEventListener('astro:page-load', initTabs);
+</script>

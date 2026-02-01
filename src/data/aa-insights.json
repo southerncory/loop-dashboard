@@ -1,0 +1,36 @@
+{
+  "lastUpdated": "2026-01-30",
+  "bidCycle": {
+    "opens": "~10th of month",
+    "closes": "~13th of month",
+    "awardPublished": "~13th-14th of month",
+    "nextBidOpens": "2026-02-10",
+    "nextBidCloses": "2026-02-13"
+  },
+  "contract": {
+    "status": "Researching APA contract",
+    "keyRules": [],
+    "payOptimization": []
+  },
+  "suggestions": [
+    {
+      "date": "2026-01-30",
+      "category": "Setup",
+      "suggestion": "Send schedule HTML export when February bid award is published (~Feb 13-14)",
+      "priority": "info"
+    },
+    {
+      "date": "2026-01-30", 
+      "category": "Research",
+      "suggestion": "Burt to research APA contract and bidding optimization strategies",
+      "priority": "in-progress"
+    }
+  ],
+  "todos": [
+    "Research APA contract pay rules",
+    "Learn PBS (Preferential Bidding System) optimization",
+    "Understand trip trading rules",
+    "Document key contract provisions",
+    "Create bid strategy recommendations"
+  ]
+}

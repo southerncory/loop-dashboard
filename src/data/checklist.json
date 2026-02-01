@@ -1,0 +1,27 @@
+{
+  "preBuild": {
+    "title": "Pre-Build Checklist",
+    "description": "Run through before starting any major feature or project",
+    "items": [
+      {"id": "target", "question": "What's the target platform?", "options": ["iOS App Store", "Google Play", "Web (PWA)", "Desktop", "API only"]},
+      {"id": "stack", "question": "What tech stack?", "note": "Check existing decisions, don't assume"},
+      {"id": "spec", "question": "Is there an approved spec?", "note": "If not, write one and get approval"},
+      {"id": "patterns", "question": "Existing patterns to follow?", "note": "Check similar features in codebase"},
+      {"id": "integrations", "question": "What does this integrate with?", "note": "Auth, DB, APIs, third-party services"},
+      {"id": "scope", "question": "What's explicitly OUT of scope?", "note": "Prevent scope creep"},
+      {"id": "approval", "question": "Does Alex need to approve before building?", "note": "When in doubt, ask"}
+    ]
+  },
+  "preShip": {
+    "title": "Pre-Ship Checklist",
+    "description": "Run through before deploying to production",
+    "items": [
+      {"id": "tested", "question": "Has this been tested?"},
+      {"id": "errors", "question": "Error handling in place?"},
+      {"id": "mobile", "question": "Works on mobile?"},
+      {"id": "auth", "question": "Auth/permissions correct?"},
+      {"id": "env", "question": "Environment variables set?"},
+      {"id": "rollback", "question": "Can we rollback if needed?"}
+    ]
+  }
+}

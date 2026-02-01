@@ -1,0 +1,267 @@
+---
+import Layout from '../layouts/Layout.astro';
+import solanaConfig from '../data/solana.json';
+
+const { network, programId, walletAddress, explorerUrl, rpcUrl, instructions, accounts, deployedAt, lastUpgrade } = solanaConfig;
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'ready': return 'bg-green-500/20 text-green-400 border-green-500/30';
+    case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'disabled': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+---
+
+<Layout title="Solana Admin - Loop Command Center">
+  <main class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <!-- Header -->
+    <header class="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <a href="/" class="text-slate-400 hover:text-white transition-colors">
+              ← Back to Dashboard
+            </a>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+              <span class="text-2xl">⛓️</span>
+              Solana Admin Panel
+            </h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class={`px-3 py-1 rounded-full text-sm font-medium ${network === 'devnet' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>
+              {network.toUpperCase()}
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Status Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Program Card -->
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white">Program</h2>
+            <span class="text-2xl">📦</span>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <p class="text-slate-400 text-sm">Program ID</p>
+              <a 
+                href={`${explorerUrl}/address/${programId}?cluster=${network}`}
+                target="_blank"
+                class="text-emerald-400 hover:text-emerald-300 font-mono text-sm break-all transition-colors"
+              >
+                {programId}
+              </a>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <a 
+                href={`${explorerUrl}/address/${programId}?cluster=${network}`}
+                target="_blank"
+                class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors"
+              >
+                Explorer →
+              </a>
+              <a 
+                href={`${explorerUrl}/address/${programId}/security?cluster=${network}`}
+                target="_blank"
+                class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors"
+              >
+                Security.txt →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet Card -->
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white">Wallet</h2>
+            <span class="text-2xl">💰</span>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <p class="text-slate-400 text-sm">Upgrade Authority</p>
+              <a 
+                href={`${explorerUrl}/address/${walletAddress}?cluster=${network}`}
+                target="_blank"
+                class="text-emerald-400 hover:text-emerald-300 font-mono text-sm break-all transition-colors"
+              >
+                {walletAddress}
+              </a>
+            </div>
+            <div>
+              <p class="text-slate-400 text-sm">Balance</p>
+              <p class="text-white font-mono text-lg" id="wallet-balance">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deployment Info Card -->
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white">Deployment</h2>
+            <span class="text-2xl">🚀</span>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <p class="text-slate-400 text-sm">First Deployed</p>
+              <p class="text-white">{formatDate(deployedAt)}</p>
+            </div>
+            <div>
+              <p class="text-slate-400 text-sm">Last Upgrade</p>
+              <p class="text-white">{formatDate(lastUpgrade)}</p>
+            </div>
+            <div>
+              <p class="text-slate-400 text-sm">Network</p>
+              <p class="text-purple-400 font-medium">{network}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions Section -->
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+            <span>⚡</span> Program Instructions
+          </h2>
+          <span class="text-slate-400 text-sm">{instructions.length} available</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {instructions.map((ix: any) => (
+            <div class="bg-slate-900/50 border border-slate-700/50 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-mono text-emerald-400 font-medium">{ix.name}</h3>
+                <span class={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(ix.status)}`}>
+                  {ix.status}
+                </span>
+              </div>
+              <p class="text-slate-400 text-sm mb-3">{ix.description}</p>
+              <div class="flex items-center gap-2">
+                {ix.requiresAuth && (
+                  <span class="text-xs text-yellow-400 flex items-center gap-1">
+                    🔐 Admin only
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- PDAs Section -->
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+            <span>🔑</span> Program Derived Addresses (PDAs)
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-left text-slate-400 text-sm border-b border-slate-700">
+                <th class="pb-3 pr-4">Account</th>
+                <th class="pb-3 pr-4">Type</th>
+                <th class="pb-3 pr-4">Seeds</th>
+                <th class="pb-3">Description</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">
+              {accounts.map((acc: any) => (
+                <tr class="border-b border-slate-700/50">
+                  <td class="py-3 pr-4 text-white font-medium">{acc.name}</td>
+                  <td class="py-3 pr-4 font-mono text-emerald-400">{acc.type}</td>
+                  <td class="py-3 pr-4 font-mono text-slate-400">[{acc.pda.map((s: string) => `"${s}"`).join(', ')}]</td>
+                  <td class="py-3 text-slate-400">{acc.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span>🔗</span> Quick Links
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          <a 
+            href={`${explorerUrl}/address/${programId}?cluster=${network}`}
+            target="_blank"
+            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <span>🔍</span> Solana Explorer
+          </a>
+          <a 
+            href={`${explorerUrl}/address/${programId}/anchor-program?cluster=${network}`}
+            target="_blank"
+            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <span>⚓</span> Anchor IDL
+          </a>
+          <a 
+            href="https://github.com/southerncory/loop-solana"
+            target="_blank"
+            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <span>📁</span> Source Code
+          </a>
+          <a 
+            href={`${explorerUrl}/address/${walletAddress}?cluster=${network}`}
+            target="_blank"
+            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <span>💳</span> Wallet
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script define:vars={{ rpcUrl, walletAddress }}>
+    // Fetch wallet balance on load
+    async function fetchBalance() {
+      try {
+        const response = await fetch(rpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getBalance',
+            params: [walletAddress]
+          })
+        });
+        const data = await response.json();
+        if (data.result && data.result.value !== undefined) {
+          const solBalance = (data.result.value / 1e9).toFixed(4);
+          document.getElementById('wallet-balance').textContent = `${solBalance} SOL`;
+        }
+      } catch (err) {
+        document.getElementById('wallet-balance').textContent = 'Error loading';
+        console.error('Failed to fetch balance:', err);
+      }
+    }
+    
+    fetchBalance();
+    // Refresh every 30 seconds
+    setInterval(fetchBalance, 30000);
+  </script>
+</Layout>
