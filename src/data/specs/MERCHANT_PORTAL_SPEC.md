@@ -375,20 +375,6 @@ Merchant (Organization)
         └── staff[]
 ```
 
-### Example: Newslink (Miami Airport)
-- **Organization**: Newslink Inc.
-- **Locations**:
-  - Newslink Terminal D Gate 12 - 6% rate
-  - Newslink Terminal E Gate 5 - 5% rate
-  - Newslink Terminal F Food Court - 7% rate
-  - ... (15+ locations)
-
-Each location:
-- Has its own reward rate
-- Tracks its own transactions
-- Can have location-specific staff
-- Shares the same pool balance (organization-level)
-- Aggregates to organization analytics
 
 ---
 
