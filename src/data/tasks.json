@@ -1,30 +1,30 @@
 {
   "todo": [
     {
-      "id": "merchant-pool",
-      "title": "Merchant Portal: Pool Management",
-      "description": "Deposits, withdrawals, yield display, balance overview",
-      "priority": "high",
-      "category": "product"
-    },
-    {
-      "id": "merchant-analytics",
-      "title": "Merchant Portal: Analytics (Tiered)",
-      "description": "Free tier basics, Pro insights, Enterprise advanced",
-      "priority": "medium",
-      "category": "product"
-    },
-    {
       "id": "merchant-deploy",
       "title": "Merchant Portal: Deploy to Vercel",
-      "description": "Deploy merchant portal, set up merchant.looplocal.io",
+      "description": "Deploy to merchant.looplocal.io, add Cloudflare proxy",
       "priority": "high",
       "category": "engineering"
     },
     {
+      "id": "merchant-db-migrations",
+      "title": "Merchant Portal: Create Supabase Migrations",
+      "description": "Create tables for merchants, locations, transactions, team members, pool balances",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "merchant-stripe",
+      "title": "Merchant Portal: Stripe Integration",
+      "description": "Connect Stripe for deposits, subscriptions, payouts",
+      "priority": "high",
+      "category": "payments"
+    },
+    {
       "id": "solana-initialize",
       "title": "Solana: Initialize Protocol on Devnet",
-      "description": "Call initialize + initialize_treasury to set up PDAs. Install yarn first, run anchor test.",
+      "description": "Call initialize + initialize_treasury to set up PDAs",
       "priority": "high",
       "category": "engineering"
     },
@@ -76,23 +76,9 @@
       "description": "Welcome, earn confirmations, weekly summary",
       "priority": "medium",
       "category": "product"
-    },
-    {
-      "id": "resend-domain-verify",
-      "title": "Verify looplocal.io in Resend",
-      "description": "Add domain in Resend dashboard, configure DNS for branded emails",
-      "priority": "medium",
-      "category": "admin"
     }
   ],
   "inProgress": [
-    {
-      "id": "merchant-portal-build",
-      "title": "🔄 Building Merchant Portal",
-      "description": "Core complete: Auth, Dashboard, Onboarding, Locations, POS. Next: Pool, Analytics",
-      "priority": "critical",
-      "category": "product"
-    },
     {
       "id": "react-native-rebuild",
       "title": "🔄 Rebuild App in React Native",
@@ -109,13 +95,19 @@
     }
   ],
   "done": [
-    "✅ Merchant Portal: Sign up / Sign in with validation",
-    "✅ Merchant Portal: Dashboard with stats, quick actions, yield info",
-    "✅ Merchant Portal: 3-step onboarding (Business → Location → Deposit)",
-    "✅ Merchant Portal: Location management with card UI + reward rate sliders",
-    "✅ Merchant Portal: POS - Award rewards flow",
-    "✅ Merchant Portal: POS - Process redemption flow",
-    "✅ Merchant Portal: Transaction history with filters",
+    "✅ 🏪 MERCHANT PORTAL COMPLETE! All 10 pages built (Feb 1)",
+    "✅ Merchant: Sign up / Sign in with validation",
+    "✅ Merchant: Dashboard with stats, quick actions, yield info",
+    "✅ Merchant: 3-step onboarding (Business → Location → Deposit)",
+    "✅ Merchant: Location management (card UI + reward rate sliders)",
+    "✅ Merchant: POS - Award rewards flow",
+    "✅ Merchant: POS - Process redemption flow",
+    "✅ Merchant: Transaction history with filters",
+    "✅ Merchant: Pool management (deposits, withdrawals, yield)",
+    "✅ Merchant: Analytics (tiered Free/Pro/Enterprise)",
+    "✅ Merchant: Team management (invite, roles, permissions)",
+    "✅ Merchant: Settings (business, notifications, security)",
+    "✅ Merchant: Billing (subscriptions, upgrade/downgrade)",
     "✅ Loop Trader repo created with comprehensive README + VISION.md",
     "✅ Solana: Program upgraded + IDL uploaded to devnet",
     "✅ Solana: Fixed stack overflow (split Initialize into 2 steps)",
@@ -129,7 +121,7 @@
     "✅ App: Real Supabase Data (useUserData hook, pull-to-refresh)",
     "✅ Solana: Basic Integration Tests (basic.test.ts)",
     "✅ Loop Solana program builds successfully (Anchor 0.29, 509KB)",
-    "✅ Deployed to localnet (Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS)",
+    "✅ Deployed to localnet",
     "✅ Solana toolchain installed (Rust 1.93, Solana 3.0.13, Anchor)",
     "✅ Server disk expanded 7GB → 20GB",
     "✅ User App scaffold (React + Vite + Tailwind + Framer Motion)",
