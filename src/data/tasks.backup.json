@@ -1,0 +1,163 @@
+{
+  "todo": [
+    {
+      "id": "merchant-app-builds",
+      "title": "Merchant App: Build & Submit to Stores",
+      "description": "Build iOS (TestFlight) + Android (Play Store) — waiting on Apple Developer approval",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "merchant-db-migrations",
+      "title": "Merchant Portal: Create Supabase Migrations",
+      "description": "Create tables for merchants, locations, transactions, team members, pool balances",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "merchant-stripe",
+      "title": "Merchant Portal: Stripe Integration",
+      "description": "Connect Stripe for deposits, subscriptions, payouts",
+      "priority": "high",
+      "category": "payments"
+    },
+    {
+      "id": "solana-initialize",
+      "title": "Solana: Initialize Protocol on Devnet",
+      "description": "Call initialize + initialize_treasury to set up PDAs",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "solana-create-loop",
+      "title": "Solana: Create First Loop (Miami)",
+      "description": "After initialization, create first geographic Loop for testing",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "user-app-design-polish",
+      "title": "User App: RN Design Polish",
+      "description": "Minor visual differences from web version to fix",
+      "priority": "medium",
+      "category": "product"
+    },
+    {
+      "id": "data-model-audit",
+      "title": "🔴 PRE-LAUNCH: Full Data Model Audit",
+      "description": "Walk through every table, verify math, test calculations end-to-end",
+      "priority": "critical",
+      "category": "engineering"
+    },
+    {
+      "id": "newslink-contact",
+      "title": "Contact News Link (Miami Airport)",
+      "description": "Reach out for pilot partnership - 15-20 locations",
+      "priority": "high",
+      "category": "business"
+    },
+    {
+      "id": "legal-docs",
+      "title": "Legal: Terms & Privacy Policy",
+      "description": "User ToS, merchant agreement, privacy policy",
+      "priority": "high",
+      "category": "legal"
+    },
+    {
+      "id": "pitch-deck",
+      "title": "Create Merchant Pitch Deck",
+      "description": "Value prop, ROI calculator, case studies",
+      "priority": "medium",
+      "category": "business"
+    },
+    {
+      "id": "email-templates",
+      "title": "Transactional Email Templates",
+      "description": "Welcome, earn confirmations, weekly summary",
+      "priority": "medium",
+      "category": "product"
+    }
+  ],
+  "inProgress": [
+    {
+      "id": "loop-trader-paper",
+      "title": "🤖 Loop Trader: Paper Trading Phase",
+      "description": "Running Burt the Beast on A9 Max, monitoring XLM/XRP/HBAR positions",
+      "priority": "high",
+      "category": "trading"
+    },
+    {
+      "id": "react-native-rebuild",
+      "title": "🔄 Rebuild App in React Native",
+      "description": "Porting from React web app to Expo/React Native for App Store",
+      "priority": "critical",
+      "category": "product"
+    },
+    {
+      "id": "apple-dev",
+      "title": "Apple Developer Enrollment",
+      "description": "Submitted, waiting for approval",
+      "priority": "medium",
+      "category": "admin"
+    }
+  ],
+  "done": [
+    "✅ 🎨 Merchant App: Custom icons + splash screens (Feb 4)",
+    "✅ 🔧 Merchant App: Fixed TypeScript errors, synced to native",
+    "✅ 🤖 BURT THE BEAST LIVE! Paper trading on A9 Max (Feb 4)",
+    "✅ 🔧 Trading Bot: Strategy tuned for paper trading (trend/volume filters disabled)",
+    "✅ 💻 A9 Max: WSL + Docker + Freqtrade environment set up",
+    "✅ 🧹 EC2 disk cleanup: 95% → 81% usage",
+    "✅ ⬆️ OpenClaw updated to 2026.2.1",
+    "✅ 🚀 MERCHANT PORTAL DEPLOYED! merchant.looplocal.io (Feb 1)",
+    "✅ 📱 Capacitor added for iOS/Android native builds",
+    "✅ 🏪 MERCHANT PORTAL COMPLETE! All 10 pages built (Feb 1)",
+    "✅ Merchant: Sign up / Sign in with validation",
+    "✅ Merchant: Dashboard with stats, quick actions, yield info",
+    "✅ Merchant: 3-step onboarding (Business → Location → Deposit)",
+    "✅ Merchant: Location management (card UI + reward rate sliders)",
+    "✅ Merchant: POS - Award rewards flow",
+    "✅ Merchant: POS - Process redemption flow",
+    "✅ Merchant: Transaction history with filters",
+    "✅ Merchant: Pool management (deposits, withdrawals, yield)",
+    "✅ Merchant: Analytics (tiered Free/Pro/Enterprise)",
+    "✅ Merchant: Team management (invite, roles, permissions)",
+    "✅ Merchant: Settings (business, notifications, security)",
+    "✅ Merchant: Billing (subscriptions, upgrade/downgrade)",
+    "✅ Loop Trader repo created with comprehensive README + VISION.md",
+    "✅ Solana: Program upgraded + IDL uploaded to devnet",
+    "✅ Solana: Fixed stack overflow (split Initialize into 2 steps)",
+    "✅ 🚀 DEPLOYED TO DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
+    "✅ Solana: Fixed IDL generation (upgraded to Anchor 0.30.1)",
+    "✅ Solana: Fixed name collision warnings",
+    "✅ Voice: Groq Whisper transcription configured",
+    "✅ Voice: Edge TTS enabled",
+    "✅ App: Profile Setup Flow (stores in profiles.metadata)",
+    "✅ App: Session Persistence (checks onboarding on launch)",
+    "✅ App: Real Supabase Data (useUserData hook, pull-to-refresh)",
+    "✅ Solana: Basic Integration Tests (basic.test.ts)",
+    "✅ Loop Solana program builds successfully (Anchor 0.29, 509KB)",
+    "✅ Deployed to localnet",
+    "✅ Solana toolchain installed (Rust 1.93, Solana 3.0.13, Anchor)",
+    "✅ Server disk expanded 7GB → 20GB",
+    "✅ User App scaffold (React + Vite + Tailwind + Framer Motion)",
+    "✅ Orbital View component with 3 rings",
+    "✅ HUD banner with dynamic state",
+    "✅ Bottom navigation + 4 screens",
+    "✅ Premium visual polish (gold/emerald gradients, glass-morphism)",
+    "✅ Auth flow: Welcome → Phone/Email choice → OTP → Biometrics → Location → Home",
+    "✅ Supabase phone auth (Twilio Verify)",
+    "✅ Supabase email auth (Resend SMTP)",
+    "✅ Cloudflare email worker (deployed)",
+    "✅ Protected routes + auth context",
+    "✅ Supabase backend (15 migrations, 12 Edge Functions)",
+    "✅ Marketing site (looplocal.io)",
+    "✅ Support system (support@looplocal.io → tickets)",
+    "✅ Command Center dashboard + auth",
+    "✅ OXO tokenomics schema",
+    "✅ Google Wallet configured",
+    "✅ Business model defined",
+    "✅ Design language established",
+    "✅ Domain & email configured"
+  ]
+}

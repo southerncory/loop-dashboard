@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import projects from '../data/projects.json';
-import tasks from '../data/tasks.json';
 import activity from '../data/activity.json';
 import schedule from '../data/schedule.json';
 import aaInsights from '../data/aa-insights.json';
@@ -44,10 +43,13 @@ function getStatusColor(status: string) {
   }
 }
 
-// Calculate stats
+// Calculate stats from projects
 const totalProjects = projects.length;
-const totalTasks = tasks.todo.length + tasks.inProgress.length + tasks.done.length;
-const completedTasks = tasks.done.length;
+const totalTasks = projects.reduce((sum, p) => {
+  const t = p.tasks || {todo: [], inProgress: [], done: []};
+  return sum + (t.todo?.length || 0) + (t.inProgress?.length || 0) + (t.done?.length || 0);
+}, 0);
+const completedTasks = projects.reduce((sum, p) => sum + (p.tasks?.done?.length || 0), 0);
 const daysUntilBidOpens = getDaysUntil(aaInsights.bidCycle.nextBidOpens);
 const daysUntilBidCloses = getDaysUntil(aaInsights.bidCycle.nextBidCloses);
 
@@ -100,8 +102,13 @@ const activityByDate = activity.reduce((acc, item) => {
   return acc;
 }, {} as Record<string, typeof activity>);
 
-// Get next 3 todos
-const nextTodos = tasks.todo.slice(0, 3);
+// Aggregate tasks from all projects
+const allTodo = projects.flatMap(p => (p.tasks?.todo || []).map(t => ({...t, project: p.name})));
+const allInProgress = projects.flatMap(p => (p.tasks?.inProgress || []).map(t => ({...t, project: p.name})));
+const allDone = projects.flatMap(p => (p.tasks?.done || []).map(t => typeof t === 'string' ? {title: t, project: p.name} : {...t, project: p.name}));
+
+// Get next 3 todos (for Overview)
+const nextTodos = allTodo.slice(0, 3);
 
 // Calculate work window status
 interface WorkWindowWithStatus {
@@ -355,46 +362,98 @@ function getProjectProgress(status: string): number {
 
         <!-- Projects Tab -->
         <section id="tab-projects" class="tab-panel hidden">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {projects.map((project) => (
               <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-slate-600 transition-colors project-card">
                 <div class="p-6">
                   <div class="flex items-start justify-between mb-3">
-                    <h3 class="text-xl font-semibold text-white">{project.name}</h3>
+                    <div>
+                      <h3 class="text-xl font-semibold text-white">{project.name}</h3>
+                      <p class="text-slate-500 text-xs mt-1">{project.stack}</p>
+                    </div>
                     <span class={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(project.status)}`}>
                       {project.status}
                     </span>
                   </div>
                   <p class="text-slate-400 text-sm mb-4">{project.description}</p>
                   
-                  <!-- Progress Bar -->
-                  <div class="mb-4">
-                    <div class="flex justify-between text-xs mb-1">
-                      <span class="text-slate-500">Progress</span>
-                      <span class="text-slate-400">{getProjectProgress(project.status)}%</span>
-                    </div>
-                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                      <div 
-                        class={`h-full rounded-full transition-all ${
-                          project.status === 'live' ? 'bg-green-500' :
-                          project.status === 'active' ? 'bg-blue-500' :
-                          'bg-yellow-500'
-                        }`}
-                        style={`width: ${getProjectProgress(project.status)}%`}
-                      ></div>
-                    </div>
+                  <!-- Task Counts -->
+                  <div class="flex gap-4 mb-4 text-xs">
+                    <span class="text-red-400">📋 {project.tasks?.todo?.length || 0} todo</span>
+                    <span class="text-yellow-400">🔄 {project.tasks?.inProgress?.length || 0} in progress</span>
+                    <span class="text-green-400">✅ {project.tasks?.done?.length || 0} done</span>
                   </div>
 
-                  <!-- Collapsible Details -->
-                  <details class="group">
-                    <summary class="cursor-pointer text-sm text-slate-400 hover:text-slate-300 transition-colors flex items-center gap-2">
+                  <!-- Collapsible Sections -->
+                  {project.tasks?.todo?.length > 0 && (
+                    <details class="group mb-2">
+                      <summary class="cursor-pointer text-sm text-red-400 hover:text-red-300 transition-colors flex items-center gap-2 py-1">
+                        <span class="transform transition-transform group-open:rotate-90">▶</span>
+                        To Do ({project.tasks.todo.length})
+                      </summary>
+                      <ul class="mt-2 space-y-1 pl-4 border-l-2 border-red-500/30">
+                        {project.tasks.todo.map((task) => (
+                          <li class="text-slate-300 text-sm py-1">
+                            <span class={`inline-block w-2 h-2 rounded-full mr-2 ${
+                              task.priority === 'critical' ? 'bg-red-500' :
+                              task.priority === 'high' ? 'bg-orange-500' :
+                              task.priority === 'medium' ? 'bg-yellow-500' : 'bg-slate-500'
+                            }`}></span>
+                            {typeof task === 'string' ? task : task.title}
+                            {task.note && <span class="text-slate-500 text-xs block ml-4">{task.note}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+
+                  {project.tasks?.inProgress?.length > 0 && (
+                    <details class="group mb-2" open>
+                      <summary class="cursor-pointer text-sm text-yellow-400 hover:text-yellow-300 transition-colors flex items-center gap-2 py-1">
+                        <span class="transform transition-transform group-open:rotate-90">▶</span>
+                        In Progress ({project.tasks.inProgress.length})
+                      </summary>
+                      <ul class="mt-2 space-y-1 pl-4 border-l-2 border-yellow-500/30">
+                        {project.tasks.inProgress.map((task) => (
+                          <li class="text-slate-300 text-sm py-1">
+                            <span class="inline-block w-2 h-2 rounded-full mr-2 bg-yellow-500 animate-pulse"></span>
+                            {typeof task === 'string' ? task : task.title}
+                            {task.note && <span class="text-slate-500 text-xs block ml-4">{task.note}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+
+                  {project.tasks?.done?.length > 0 && (
+                    <details class="group mb-2">
+                      <summary class="cursor-pointer text-sm text-green-400 hover:text-green-300 transition-colors flex items-center gap-2 py-1">
+                        <span class="transform transition-transform group-open:rotate-90">▶</span>
+                        Done ({project.tasks.done.length})
+                      </summary>
+                      <ul class="mt-2 space-y-1 pl-4 border-l-2 border-green-500/30 max-h-48 overflow-y-auto">
+                        {project.tasks.done.slice(0, 10).map((task) => (
+                          <li class="text-slate-500 text-sm py-0.5">
+                            {typeof task === 'string' ? task : task.title}
+                          </li>
+                        ))}
+                        {project.tasks.done.length > 10 && (
+                          <li class="text-slate-600 text-xs">...and {project.tasks.done.length - 10} more</li>
+                        )}
+                      </ul>
+                    </details>
+                  )}
+
+                  <!-- Highlights -->
+                  <details class="group mt-3">
+                    <summary class="cursor-pointer text-sm text-slate-400 hover:text-slate-300 transition-colors flex items-center gap-2 py-1">
                       <span class="transform transition-transform group-open:rotate-90">▶</span>
-                      View highlights ({project.highlights.length})
+                      Highlights ({project.highlights.length})
                     </summary>
-                    <ul class="mt-3 space-y-1 pl-4">
+                    <ul class="mt-2 space-y-1 pl-4">
                       {project.highlights.map((highlight) => (
                         <li class="text-slate-300 text-sm flex items-center gap-2">
-                          <span class="text-green-400">•</span> {highlight}
+                          <span class="text-cyan-400">•</span> {highlight}
                         </li>
                       ))}
                     </ul>
@@ -579,48 +638,53 @@ function getProjectProgress(status: string): number {
           </div>
         </section>
 
-        <!-- Tasks Tab (Kanban) -->
+        <!-- Tasks Tab (Kanban - Aggregated from all projects) -->
         <section id="tab-tasks" class="tab-panel hidden">
+          <p class="text-slate-400 text-sm mb-4">📊 All tasks across projects</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- To Do Column -->
             <div class="bg-slate-800/50 border border-slate-700 rounded-xl">
               <div class="p-4 border-b border-slate-700 flex items-center justify-between">
                 <h3 class="font-semibold flex items-center gap-2">
-                  <span class="w-3 h-3 rounded-full bg-yellow-400"></span> To Do
+                  <span class="w-3 h-3 rounded-full bg-red-400"></span> To Do
                 </h3>
-                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
-                  {tasks.todo.length}
+                <span class="bg-red-500/20 text-red-400 text-xs font-medium px-2 py-1 rounded-full">
+                  {allTodo.length}
                 </span>
               </div>
               <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
-                {tasks.todo.map((task) => (
+                {allTodo.map((task) => (
                   <div class={`bg-slate-700/50 border rounded-lg p-3 hover:border-slate-500 transition-colors ${task.priority === 'critical' ? 'border-red-500/50' : task.priority === 'high' ? 'border-orange-500/30' : 'border-slate-600'}`}>
-                    <p class="text-slate-200 text-sm font-medium">{typeof task === 'string' ? task : task.title}</p>
-                    {task.description && <p class="text-slate-400 text-xs mt-1">{task.description}</p>}
-                    {task.category && <span class={`inline-block mt-2 text-xs px-2 py-0.5 rounded ${task.priority === 'critical' ? 'bg-red-500/20 text-red-400' : task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-600 text-slate-400'}`}>{task.category}</span>}
+                    <p class="text-slate-200 text-sm font-medium">{task.title}</p>
+                    <p class="text-slate-500 text-xs mt-1">{task.project}</p>
+                    {task.note && <p class="text-slate-400 text-xs mt-1">{task.note}</p>}
                   </div>
                 ))}
+                {allTodo.length === 0 && (
+                  <p class="text-slate-500 text-sm text-center py-4">No tasks to do</p>
+                )}
               </div>
             </div>
 
             <!-- In Progress Column -->
-            <div class="bg-slate-800/50 border border-blue-500/30 rounded-xl">
+            <div class="bg-slate-800/50 border border-yellow-500/30 rounded-xl">
               <div class="p-4 border-b border-slate-700 flex items-center justify-between">
                 <h3 class="font-semibold flex items-center gap-2">
-                  <span class="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></span> In Progress
+                  <span class="w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></span> In Progress
                 </h3>
-                <span class="bg-blue-500/20 text-blue-400 text-xs font-medium px-2 py-1 rounded-full">
-                  {tasks.inProgress.length}
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                  {allInProgress.length}
                 </span>
               </div>
               <div class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
-                {tasks.inProgress.map((task) => (
-                  <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 hover:border-blue-500/50 transition-colors">
-                    <p class="text-slate-200 text-sm font-medium">{typeof task === 'string' ? task : task.title}</p>
-                    {task.description && <p class="text-slate-400 text-xs mt-1">{task.description}</p>}
+                {allInProgress.map((task) => (
+                  <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 hover:border-yellow-500/50 transition-colors">
+                    <p class="text-slate-200 text-sm font-medium">{task.title}</p>
+                    <p class="text-slate-500 text-xs mt-1">{task.project}</p>
+                    {task.note && <p class="text-slate-400 text-xs mt-1">{task.note}</p>}
                   </div>
                 ))}
-                {tasks.inProgress.length === 0 && (
+                {allInProgress.length === 0 && (
                   <p class="text-slate-500 text-sm text-center py-4">No tasks in progress</p>
                 )}
               </div>
@@ -633,21 +697,25 @@ function getProjectProgress(status: string): number {
                   <span class="w-3 h-3 rounded-full bg-green-400"></span> Done
                 </h3>
                 <span class="bg-green-500/20 text-green-400 text-xs font-medium px-2 py-1 rounded-full">
-                  {tasks.done.length}
+                  {allDone.length}
                 </span>
               </div>
               <div class="p-4">
                 <details class="group">
                   <summary class="cursor-pointer text-sm text-slate-400 hover:text-slate-300 transition-colors flex items-center gap-2 mb-3">
                     <span class="transform transition-transform group-open:rotate-90">▶</span>
-                    Show completed ({tasks.done.length})
+                    Show completed ({allDone.length})
                   </summary>
                   <div class="space-y-3 max-h-[50vh] overflow-y-auto">
-                    {tasks.done.map((task) => (
+                    {allDone.slice(0, 30).map((task) => (
                       <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-                        <p class="text-slate-400 text-sm line-through">{task}</p>
+                        <p class="text-slate-400 text-sm">{task.title}</p>
+                        <p class="text-slate-600 text-xs">{task.project}</p>
                       </div>
                     ))}
+                    {allDone.length > 30 && (
+                      <p class="text-slate-600 text-xs text-center py-2">...and {allDone.length - 30} more</p>
+                    )}
                   </div>
                 </details>
               </div>

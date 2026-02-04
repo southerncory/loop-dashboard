@@ -1,50 +1,253 @@
 [
   {
+    "id": "payments-blockchain",
+    "name": "Payments & Blockchain",
+    "slug": "loop-payments",
+    "status": "active",
+    "description": "USD → USDC → Staking infrastructure",
+    "stack": "Circle Mint + Solana + Marinade/Jito/Kamino",
+    "highlights": ["Circle Mint for USD→USDC", "Solana chain", "Multi-sig custody"],
+    "tasks": {
+      "todo": [
+        {"id": "circle-account", "title": "Open Circle Mint Business Account", "priority": "critical"},
+        {"id": "squads-multisig", "title": "Set up Squads Multi-sig Wallet", "priority": "critical"},
+        {"id": "deposit-tiers", "title": "Implement deposit tiers ($5K/$10K/$25K)", "priority": "high"},
+        {"id": "marinade-integration", "title": "Integrate Marinade staking", "priority": "high"},
+        {"id": "jito-integration", "title": "Integrate Jito staking", "priority": "high"},
+        {"id": "kamino-integration", "title": "Integrate Kamino (controlled risk)", "priority": "medium"},
+        {"id": "yield-distribution", "title": "Build yield distribution calculator", "priority": "high"},
+        {"id": "accounting-system", "title": "Build on-chain/off-chain reconciliation system", "priority": "critical"},
+        {"id": "withdrawal-flow", "title": "Build withdrawal request flow", "priority": "high"},
+        {"id": "smart-contract-insurance", "title": "Research smart contract insurance options", "priority": "medium"},
+        {"id": "zkp-research", "title": "Research ZKP applications for Loop", "priority": "low"}
+      ],
+      "inProgress": [],
+      "done": [
+        "✅ Stripe subscriptions integrated (Feb 4)",
+        "✅ Stripe pool deposits flow built (Feb 4)",
+        "✅ Webhook handling for payments (Feb 4)",
+        "✅ Edge Functions deployed (stripe-checkout, stripe-deposit, stripe-portal, stripe-webhook)"
+      ]
+    }
+  },
+  {
+    "id": "merchant-portal",
+    "name": "Merchant Portal",
+    "slug": "loop-merchant",
+    "status": "active",
+    "description": "merchant.looplocal.io — B2B dashboard",
+    "stack": "React + Vite + Capacitor → iOS/Android",
+    "highlights": ["10 pages built", "Stripe billing", "Pool management"],
+    "tasks": {
+      "todo": [
+        {"id": "merchant-app-builds", "title": "Build & Submit to App Stores", "priority": "high", "note": "Waiting on Apple Developer approval"},
+        {"id": "admin-panel", "title": "Build admin panel for manual operations", "priority": "high"}
+      ],
+      "inProgress": [
+        {"id": "apple-dev", "title": "Apple Developer Enrollment", "priority": "medium", "note": "Submitted, waiting approval"}
+      ],
+      "done": [
+        "✅ Custom icons + splash screens (Feb 4)",
+        "✅ Stripe billing integration (Feb 4)",
+        "✅ Pool deposits via Stripe (Feb 4)",
+        "✅ TypeScript errors fixed (Feb 4)",
+        "✅ Capacitor added for native builds (Feb 1)",
+        "✅ All 10 pages built (Feb 1)",
+        "✅ Sign up / Sign in with validation",
+        "✅ Dashboard with stats, quick actions",
+        "✅ 3-step onboarding flow",
+        "✅ Location management",
+        "✅ POS - Award & Redeem flows",
+        "✅ Transaction history",
+        "✅ Pool management UI",
+        "✅ Analytics (tiered)",
+        "✅ Team management",
+        "✅ Settings & Billing pages",
+        "✅ Deployed to merchant.looplocal.io"
+      ]
+    }
+  },
+  {
+    "id": "user-app",
+    "name": "User App (Consumer)",
+    "slug": "loop-app-native",
+    "status": "in-progress",
+    "description": "Consumer mobile app for App Store",
+    "stack": "React Native (Expo) + TypeScript",
+    "highlights": ["iOS + Android", "Orbital UI", "Supabase Auth"],
+    "tasks": {
+      "todo": [
+        {"id": "user-app-design-polish", "title": "RN Design Polish", "priority": "medium"},
+        {"id": "email-templates", "title": "Transactional Email Templates", "priority": "medium"}
+      ],
+      "inProgress": [
+        {"id": "react-native-rebuild", "title": "Rebuild App in React Native", "priority": "critical"}
+      ],
+      "done": [
+        "✅ Profile Setup Flow",
+        "✅ Session Persistence",
+        "✅ Real Supabase Data hook",
+        "✅ Orbital View component",
+        "✅ HUD banner",
+        "✅ Bottom navigation + 4 screens",
+        "✅ Premium visual polish",
+        "✅ Auth flow complete",
+        "✅ Supabase phone/email auth"
+      ]
+    }
+  },
+  {
+    "id": "solana-protocol",
+    "name": "Solana Protocol",
+    "slug": "loop-solana",
+    "status": "active",
+    "description": "On-chain Loop protocol",
+    "stack": "Anchor + Rust → Solana",
+    "highlights": ["Deployed to devnet", "Program ID: 2Aw1H..."],
+    "tasks": {
+      "todo": [
+        {"id": "solana-initialize", "title": "Initialize Protocol on Devnet", "priority": "high"},
+        {"id": "solana-create-loop", "title": "Create First Loop (Miami)", "priority": "high"},
+        {"id": "merchant-pool-contract", "title": "Build merchant pool smart contract", "priority": "high"}
+      ],
+      "inProgress": [],
+      "done": [
+        "✅ Program upgraded + IDL uploaded to devnet",
+        "✅ Fixed stack overflow (split Initialize)",
+        "✅ Deployed to devnet",
+        "✅ Fixed IDL generation (Anchor 0.30.1)",
+        "✅ Basic integration tests",
+        "✅ Builds successfully (509KB)",
+        "✅ Solana toolchain installed"
+      ]
+    }
+  },
+  {
+    "id": "loop-trader",
     "name": "Loop Trader (Burt the Beast)",
     "slug": "loop-trader",
     "status": "active",
     "description": "AI-powered crypto trading bot",
     "stack": "Freqtrade + GPT-4o + Python",
-    "highlights": ["Paper trading live", "XLM/XRP/HBAR on Kraken", "A9 Max Windows host"]
+    "highlights": ["Paper trading live", "XLM/XRP/HBAR on Kraken", "A9 Max host"],
+    "tasks": {
+      "todo": [
+        {"id": "trader-optimize", "title": "Optimize strategy based on paper results", "priority": "medium"},
+        {"id": "trader-live", "title": "Enable live trading (post paper validation)", "priority": "low"}
+      ],
+      "inProgress": [
+        {"id": "loop-trader-paper", "title": "Paper Trading Phase", "priority": "high", "note": "Monitoring XLM/XRP/HBAR positions"}
+      ],
+      "done": [
+        "✅ BURT THE BEAST LIVE! (Feb 4)",
+        "✅ Strategy tuned for paper trading",
+        "✅ A9 Max: WSL + Docker + Freqtrade",
+        "✅ Repo created with README + VISION.md"
+      ]
+    }
   },
   {
+    "id": "backend",
     "name": "Loop Backend",
     "slug": "oar-technologies-inc",
     "status": "active",
     "description": "Core backend infrastructure",
     "stack": "Supabase (Postgres + Edge Functions)",
-    "highlights": ["15 DB migrations", "12 Edge Functions", "4 Dashboards"]
+    "highlights": ["20+ DB migrations", "Edge Functions", "RLS policies"],
+    "tasks": {
+      "todo": [
+        {"id": "data-model-audit", "title": "🔴 PRE-LAUNCH: Full Data Model Audit", "priority": "critical"}
+      ],
+      "inProgress": [],
+      "done": [
+        "✅ Merchant portal tables",
+        "✅ POS operations (award_reward, process_redemption)",
+        "✅ Stripe Edge Functions",
+        "✅ Support system tables",
+        "✅ OXO tokenomics schema",
+        "✅ 15+ DB migrations",
+        "✅ RLS policies"
+      ]
+    }
   },
   {
+    "id": "business",
+    "name": "Business & Legal",
+    "slug": "loop-business",
+    "status": "planned",
+    "description": "Business development & compliance",
+    "stack": "Docs + Outreach",
+    "highlights": ["Pitch deck needed", "Legal docs needed"],
+    "tasks": {
+      "todo": [
+        {"id": "legal-docs", "title": "Terms & Privacy Policy", "priority": "high"},
+        {"id": "merchant-agreement", "title": "Merchant Service Agreement", "priority": "high"},
+        {"id": "pitch-deck", "title": "Create Merchant Pitch Deck", "priority": "medium"},
+        {"id": "newslink-contact", "title": "Contact News Link (Miami Airport)", "priority": "high"},
+        {"id": "regulatory-review", "title": "Legal review of rewards/commodity framing", "priority": "high"}
+      ],
+      "inProgress": [],
+      "done": [
+        "✅ Business model defined",
+        "✅ OXO tokenomics designed"
+      ]
+    }
+  },
+  {
+    "id": "marketing-site",
     "name": "Marketing Site",
     "slug": "looplocal-marketing",
     "status": "live",
     "description": "looplocal.io",
     "stack": "Astro + Tailwind → Vercel",
-    "highlights": ["Deployed to Vercel", "10 pages"]
+    "highlights": ["Deployed to Vercel", "10 pages"],
+    "tasks": {
+      "todo": [],
+      "inProgress": [],
+      "done": [
+        "✅ Deployed to looplocal.io",
+        "✅ 10 pages built",
+        "✅ Domain configured"
+      ]
+    }
   },
   {
+    "id": "support-system",
     "name": "Support System",
     "slug": "loop-support",
     "status": "live",
     "description": "AI-powered customer support",
     "stack": "Cloudflare Workers + Supabase",
-    "highlights": ["support@looplocal.io", "Auto-ticketing"]
+    "highlights": ["support@looplocal.io", "Auto-ticketing"],
+    "tasks": {
+      "todo": [],
+      "inProgress": [],
+      "done": [
+        "✅ support@looplocal.io → tickets",
+        "✅ Auto-ticketing system",
+        "✅ Cloudflare Worker deployed"
+      ]
+    }
   },
   {
+    "id": "command-center",
     "name": "Command Center",
     "slug": "loop-dashboard",
     "status": "live",
     "description": "Alex's mission control",
     "stack": "Astro + Tailwind → Vercel",
-    "highlights": ["Projects", "Tasks", "Specs", "Decisions"]
-  },
-  {
-    "name": "Mobile App",
-    "slug": "loop-app-native",
-    "status": "in-progress",
-    "description": "Consumer app for App Store",
-    "stack": "React Native (Expo) + TypeScript",
-    "highlights": ["iOS + Android", "Orbital UI", "Supabase Auth"]
+    "highlights": ["Projects", "Tasks", "Activity"],
+    "tasks": {
+      "todo": [],
+      "inProgress": [
+        {"id": "task-integration", "title": "Integrate tasks with project cards", "priority": "high"}
+      ],
+      "done": [
+        "✅ Dashboard deployed",
+        "✅ Auth configured",
+        "✅ Projects tracking",
+        "✅ Activity feed"
+      ]
+    }
   }
 ]
