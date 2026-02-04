@@ -1,6 +1,55 @@
 {
   "todo": [
     {
+      "id": "squads-multisig",
+      "title": "💰 Treasury: Create Squads Multi-sig Wallet",
+      "description": "Set up Squads Protocol multi-sig for master treasury on Solana",
+      "priority": "critical",
+      "category": "treasury"
+    },
+    {
+      "id": "kraken-api-functions",
+      "title": "💰 Treasury: Build Kraken API Edge Functions",
+      "description": "kraken-buy-usdc, kraken-withdraw, kraken-sell-usdc, kraken-balance",
+      "priority": "critical",
+      "category": "treasury"
+    },
+    {
+      "id": "yield-tracking-schema",
+      "title": "💰 Treasury: Database Schema for Yield Tracking",
+      "description": "merchant_shares, yield_snapshots, yield_distributions tables",
+      "priority": "critical",
+      "category": "treasury"
+    },
+    {
+      "id": "yield-calculation-cron",
+      "title": "💰 Treasury: Daily Yield Calculation Cron",
+      "description": "Fetch staked balance, calculate yield, distribute proportionally",
+      "priority": "high",
+      "category": "treasury"
+    },
+    {
+      "id": "marinade-integration",
+      "title": "💰 Treasury: Marinade Staking Integration",
+      "description": "Connect to Marinade for liquid SOL staking (~7-8% APY)",
+      "priority": "high",
+      "category": "treasury"
+    },
+    {
+      "id": "kamino-integration",
+      "title": "💰 Treasury: Kamino Lending Integration",
+      "description": "Connect to Kamino for USDC yield (~5-15% APY)",
+      "priority": "high",
+      "category": "treasury"
+    },
+    {
+      "id": "withdrawal-flow",
+      "title": "💰 Treasury: Withdrawal Request Flow",
+      "description": "Merchant requests → Admin approves → Unstake → Kraken → USD payout",
+      "priority": "high",
+      "category": "treasury"
+    },
+    {
       "id": "merchant-app-builds",
       "title": "Merchant App: Build & Submit to Stores",
       "description": "Build iOS (TestFlight) + Android (Play Store) — waiting on Apple Developer approval",
@@ -8,39 +57,11 @@
       "category": "engineering"
     },
     {
-      "id": "merchant-db-migrations",
-      "title": "Merchant Portal: Create Supabase Migrations",
-      "description": "Create tables for merchants, locations, transactions, team members, pool balances",
-      "priority": "high",
-      "category": "engineering"
-    },
-    {
-      "id": "merchant-stripe",
-      "title": "Merchant Portal: Stripe Integration",
-      "description": "Connect Stripe for deposits, subscriptions, payouts",
-      "priority": "high",
-      "category": "payments"
-    },
-    {
       "id": "solana-initialize",
       "title": "Solana: Initialize Protocol on Devnet",
       "description": "Call initialize + initialize_treasury to set up PDAs",
       "priority": "high",
       "category": "engineering"
-    },
-    {
-      "id": "solana-create-loop",
-      "title": "Solana: Create First Loop (Miami)",
-      "description": "After initialization, create first geographic Loop for testing",
-      "priority": "high",
-      "category": "engineering"
-    },
-    {
-      "id": "user-app-design-polish",
-      "title": "User App: RN Design Polish",
-      "description": "Minor visual differences from web version to fix",
-      "priority": "medium",
-      "category": "product"
     },
     {
       "id": "data-model-audit",
@@ -64,21 +85,28 @@
       "category": "legal"
     },
     {
-      "id": "pitch-deck",
-      "title": "Create Merchant Pitch Deck",
-      "description": "Value prop, ROI calculator, case studies",
-      "priority": "medium",
-      "category": "business"
-    },
-    {
-      "id": "email-templates",
-      "title": "Transactional Email Templates",
-      "description": "Welcome, earn confirmations, weekly summary",
-      "priority": "medium",
-      "category": "product"
+      "id": "fintech-lawyer",
+      "title": "Legal: Consult Fintech Lawyer",
+      "description": "Review rewards/commodity framing, money transmission implications",
+      "priority": "high",
+      "category": "legal"
     }
   ],
   "inProgress": [
+    {
+      "id": "kraken-verification",
+      "title": "💰 Kraken Business Verification",
+      "description": "Business account submitted, waiting for approval (1-3 days)",
+      "priority": "critical",
+      "category": "treasury"
+    },
+    {
+      "id": "bridge-application",
+      "title": "💰 Bridge.xyz Application",
+      "description": "Submitted for USD↔USDC API access, waiting response",
+      "priority": "high",
+      "category": "treasury"
+    },
     {
       "id": "loop-trader-paper",
       "title": "🤖 Loop Trader: Paper Trading Phase",
@@ -102,6 +130,14 @@
     }
   ],
   "done": [
+    "✅ 💰 Treasury Architecture: Option C - Unified Treasury + Virtual Pools (Feb 4)",
+    "✅ 💰 Mercury Business Bank Account opened (Feb 4)",
+    "✅ 💰 Kraken Business Application submitted (Feb 4)",
+    "✅ 💰 Bridge.xyz Application submitted (Feb 4)",
+    "✅ 💰 Circle Web3 Services access (Feb 4)",
+    "✅ 💰 OAR Technologies Stock Ledger created (Feb 4)",
+    "✅ 💳 Stripe pool deposits wired (Feb 4)",
+    "✅ 🌐 Website text visibility fixed (Feb 4)",
     "✅ 🎨 Merchant App: Custom icons + splash screens (Feb 4)",
     "✅ 🔧 Merchant App: Fixed TypeScript errors, synced to native",
     "✅ 🤖 BURT THE BEAST LIVE! Paper trading on A9 Max (Feb 4)",
@@ -112,52 +148,14 @@
     "✅ 🚀 MERCHANT PORTAL DEPLOYED! merchant.looplocal.io (Feb 1)",
     "✅ 📱 Capacitor added for iOS/Android native builds",
     "✅ 🏪 MERCHANT PORTAL COMPLETE! All 10 pages built (Feb 1)",
-    "✅ Merchant: Sign up / Sign in with validation",
-    "✅ Merchant: Dashboard with stats, quick actions, yield info",
-    "✅ Merchant: 3-step onboarding (Business → Location → Deposit)",
-    "✅ Merchant: Location management (card UI + reward rate sliders)",
-    "✅ Merchant: POS - Award rewards flow",
-    "✅ Merchant: POS - Process redemption flow",
-    "✅ Merchant: Transaction history with filters",
-    "✅ Merchant: Pool management (deposits, withdrawals, yield)",
-    "✅ Merchant: Analytics (tiered Free/Pro/Enterprise)",
-    "✅ Merchant: Team management (invite, roles, permissions)",
-    "✅ Merchant: Settings (business, notifications, security)",
-    "✅ Merchant: Billing (subscriptions, upgrade/downgrade)",
     "✅ Loop Trader repo created with comprehensive README + VISION.md",
     "✅ Solana: Program upgraded + IDL uploaded to devnet",
-    "✅ Solana: Fixed stack overflow (split Initialize into 2 steps)",
-    "✅ 🚀 DEPLOYED TO DEVNET! Program ID: 2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
-    "✅ Solana: Fixed IDL generation (upgraded to Anchor 0.30.1)",
-    "✅ Solana: Fixed name collision warnings",
-    "✅ Voice: Groq Whisper transcription configured",
-    "✅ Voice: Edge TTS enabled",
-    "✅ App: Profile Setup Flow (stores in profiles.metadata)",
-    "✅ App: Session Persistence (checks onboarding on launch)",
-    "✅ App: Real Supabase Data (useUserData hook, pull-to-refresh)",
-    "✅ Solana: Basic Integration Tests (basic.test.ts)",
-    "✅ Loop Solana program builds successfully (Anchor 0.29, 509KB)",
-    "✅ Deployed to localnet",
-    "✅ Solana toolchain installed (Rust 1.93, Solana 3.0.13, Anchor)",
-    "✅ Server disk expanded 7GB → 20GB",
-    "✅ User App scaffold (React + Vite + Tailwind + Framer Motion)",
-    "✅ Orbital View component with 3 rings",
-    "✅ HUD banner with dynamic state",
-    "✅ Bottom navigation + 4 screens",
-    "✅ Premium visual polish (gold/emerald gradients, glass-morphism)",
-    "✅ Auth flow: Welcome → Phone/Email choice → OTP → Biometrics → Location → Home",
-    "✅ Supabase phone auth (Twilio Verify)",
-    "✅ Supabase email auth (Resend SMTP)",
-    "✅ Cloudflare email worker (deployed)",
-    "✅ Protected routes + auth context",
-    "✅ Supabase backend (15 migrations, 12 Edge Functions)",
-    "✅ Marketing site (looplocal.io)",
-    "✅ Support system (support@looplocal.io → tickets)",
-    "✅ Command Center dashboard + auth",
-    "✅ OXO tokenomics schema",
-    "✅ Google Wallet configured",
-    "✅ Business model defined",
-    "✅ Design language established",
-    "✅ Domain & email configured"
+    "✅ 🚀 DEPLOYED TO SOLANA DEVNET!",
+    "✅ 🎙️ Voice: Groq Whisper + ElevenLabs TTS configured",
+    "✅ 📱 User App: Connected to Supabase - real data hook",
+    "✅ Support system LIVE - support@looplocal.io → tickets",
+    "✅ Command Center dashboard created",
+    "✅ Marketing site deployed to looplocal.io",
+    "✅ OXO tokenomics finalized"
   ]
 }

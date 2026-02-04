@@ -1,32 +1,35 @@
 [
   {
-    "id": "payments-blockchain",
-    "name": "Payments & Blockchain",
-    "slug": "loop-payments",
+    "id": "treasury-system",
+    "name": "💰 Treasury System",
+    "slug": "loop-treasury",
     "status": "active",
-    "description": "USD → USDC → Staking infrastructure",
-    "stack": "Circle Mint + Solana + Marinade/Jito/Kamino",
-    "highlights": ["Circle Mint for USD→USDC", "Solana chain", "Multi-sig custody"],
+    "description": "Unified treasury: USD → USDC → Stake → Yield",
+    "stack": "Mercury + Kraken API + Squads Multi-sig + Marinade/Kamino",
+    "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Proportional APY"],
     "tasks": {
       "todo": [
-        {"id": "circle-account", "title": "Open Circle Mint Business Account", "priority": "critical"},
-        {"id": "squads-multisig", "title": "Set up Squads Multi-sig Wallet", "priority": "critical"},
-        {"id": "deposit-tiers", "title": "Implement deposit tiers ($5K/$10K/$25K)", "priority": "high"},
+        {"id": "squads-multisig", "title": "Create Squads Multi-sig Wallet", "priority": "critical"},
+        {"id": "kraken-api-functions", "title": "Build Kraken API Edge Functions", "priority": "critical"},
+        {"id": "yield-tracking-schema", "title": "Database schema for yield tracking", "priority": "critical"},
+        {"id": "yield-calculation-cron", "title": "Daily yield calculation cron job", "priority": "high"},
         {"id": "marinade-integration", "title": "Integrate Marinade staking", "priority": "high"},
-        {"id": "jito-integration", "title": "Integrate Jito staking", "priority": "high"},
-        {"id": "kamino-integration", "title": "Integrate Kamino (controlled risk)", "priority": "medium"},
-        {"id": "yield-distribution", "title": "Build yield distribution calculator", "priority": "high"},
-        {"id": "accounting-system", "title": "Build on-chain/off-chain reconciliation system", "priority": "critical"},
+        {"id": "kamino-integration", "title": "Integrate Kamino lending", "priority": "high"},
         {"id": "withdrawal-flow", "title": "Build withdrawal request flow", "priority": "high"},
-        {"id": "smart-contract-insurance", "title": "Research smart contract insurance options", "priority": "medium"},
-        {"id": "zkp-research", "title": "Research ZKP applications for Loop", "priority": "low"}
+        {"id": "treasury-dashboard", "title": "Treasury admin dashboard", "priority": "medium"},
+        {"id": "reconciliation-system", "title": "On-chain/off-chain reconciliation", "priority": "medium"}
       ],
-      "inProgress": [],
+      "inProgress": [
+        {"id": "kraken-verification", "title": "Kraken Business Verification", "priority": "critical", "note": "Submitted, waiting approval"}
+      ],
       "done": [
-        "✅ Stripe subscriptions integrated (Feb 4)",
-        "✅ Stripe pool deposits flow built (Feb 4)",
-        "✅ Webhook handling for payments (Feb 4)",
-        "✅ Edge Functions deployed (stripe-checkout, stripe-deposit, stripe-portal, stripe-webhook)"
+        "✅ Architecture decided: Option C - Unified Treasury + Virtual Pools (Feb 4)",
+        "✅ Mercury business bank account opened (Feb 4)",
+        "✅ Kraken business application submitted (Feb 4)",
+        "✅ Bridge.xyz application submitted (Feb 4)",
+        "✅ Circle Web3 Services access (Feb 4)",
+        "✅ Stock Ledger created for KYB (Feb 4)",
+        "✅ Stripe pool deposits integrated (Feb 4)"
       ]
     }
   },
@@ -174,20 +177,24 @@
     "id": "business",
     "name": "Business & Legal",
     "slug": "loop-business",
-    "status": "planned",
+    "status": "active",
     "description": "Business development & compliance",
     "stack": "Docs + Outreach",
-    "highlights": ["Pitch deck needed", "Legal docs needed"],
+    "highlights": ["OAR Technologies Inc", "C Corp", "EIN: 39-2669487"],
     "tasks": {
       "todo": [
         {"id": "legal-docs", "title": "Terms & Privacy Policy", "priority": "high"},
         {"id": "merchant-agreement", "title": "Merchant Service Agreement", "priority": "high"},
         {"id": "pitch-deck", "title": "Create Merchant Pitch Deck", "priority": "medium"},
         {"id": "newslink-contact", "title": "Contact News Link (Miami Airport)", "priority": "high"},
-        {"id": "regulatory-review", "title": "Legal review of rewards/commodity framing", "priority": "high"}
+        {"id": "regulatory-review", "title": "Legal review of rewards/commodity framing", "priority": "high"},
+        {"id": "fintech-lawyer", "title": "Consult fintech lawyer on structure", "priority": "high"}
       ],
       "inProgress": [],
       "done": [
+        "✅ OAR Technologies Inc incorporated (Wyoming C Corp)",
+        "✅ EIN obtained: 39-2669487",
+        "✅ Mercury business bank account",
         "✅ Business model defined",
         "✅ OXO tokenomics designed"
       ]
@@ -205,6 +212,8 @@
       "todo": [],
       "inProgress": [],
       "done": [
+        "✅ Text visibility fixed (Feb 4)",
+        "✅ LinkedIn link updated (Feb 4)",
         "✅ Deployed to looplocal.io",
         "✅ 10 pages built",
         "✅ Domain configured"
@@ -239,10 +248,9 @@
     "highlights": ["Projects", "Tasks", "Activity"],
     "tasks": {
       "todo": [],
-      "inProgress": [
-        {"id": "task-integration", "title": "Integrate tasks with project cards", "priority": "high"}
-      ],
+      "inProgress": [],
       "done": [
+        "✅ Treasury System project added (Feb 4)",
         "✅ Dashboard deployed",
         "✅ Auth configured",
         "✅ Projects tracking",
