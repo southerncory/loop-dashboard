@@ -1,4 +1,11 @@
 [
+  {"date": "2026-02-04", "action": "🤖 BURT THE BEAST TRADING! First paper trades: XLM + XRP positions opened"},
+  {"date": "2026-02-04", "action": "🔧 Trading Bot: Disabled trend filters, AI gate, depth-of-market check for paper trading"},
+  {"date": "2026-02-04", "action": "🔧 Trading Bot: Relaxed RSI (50) and ADX (5) thresholds"},
+  {"date": "2026-02-04", "action": "💻 A9 Max: WSL installed, Docker running, freqtrade operational"},
+  {"date": "2026-02-03", "action": "🧹 EC2 Cleanup: Disk 95% → 81% (removed clawdbot, old node_modules)"},
+  {"date": "2026-02-03", "action": "⬆️ OpenClaw updated 2026.1.30 → 2026.2.1"},
+  {"date": "2026-02-03", "action": "🔐 Fixed OpenAI fallback config in auth-profiles.json"},
   {"date": "2026-02-01", "action": "📱 Added Capacitor for iOS/Android native builds (io.looplocal.merchant)"},
   {"date": "2026-02-01", "action": "🚀 MERCHANT PORTAL DEPLOYED! Live at merchant.looplocal.io"},
   {"date": "2026-02-01", "action": "🎉 MERCHANT PORTAL COMPLETE! All 10 pages built tonight"},

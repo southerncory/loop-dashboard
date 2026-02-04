@@ -101,6 +101,13 @@
   ],
   "inProgress": [
     {
+      "id": "loop-trader-paper",
+      "title": "🤖 Loop Trader: Paper Trading Phase",
+      "description": "Running Burt the Beast on A9 Max, monitoring XLM/XRP/HBAR positions",
+      "priority": "high",
+      "category": "trading"
+    },
+    {
       "id": "react-native-rebuild",
       "title": "🔄 Rebuild App in React Native",
       "description": "Porting from React web app to Expo/React Native for App Store",
@@ -116,6 +123,11 @@
     }
   ],
   "done": [
+    "✅ 🤖 BURT THE BEAST LIVE! Paper trading on A9 Max (Feb 4)",
+    "✅ 🔧 Trading Bot: Strategy tuned for paper trading (trend/volume filters disabled)",
+    "✅ 💻 A9 Max: WSL + Docker + Freqtrade environment set up",
+    "✅ 🧹 EC2 disk cleanup: 95% → 81% usage",
+    "✅ ⬆️ OpenClaw updated to 2026.2.1",
     "✅ 🚀 MERCHANT PORTAL DEPLOYED! merchant.looplocal.io (Feb 1)",
     "✅ 📱 Capacitor added for iOS/Android native builds",
     "✅ 🏪 MERCHANT PORTAL COMPLETE! All 10 pages built (Feb 1)",

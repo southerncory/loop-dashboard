@@ -1,5 +1,13 @@
 [
   {
+    "name": "Loop Trader (Burt the Beast)",
+    "slug": "loop-trader",
+    "status": "active",
+    "description": "AI-powered crypto trading bot",
+    "stack": "Freqtrade + GPT-4o + Python",
+    "highlights": ["Paper trading live", "XLM/XRP/HBAR on Kraken", "A9 Max Windows host"]
+  },
+  {
     "name": "Loop Backend",
     "slug": "oar-technologies-inc",
     "status": "active",
