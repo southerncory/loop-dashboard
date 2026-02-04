@@ -1,30 +1,9 @@
 {
   "todo": [
     {
-      "id": "merchant-app-icons",
-      "title": "Merchant App: Custom App Icons",
-      "description": "Replace default Capacitor icons with Loop Merchant branding",
-      "priority": "high",
-      "category": "product"
-    },
-    {
-      "id": "merchant-splash",
-      "title": "Merchant App: Splash Screen",
-      "description": "Custom splash screen with Loop Merchant logo",
-      "priority": "high",
-      "category": "product"
-    },
-    {
-      "id": "merchant-ios-build",
-      "title": "Merchant App: iOS Build & TestFlight",
-      "description": "Build iOS app, submit to TestFlight (requires Apple Developer)",
-      "priority": "high",
-      "category": "engineering"
-    },
-    {
-      "id": "merchant-android-build",
-      "title": "Merchant App: Android Build & Play Store",
-      "description": "Build Android APK/AAB, submit to Play Store",
+      "id": "merchant-app-builds",
+      "title": "Merchant App: Build & Submit to Stores",
+      "description": "Build iOS (TestFlight) + Android (Play Store) — waiting on Apple Developer approval",
       "priority": "high",
       "category": "engineering"
     },
@@ -123,6 +102,8 @@
     }
   ],
   "done": [
+    "✅ 🎨 Merchant App: Custom icons + splash screens (Feb 4)",
+    "✅ 🔧 Merchant App: Fixed TypeScript errors, synced to native",
     "✅ 🤖 BURT THE BEAST LIVE! Paper trading on A9 Max (Feb 4)",
     "✅ 🔧 Trading Bot: Strategy tuned for paper trading (trend/volume filters disabled)",
     "✅ 💻 A9 Max: WSL + Docker + Freqtrade environment set up",
