@@ -1,0 +1,417 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Treasury System | Loop Command Center">
+  <main class="min-h-screen bg-gray-950 text-gray-100 p-6 md:p-10">
+    <div class="max-w-5xl mx-auto">
+      
+      <!-- Header -->
+      <div class="mb-10">
+        <a href="/" class="text-emerald-400 hover:text-emerald-300 text-sm mb-4 inline-block">← Back to Dashboard</a>
+        <h1 class="text-4xl font-bold text-white mb-2">💰 Treasury System</h1>
+        <p class="text-gray-400 text-lg">Unified Treasury + Virtual Pools Architecture</p>
+        <p class="text-gray-500 text-sm mt-2">Last updated: February 4, 2026</p>
+      </div>
+
+      <!-- Architecture Overview -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">🏗️ Architecture Overview</h2>
+        <p class="text-gray-300 mb-4">
+          Loop uses <strong class="text-white">Option C: Unified Treasury + Virtual Pools</strong>. 
+          All merchant deposits are pooled into a single treasury wallet, staked together for maximum capital efficiency, 
+          with the database tracking each merchant's proportional share.
+        </p>
+        
+        <div class="bg-gray-950 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre class="text-emerald-300">
+┌─────────────────────────────────────────────────────────────────┐
+│                     DEPOSIT FLOW                                │
+├─────────────────────────────────────────────────────────────────┤
+│  Merchant deposits $10K via Stripe                              │
+│           ↓                                                     │
+│  USD lands in Mercury bank account                              │
+│           ↓                                                     │
+│  Loop buys USDC on Kraken (API)                                 │
+│           ↓                                                     │
+│  USDC sent to Master Treasury (Squads multi-sig on Solana)      │
+│           ↓                                                     │
+│  USDC staked in Kamino/Marinade for yield                       │
+│           ↓                                                     │
+│  Database updated: merchant's share recorded                    │
+└─────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- Why This Architecture -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">❓ Why Unified Treasury?</h2>
+        
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-white font-semibold mb-2">✅ Capital Efficiency</h3>
+            <p class="text-gray-400 text-sm">One large staking position gets better rates than many small ones.</p>
+          </div>
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-white font-semibold mb-2">✅ Simpler Operations</h3>
+            <p class="text-gray-400 text-sm">One wallet to manage, one set of staking positions to monitor.</p>
+          </div>
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-white font-semibold mb-2">✅ Fair Distribution</h3>
+            <p class="text-gray-400 text-sm">Every merchant gets the same APY, proportional to their deposit.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Database Schema -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">🗄️ Database Schema</h2>
+        
+        <div class="space-y-6">
+          <!-- Table 1: treasury -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">treasury</h3>
+            <p class="text-gray-400 text-sm mb-3">Master treasury - single source of truth for total balances</p>
+            <table class="w-full text-sm">
+              <thead class="text-gray-500 border-b border-gray-800">
+                <tr>
+                  <th class="text-left py-2">Column</th>
+                  <th class="text-left py-2">Type</th>
+                  <th class="text-left py-2">Description</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-300">
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">solana_wallet_address</td>
+                  <td class="py-2">text</td>
+                  <td class="py-2">Squads multi-sig wallet address</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">current_usd_balance</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">USD sitting in Mercury bank</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">current_usdc_balance</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">USDC on Solana (unstaked)</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">current_staked_balance</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Total staked in Marinade/Kamino</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">current_apy_rate</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Blended APY (default 8%)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-mono text-emerald-400">pending_yield</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Yield not yet distributed</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table 2: merchant_pool_shares -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">merchant_pool_shares</h3>
+            <p class="text-gray-400 text-sm mb-3">Each merchant's share of the unified treasury (virtual pools)</p>
+            <table class="w-full text-sm">
+              <thead class="text-gray-500 border-b border-gray-800">
+                <tr>
+                  <th class="text-left py-2">Column</th>
+                  <th class="text-left py-2">Type</th>
+                  <th class="text-left py-2">Description</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-300">
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">merchant_id</td>
+                  <td class="py-2">uuid</td>
+                  <td class="py-2">Reference to merchant_profiles</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">loop_id</td>
+                  <td class="py-2">uuid</td>
+                  <td class="py-2">Which Loop they belong to</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">deposited_amount</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">How much they deposited</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">share_percentage</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">% of total treasury (auto-calculated)</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">accrued_yield</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Yield earned but not claimed</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-mono text-emerald-400">total_yield_earned</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">All-time yield earned</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table 3: treasury_snapshots -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">treasury_snapshots</h3>
+            <p class="text-gray-400 text-sm mb-3">Daily record for yield calculations and audit trail</p>
+            <table class="w-full text-sm">
+              <thead class="text-gray-500 border-b border-gray-800">
+                <tr>
+                  <th class="text-left py-2">Column</th>
+                  <th class="text-left py-2">Type</th>
+                  <th class="text-left py-2">Description</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-300">
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">snapshot_date</td>
+                  <td class="py-2">date</td>
+                  <td class="py-2">One snapshot per day</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">total_staked</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Total staked at snapshot time</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">marinade_balance</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Amount in Marinade</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 font-mono text-emerald-400">kamino_balance</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Amount in Kamino</td>
+                </tr>
+                <tr>
+                  <td class="py-2 font-mono text-emerald-400">daily_yield</td>
+                  <td class="py-2">numeric</td>
+                  <td class="py-2">Yield earned that day</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table 4: treasury_transactions -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">treasury_transactions</h3>
+            <p class="text-gray-400 text-sm mb-3">Audit log of all treasury operations</p>
+            <div class="text-gray-300 text-sm">
+              <p class="mb-2"><strong>Transaction Types:</strong></p>
+              <ul class="list-disc list-inside space-y-1 text-gray-400">
+                <li><code class="text-emerald-400">merchant_deposit</code> - USD from merchant via Stripe</li>
+                <li><code class="text-emerald-400">merchant_withdrawal</code> - USD payout to merchant</li>
+                <li><code class="text-emerald-400">usd_to_usdc</code> - Kraken conversion</li>
+                <li><code class="text-emerald-400">usdc_to_usd</code> - Kraken conversion</li>
+                <li><code class="text-emerald-400">stake_marinade</code> - Deposit to Marinade</li>
+                <li><code class="text-emerald-400">deposit_kamino</code> - Deposit to Kamino</li>
+                <li><code class="text-emerald-400">yield_claim</code> - Claim staking rewards</li>
+                <li><code class="text-emerald-400">yield_distribution</code> - Distribute to merchants</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Table 5: yield_distributions -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">yield_distributions</h3>
+            <p class="text-gray-400 text-sm mb-3">Record of each yield distribution event</p>
+            <p class="text-gray-400 text-sm">Created daily when <code class="text-emerald-400">calculate_daily_yield()</code> runs. Links to <code class="text-yellow-400">yield_distribution_details</code> for per-merchant breakdown.</p>
+          </div>
+
+          <!-- Table 6: loop_treasury_summaries -->
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-mono font-semibold mb-2">loop_treasury_summaries</h3>
+            <p class="text-gray-400 text-sm mb-3">Per-Loop aggregated view (for dashboards)</p>
+            <p class="text-gray-400 text-sm">Shows total deposits, merchant count, and yield earned for each geographic Loop (Miami, Portland, etc.).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Yield Calculation -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">📊 How Yield Calculation Works</h2>
+        
+        <div class="mb-6">
+          <h3 class="text-white font-semibold mb-3">The Formula</h3>
+          <div class="bg-gray-950 rounded-lg p-4 font-mono text-center">
+            <p class="text-2xl text-yellow-400">Merchant Yield = (Merchant Deposit ÷ Total Treasury) × Total Yield</p>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-white font-semibold mb-3">Example Scenario</h3>
+          <div class="bg-gray-950 rounded-lg p-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-gray-500 border-b border-gray-800">
+                <tr>
+                  <th class="text-left py-2">Entity</th>
+                  <th class="text-right py-2">Deposit</th>
+                  <th class="text-right py-2">Share %</th>
+                  <th class="text-right py-2">Monthly Yield (8% APY)</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-300">
+                <tr class="border-b border-gray-800/50 bg-emerald-900/20">
+                  <td class="py-2 font-semibold">Total Treasury</td>
+                  <td class="py-2 text-right">$100,000</td>
+                  <td class="py-2 text-right">100%</td>
+                  <td class="py-2 text-right text-emerald-400">$667</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 pl-4">↳ Miami Loop</td>
+                  <td class="py-2 text-right">$60,000</td>
+                  <td class="py-2 text-right">60%</td>
+                  <td class="py-2 text-right">$400</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 pl-8">→ Café Luna</td>
+                  <td class="py-2 text-right">$25,000</td>
+                  <td class="py-2 text-right">25%</td>
+                  <td class="py-2 text-right text-yellow-400">$167</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 pl-8">→ Green Market</td>
+                  <td class="py-2 text-right">$10,000</td>
+                  <td class="py-2 text-right">10%</td>
+                  <td class="py-2 text-right text-yellow-400">$67</td>
+                </tr>
+                <tr class="border-b border-gray-800/50">
+                  <td class="py-2 pl-8">→ Mario's Pizza</td>
+                  <td class="py-2 text-right">$25,000</td>
+                  <td class="py-2 text-right">25%</td>
+                  <td class="py-2 text-right text-yellow-400">$167</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pl-4">↳ Portland Loop</td>
+                  <td class="py-2 text-right">$40,000</td>
+                  <td class="py-2 text-right">40%</td>
+                  <td class="py-2 text-right">$267</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-white font-semibold mb-3">Daily Calculation Process</h3>
+          <ol class="list-decimal list-inside space-y-2 text-gray-300">
+            <li>Cron job runs <code class="text-emerald-400 bg-gray-800 px-1 rounded">calculate_daily_yield()</code> at midnight UTC</li>
+            <li>Fetch total staked balance from <code class="text-yellow-400">treasury</code> table</li>
+            <li>Calculate daily yield: <code class="text-gray-400">total_staked × (APY ÷ 365)</code></li>
+            <li>Create <code class="text-yellow-400">yield_distributions</code> record</li>
+            <li>For each merchant in <code class="text-yellow-400">merchant_pool_shares</code>:</li>
+            <li class="ml-6">Calculate their share: <code class="text-gray-400">daily_yield × share_percentage</code></li>
+            <li class="ml-6">Insert into <code class="text-yellow-400">yield_distribution_details</code></li>
+            <li class="ml-6">Update their <code class="text-emerald-400">accrued_yield</code></li>
+            <li>Update <code class="text-yellow-400">treasury.pending_yield</code></li>
+          </ol>
+        </div>
+
+        <div>
+          <h3 class="text-white font-semibold mb-3">Auto-Recalculation Trigger</h3>
+          <p class="text-gray-400">When any merchant deposits or withdraws, the <code class="text-emerald-400">recalculate_share_percentages()</code> function runs automatically to update everyone's share percentage.</p>
+        </div>
+      </section>
+
+      <!-- Infrastructure -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">🔧 Infrastructure Components</h2>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-semibold mb-2">💵 Fiat Rails</h3>
+            <ul class="text-gray-400 text-sm space-y-1">
+              <li><strong class="text-white">Mercury Bank</strong> - Business account for USD</li>
+              <li><strong class="text-white">Stripe</strong> - Merchant deposits via checkout</li>
+              <li><strong class="text-white">Kraken</strong> - USD ↔ USDC conversion</li>
+            </ul>
+          </div>
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-semibold mb-2">⛓️ On-Chain</h3>
+            <ul class="text-gray-400 text-sm space-y-1">
+              <li><strong class="text-white">Squads</strong> - Multi-sig treasury wallet</li>
+              <li><strong class="text-white">Marinade</strong> - Liquid staking (~7-8% APY)</li>
+              <li><strong class="text-white">Kamino</strong> - USDC lending (~5-15% APY)</li>
+            </ul>
+          </div>
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-semibold mb-2">📊 Database</h3>
+            <ul class="text-gray-400 text-sm space-y-1">
+              <li><strong class="text-white">Supabase</strong> - Postgres + Edge Functions</li>
+              <li><strong class="text-white">7 tables</strong> for treasury tracking</li>
+              <li><strong class="text-white">2 functions</strong> for yield calculation</li>
+            </ul>
+          </div>
+          <div class="bg-gray-950 rounded-lg p-4">
+            <h3 class="text-yellow-400 font-semibold mb-2">🤖 Automation</h3>
+            <ul class="text-gray-400 text-sm space-y-1">
+              <li><strong class="text-white">Daily cron</strong> - Yield calculation</li>
+              <li><strong class="text-white">Triggers</strong> - Share recalculation</li>
+              <li><strong class="text-white">Edge Functions</strong> - Kraken API ops</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Status -->
+      <section class="mb-12 bg-gray-900 rounded-xl p-6 border border-gray-800">
+        <h2 class="text-2xl font-bold text-emerald-400 mb-4">📋 Current Status</h2>
+        
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <span class="text-gray-300">Database schema designed</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <span class="text-gray-300">Mercury bank account opened</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⏳</span>
+            <span class="text-gray-300">Kraken business verification (pending)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⏳</span>
+            <span class="text-gray-300">Bridge.xyz application (pending)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔲</span>
+            <span class="text-gray-300">Squads multi-sig setup</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔲</span>
+            <span class="text-gray-300">Kraken API Edge Functions</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔲</span>
+            <span class="text-gray-300">Marinade/Kamino integration</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔲</span>
+            <span class="text-gray-300">Daily yield cron job</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="text-center text-gray-500 text-sm">
+        <p>Treasury System Documentation • OAR Technologies Inc.</p>
+        <p class="mt-1">Questions? Check the <a href="/" class="text-emerald-400 hover:text-emerald-300">Command Center</a></p>
+      </footer>
+
+    </div>
+  </main>
+</Layout>
