@@ -1,57 +1,7 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import DashboardLayout from '../layouts/DashboardLayout.astro';
 
-// Support stats - would be fetched from Supabase in production
-const stats = {
-  open: 12,
-  pending: 5,
-  resolved: 43,
-  avgResponseTime: '2.4h',
-  aiHandled: 68,
-  satisfaction: 94
-};
-
-// Mock tickets for UI - real data comes from Supabase
-const tickets = [
-  {
-    id: '1',
-    ticket_number: 'LOOP-2601-0001',
-    subject: 'Unable to link my credit card',
-    email: 'user@example.com',
-    category: 'bug',
-    priority: 'high',
-    status: 'open',
-    created_at: '2026-01-30T14:30:00Z',
-    ai_confidence: 0.85,
-    sentiment: 'frustrated'
-  },
-  {
-    id: '2', 
-    ticket_number: 'LOOP-2601-0002',
-    subject: 'How do I earn Cred at local stores?',
-    email: 'newuser@gmail.com',
-    category: 'general',
-    priority: 'low',
-    status: 'waiting_customer',
-    created_at: '2026-01-30T13:15:00Z',
-    ai_confidence: 0.92,
-    ai_handled: true,
-    sentiment: 'neutral'
-  },
-  {
-    id: '3',
-    ticket_number: 'LOOP-2601-0003',
-    subject: 'Partnership opportunity - Local Coffee Chain',
-    email: 'biz@localcoffee.com',
-    category: 'partnership',
-    priority: 'normal',
-    status: 'open',
-    created_at: '2026-01-30T10:00:00Z',
-    ai_confidence: 0.78,
-    sentiment: 'positive'
-  }
-];
-
+// Helper functions
 function getPriorityColor(priority: string): string {
   switch (priority) {
     case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
@@ -86,54 +36,20 @@ function getCategoryIcon(category: string): string {
     default: return '📧';
   }
 }
-
-function getSentimentIcon(sentiment: string): string {
-  switch (sentiment) {
-    case 'positive': return '😊';
-    case 'neutral': return '😐';
-    case 'frustrated': return '😤';
-    case 'angry': return '😡';
-    default: return '';
-  }
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  
-  if (hours < 1) return 'Just now';
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
 ---
 
-<Layout title="Support Command Center | Loop">
-  <!-- Auth loading overlay -->
-  <div id="auth-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
-    <div class="text-center">
-      <div class="text-4xl mb-4 animate-pulse">🔐</div>
-      <p class="text-slate-400">Checking access...</p>
-    </div>
-  </div>
-
+<DashboardLayout title="Support Command Center | Loop" active="support">
   <div class="min-h-screen p-6">
     <!-- Header -->
     <header class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <a href="/" class="text-slate-400 hover:text-white text-sm mb-2 inline-block">← Back to Dashboard</a>
           <h1 class="text-3xl font-bold">🎧 Support Command Center</h1>
-          <p class="text-slate-400 mt-1">AI-powered customer support for Loop</p>
+          <p class="text-slate-400 mt-1">Real-time customer support for Loop</p>
         </div>
         <div class="flex gap-3">
-          <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors">
-            Run AI Triage
-          </button>
-          <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
-            Settings
+          <button id="btn-refresh" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
+            🔄 Refresh
           </button>
         </div>
       </div>
@@ -142,28 +58,28 @@ function formatDate(dateStr: string): string {
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-yellow-400">{stats.open}</div>
+        <div id="stat-open" class="text-2xl font-bold text-yellow-400">-</div>
         <div class="text-slate-400 text-sm">Open Tickets</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-purple-400">{stats.pending}</div>
+        <div id="stat-pending" class="text-2xl font-bold text-purple-400">-</div>
         <div class="text-slate-400 text-sm">Awaiting Reply</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-green-400">{stats.resolved}</div>
+        <div id="stat-resolved" class="text-2xl font-bold text-green-400">-</div>
         <div class="text-slate-400 text-sm">Resolved (30d)</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-blue-400">{stats.avgResponseTime}</div>
+        <div id="stat-response-time" class="text-2xl font-bold text-blue-400">-</div>
         <div class="text-slate-400 text-sm">Avg Response</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-emerald-400">{stats.aiHandled}%</div>
+        <div id="stat-ai-handled" class="text-2xl font-bold text-emerald-400">-</div>
         <div class="text-slate-400 text-sm">AI Handled</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-2xl font-bold text-pink-400">{stats.satisfaction}%</div>
-        <div class="text-slate-400 text-sm">Satisfaction</div>
+        <div id="stat-total" class="text-2xl font-bold text-pink-400">-</div>
+        <div class="text-slate-400 text-sm">Total Tickets</div>
       </div>
     </div>
 
@@ -173,66 +89,38 @@ function formatDate(dateStr: string): string {
       <div class="lg:col-span-2">
         <div class="bg-slate-800 rounded-xl border border-slate-700">
           <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Recent Tickets</h2>
+            <h2 class="text-lg font-semibold">Support Tickets</h2>
             <div class="flex gap-2">
-              <select class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
-                <option>All Status</option>
-                <option>Open</option>
-                <option>Pending</option>
-                <option>Resolved</option>
+              <select id="filter-status" class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
+                <option value="all">All Status</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="waiting_customer">Awaiting Reply</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
               </select>
-              <select class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
-                <option>All Categories</option>
-                <option>Bug</option>
-                <option>Billing</option>
-                <option>Account</option>
-                <option>Feature</option>
+              <select id="filter-category" class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
+                <option value="all">All Categories</option>
+                <option value="general">General</option>
+                <option value="bug">Bug</option>
+                <option value="billing">Billing</option>
+                <option value="account">Account</option>
+                <option value="feature">Feature</option>
+                <option value="merchant">Merchant</option>
+                <option value="partnership">Partnership</option>
               </select>
             </div>
           </div>
           
-          <div class="divide-y divide-slate-700">
-            {tickets.map(ticket => (
-              <div class="p-4 hover:bg-slate-700/50 transition-colors cursor-pointer">
-                <div class="flex items-start gap-4">
-                  <div class="text-2xl">{getCategoryIcon(ticket.category)}</div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                      <span class="text-xs text-slate-500 font-mono">{ticket.ticket_number}</span>
-                      <span class={`text-xs px-2 py-0.5 rounded-full ${getStatusColor(ticket.status)}`}>
-                        {ticket.status.replace('_', ' ')}
-                      </span>
-                      <span class={`text-xs px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>
-                        {ticket.priority}
-                      </span>
-                      {ticket.ai_handled && (
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                          🤖 AI handled
-                        </span>
-                      )}
-                    </div>
-                    <h3 class="font-medium text-white truncate">{ticket.subject}</h3>
-                    <div class="flex items-center gap-3 mt-1 text-sm text-slate-400">
-                      <span>{ticket.email}</span>
-                      <span>•</span>
-                      <span>{formatDate(ticket.created_at)}</span>
-                      <span>•</span>
-                      <span>{getSentimentIcon(ticket.sentiment)} {ticket.sentiment}</span>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-xs text-slate-500">AI Confidence</div>
-                    <div class="text-sm font-medium text-emerald-400">
-                      {Math.round(ticket.ai_confidence * 100)}%
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div id="ticket-list" class="divide-y divide-slate-700">
+            <div class="p-8 text-center text-slate-500">
+              <div class="text-4xl mb-2">⏳</div>
+              Loading tickets...
+            </div>
           </div>
           
-          <div class="p-4 border-t border-slate-700 text-center">
-            <button class="text-blue-400 hover:text-blue-300 text-sm">
+          <div id="load-more-container" class="p-4 border-t border-slate-700 text-center hidden">
+            <button id="btn-load-more" class="text-blue-400 hover:text-blue-300 text-sm">
               Load more tickets →
             </button>
           </div>
@@ -241,26 +129,62 @@ function formatDate(dateStr: string): string {
 
       <!-- Right Sidebar -->
       <div class="space-y-6">
-        <!-- Quick Actions -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
-          <h3 class="font-semibold mb-4">🚀 Quick Actions</h3>
-          <div class="space-y-2">
-            <button class="w-full text-left px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-sm">
-              📧 Check support inbox
+        <!-- Selected Ticket Detail -->
+        <div id="ticket-detail" class="bg-slate-800 rounded-xl border border-slate-700 p-4 hidden">
+          <h3 class="font-semibold mb-4">📋 Ticket Detail</h3>
+          <div id="ticket-detail-content">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <!-- AI Response Panel -->
+        <div id="ai-response-panel" class="bg-slate-800 rounded-xl border border-emerald-500/30 p-4 hidden">
+          <h3 class="font-semibold mb-4 flex items-center gap-2">
+            🤖 AI Response Draft
+          </h3>
+          <div id="ai-response-content" class="text-sm text-slate-300 bg-slate-700/50 rounded-lg p-3 mb-4">
+            <!-- Filled by JS -->
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-approve-ai" class="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition-colors">
+              ✅ Approve & Send
             </button>
-            <button class="w-full text-left px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-sm">
-              🔄 Re-run AI triage
+            <button id="btn-edit-response" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+              ✏️ Edit
             </button>
-            <button class="w-full text-left px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-sm">
-              📝 Update knowledge base
-            </button>
-            <button class="w-full text-left px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-sm">
-              📊 Export report
+            <button id="btn-regenerate-ai" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+              🔄
             </button>
           </div>
         </div>
 
-        <!-- Channels -->
+        <!-- Edit Response Panel -->
+        <div id="edit-response-panel" class="bg-slate-800 rounded-xl border border-blue-500/30 p-4 hidden">
+          <h3 class="font-semibold mb-4">✏️ Edit Response</h3>
+          <textarea id="edit-response-text" class="w-full h-32 bg-slate-700 rounded-lg p-3 text-sm border border-slate-600 focus:border-blue-500 focus:outline-none resize-none"></textarea>
+          <div class="flex gap-2 mt-3">
+            <button id="btn-send-custom" class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
+              📤 Send Response
+            </button>
+            <button id="btn-cancel-edit" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+              Cancel
+            </button>
+          </div>
+          <label class="flex items-center gap-2 mt-3 text-sm text-slate-400">
+            <input type="checkbox" id="close-after-send" class="rounded bg-slate-700 border-slate-600">
+            Close ticket after sending
+          </label>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
+          <h3 class="font-semibold mb-4">📊 By Category (30d)</h3>
+          <div id="category-breakdown" class="space-y-2">
+            <div class="text-slate-500 text-sm">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Support Channels -->
         <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
           <h3 class="font-semibold mb-4">📡 Support Channels</h3>
           <div class="space-y-3">
@@ -273,90 +197,373 @@ function formatDate(dateStr: string): string {
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                <span class="text-sm">Website Form</span>
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                <span class="text-sm">API</span>
               </div>
-              <span class="text-xs text-slate-400">Pending setup</span>
+              <span class="text-xs text-slate-400">Connected</span>
             </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-                <span class="text-sm">In-App</span>
-              </div>
-              <span class="text-xs text-slate-400">Not configured</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category Breakdown -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
-          <h3 class="font-semibold mb-4">📊 By Category (30d)</h3>
-          <div class="space-y-2">
-            {[
-              { name: 'General', count: 18, icon: '❓' },
-              { name: 'Bug Reports', count: 12, icon: '🐛' },
-              { name: 'Account', count: 8, icon: '👤' },
-              { name: 'Feature Requests', count: 5, icon: '✨' },
-            ].map(cat => (
-              <div class="flex items-center justify-between">
-                <span class="text-sm">{cat.icon} {cat.name}</span>
-                <span class="text-sm text-slate-400">{cat.count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <!-- Burt's Notes -->
-        <div class="bg-gradient-to-br from-emerald-900/20 to-slate-800 rounded-xl border border-emerald-500/20 p-4">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            🛠️ Burt's Notes
-          </h3>
-          <p class="text-sm text-slate-300">
-            "I'm monitoring incoming tickets and will ping you when something needs attention. 
-            Most questions about earning Cred are being auto-handled. Partnership inquiries 
-            always get escalated to you."
-          </p>
-          <div class="mt-3 text-xs text-slate-500">
-            Last check: 5 minutes ago
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="mt-8 text-center text-slate-500 text-sm">
-      <p>Support system powered by AI triage • Tickets sync in real-time</p>
-    </footer>
   </div>
 
   <script>
-    import { supabase, isAllowedEmail } from '../lib/supabase'
+    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    
+    let currentTickets = [];
+    let selectedTicketId = null;
+    let currentOffset = 0;
+    const LIMIT = 20;
 
-    // Auth guard - check if user is logged in
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession()
+    // Fetch tickets from API
+    async function fetchTickets(append = false) {
+      const status = document.getElementById('filter-status').value;
+      const category = document.getElementById('filter-category').value;
       
-      if (!session?.user?.email || !isAllowedEmail(session.user.email)) {
-        // Not logged in or not allowed - redirect to login
-        window.location.href = '/login?redirect=/support'
-        return false
+      if (!append) currentOffset = 0;
+      
+      const params = new URLSearchParams({
+        status,
+        category,
+        limit: LIMIT.toString(),
+        offset: currentOffset.toString(),
+      });
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/support-tickets?${params}`);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        // Update stats
+        updateStats(data.stats);
+        
+        // Update category breakdown
+        updateCategories(data.categories);
+        
+        // Update ticket list
+        if (append) {
+          currentTickets = [...currentTickets, ...data.tickets];
+        } else {
+          currentTickets = data.tickets;
+        }
+        renderTickets();
+        
+        // Show/hide load more
+        const loadMoreContainer = document.getElementById('load-more-container');
+        if (data.pagination.hasMore) {
+          loadMoreContainer.classList.remove('hidden');
+        } else {
+          loadMoreContainer.classList.add('hidden');
+        }
+        
+      } catch (err) {
+        console.error('Failed to fetch tickets:', err);
+        document.getElementById('ticket-list').innerHTML = `
+          <div class="p-8 text-center text-red-400">
+            <div class="text-4xl mb-2">❌</div>
+            Failed to load tickets: ${err.message}
+          </div>
+        `;
+      }
+    }
+
+    function updateStats(stats) {
+      document.getElementById('stat-open').textContent = stats.open;
+      document.getElementById('stat-pending').textContent = stats.pending;
+      document.getElementById('stat-resolved').textContent = stats.resolved;
+      document.getElementById('stat-response-time').textContent = stats.avgResponseTime;
+      document.getElementById('stat-ai-handled').textContent = stats.aiHandled + '%';
+      document.getElementById('stat-total').textContent = stats.total;
+    }
+
+    function updateCategories(categories) {
+      const container = document.getElementById('category-breakdown');
+      const icons = {
+        general: '❓', bug: '🐛', billing: '💳', account: '👤',
+        feature: '✨', merchant: '🏪', partnership: '🤝', feedback: '💬'
+      };
+      
+      const sorted = Object.entries(categories).sort((a, b) => b[1] - a[1]);
+      
+      if (sorted.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-sm">No data</div>';
+        return;
       }
       
-      // Hide the loading overlay
-      const overlay = document.getElementById('auth-overlay')
-      if (overlay) overlay.style.display = 'none'
-      return true
+      container.innerHTML = sorted.map(([cat, count]) => `
+        <div class="flex items-center justify-between">
+          <span class="text-sm">${icons[cat] || '📧'} ${cat}</span>
+          <span class="text-sm text-slate-400">${count}</span>
+        </div>
+      `).join('');
     }
-    
-    checkAuth()
 
-    // TODO: Connect to Supabase realtime for live ticket updates
+    function renderTickets() {
+      const container = document.getElementById('ticket-list');
+      
+      if (currentTickets.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-500">
+            <div class="text-4xl mb-2">📭</div>
+            No tickets found
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentTickets.map(ticket => `
+        <div class="p-4 hover:bg-slate-700/50 transition-colors cursor-pointer ticket-row ${selectedTicketId === ticket.id ? 'bg-slate-700/50' : ''}" data-id="${ticket.id}">
+          <div class="flex items-start gap-4">
+            <div class="text-2xl">${getCategoryIcon(ticket.category_slug)}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span class="text-xs text-slate-500 font-mono">${ticket.ticket_number}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full ${getStatusColor(ticket.status)}">
+                  ${ticket.status.replace('_', ' ')}
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}">
+                  ${ticket.priority}
+                </span>
+                ${ticket.ai_handled ? '<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">🤖 AI</span>' : ''}
+              </div>
+              <h3 class="font-medium text-white truncate">${ticket.subject}</h3>
+              <div class="flex items-center gap-3 mt-1 text-sm text-slate-400">
+                <span class="truncate">${ticket.email}</span>
+                <span>•</span>
+                <span>${formatDate(ticket.created_at)}</span>
+              </div>
+            </div>
+            ${ticket.ai_confidence > 0 ? `
+              <div class="text-right">
+                <div class="text-xs text-slate-500">AI Conf</div>
+                <div class="text-sm font-medium ${ticket.ai_confidence > 0.7 ? 'text-emerald-400' : ticket.ai_confidence > 0.4 ? 'text-yellow-400' : 'text-red-400'}">
+                  ${Math.round(ticket.ai_confidence * 100)}%
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Add click handlers
+      document.querySelectorAll('.ticket-row').forEach(row => {
+        row.addEventListener('click', () => selectTicket(row.dataset.id));
+      });
+    }
+
+    function getCategoryIcon(category) {
+      const icons = {
+        bug: '🐛', billing: '💳', account: '👤', feature: '✨',
+        merchant: '🏪', partnership: '🤝', general: '❓', feedback: '💬'
+      };
+      return icons[category] || '📧';
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        open: 'bg-yellow-500/20 text-yellow-400',
+        in_progress: 'bg-blue-500/20 text-blue-400',
+        waiting_customer: 'bg-purple-500/20 text-purple-400',
+        resolved: 'bg-green-500/20 text-green-400',
+        closed: 'bg-slate-500/20 text-slate-400'
+      };
+      return colors[status] || 'bg-slate-500/20 text-slate-400';
+    }
+
+    function getPriorityColor(priority) {
+      const colors = {
+        critical: 'bg-red-500/20 text-red-400 border-red-500/30',
+        high: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+        normal: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        low: 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+      };
+      return colors[priority] || 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      
+      if (hours < 1) return 'Just now';
+      if (hours < 24) return hours + 'h ago';
+      const days = Math.floor(hours / 24);
+      if (days < 30) return days + 'd ago';
+      return date.toLocaleDateString();
+    }
+
+    async function selectTicket(ticketId) {
+      selectedTicketId = ticketId;
+      const ticket = currentTickets.find(t => t.id === ticketId);
+      if (!ticket) return;
+      
+      // Highlight selected row
+      document.querySelectorAll('.ticket-row').forEach(row => {
+        row.classList.toggle('bg-slate-700/50', row.dataset.id === ticketId);
+      });
+
+      // Show ticket detail
+      const detailPanel = document.getElementById('ticket-detail');
+      const detailContent = document.getElementById('ticket-detail-content');
+      detailPanel.classList.remove('hidden');
+      
+      detailContent.innerHTML = `
+        <div class="space-y-3">
+          <div>
+            <div class="text-xs text-slate-500">Subject</div>
+            <div class="font-medium">${ticket.subject}</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">From</div>
+            <div class="text-sm">${ticket.email}</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Message</div>
+            <div class="text-sm bg-slate-700/50 rounded-lg p-3 mt-1 whitespace-pre-wrap">${ticket.body}</div>
+          </div>
+          <button id="btn-generate-ai" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition-colors mt-4">
+            🤖 Generate AI Response
+          </button>
+        </div>
+      `;
+
+      document.getElementById('btn-generate-ai').addEventListener('click', () => generateAiResponse(ticketId));
+
+      // If ticket already has AI response, show it
+      if (ticket.ai_response) {
+        showAiResponse(ticket.ai_response, ticket.ai_confidence);
+      } else {
+        document.getElementById('ai-response-panel').classList.add('hidden');
+      }
+      
+      document.getElementById('edit-response-panel').classList.add('hidden');
+    }
+
+    async function generateAiResponse(ticketId, regenerate = false) {
+      const panel = document.getElementById('ai-response-panel');
+      const content = document.getElementById('ai-response-content');
+      
+      panel.classList.remove('hidden');
+      content.innerHTML = '<div class="text-slate-400">🔄 Generating AI response...</div>';
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/support-ai-response`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticketId, regenerate }),
+        });
+        
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        showAiResponse(data.response, data.confidence);
+        
+        // Update ticket in local cache
+        const ticket = currentTickets.find(t => t.id === ticketId);
+        if (ticket) {
+          ticket.ai_response = data.response;
+          ticket.ai_confidence = data.confidence;
+        }
+        
+      } catch (err) {
+        content.innerHTML = `<div class="text-red-400">❌ ${err.message}</div>`;
+      }
+    }
+
+    function showAiResponse(response, confidence) {
+      const panel = document.getElementById('ai-response-panel');
+      const content = document.getElementById('ai-response-content');
+      
+      panel.classList.remove('hidden');
+      content.innerHTML = `
+        <div class="whitespace-pre-wrap">${response}</div>
+        <div class="mt-2 text-xs text-slate-500">
+          Confidence: <span class="${confidence > 0.7 ? 'text-emerald-400' : confidence > 0.4 ? 'text-yellow-400' : 'text-red-400'}">${Math.round(confidence * 100)}%</span>
+        </div>
+      `;
+    }
+
+    async function sendResponse(response, isAiGenerated, closeTicket = false) {
+      if (!selectedTicketId) return;
+      
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/support-send-response`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ticketId: selectedTicketId,
+            response,
+            isAiGenerated,
+            closeTicket,
+          }),
+        });
+        
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        alert(data.emailSent ? '✅ Response sent!' : '⚠️ Response saved but email failed');
+        
+        // Refresh tickets
+        fetchTickets();
+        
+        // Hide panels
+        document.getElementById('ai-response-panel').classList.add('hidden');
+        document.getElementById('edit-response-panel').classList.add('hidden');
+        document.getElementById('ticket-detail').classList.add('hidden');
+        selectedTicketId = null;
+        
+      } catch (err) {
+        alert('❌ Failed to send: ' + err.message);
+      }
+    }
+
+    // Event listeners
+    document.getElementById('filter-status').addEventListener('change', () => fetchTickets());
+    document.getElementById('filter-category').addEventListener('change', () => fetchTickets());
+    document.getElementById('btn-refresh').addEventListener('click', () => fetchTickets());
+    document.getElementById('btn-load-more').addEventListener('click', () => {
+      currentOffset += LIMIT;
+      fetchTickets(true);
+    });
+
+    document.getElementById('btn-approve-ai').addEventListener('click', () => {
+      const ticket = currentTickets.find(t => t.id === selectedTicketId);
+      if (ticket?.ai_response) {
+        sendResponse(ticket.ai_response, true);
+      }
+    });
+
+    document.getElementById('btn-edit-response').addEventListener('click', () => {
+      const ticket = currentTickets.find(t => t.id === selectedTicketId);
+      document.getElementById('edit-response-text').value = ticket?.ai_response || '';
+      document.getElementById('edit-response-panel').classList.remove('hidden');
+      document.getElementById('ai-response-panel').classList.add('hidden');
+    });
+
+    document.getElementById('btn-regenerate-ai').addEventListener('click', () => {
+      if (selectedTicketId) generateAiResponse(selectedTicketId, true);
+    });
+
+    document.getElementById('btn-send-custom').addEventListener('click', () => {
+      const response = document.getElementById('edit-response-text').value.trim();
+      const closeTicket = document.getElementById('close-after-send').checked;
+      if (response) sendResponse(response, false, closeTicket);
+    });
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+      document.getElementById('edit-response-panel').classList.add('hidden');
+      const ticket = currentTickets.find(t => t.id === selectedTicketId);
+      if (ticket?.ai_response) {
+        document.getElementById('ai-response-panel').classList.remove('hidden');
+      }
+    });
+
+    // Initialize - load data immediately
+    fetchTickets();
   </script>
-
-  <style>
-    /* Hide content until auth check completes */
-    body.auth-loading > div {
-      visibility: hidden;
-    }
-  </style>
-</Layout>
+</DashboardLayout>

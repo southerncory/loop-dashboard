@@ -1,0 +1,458 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+---
+
+<DashboardLayout title="OXO Controls | Loop Command Center" active="oxo">
+  <div class="min-h-screen p-6 bg-slate-900">
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">🪙 OXO Token Controls</h1>
+          <p class="text-slate-400 mt-1">Emergency controls and token status</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-refresh" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-20">
+      <div class="text-4xl mb-4 animate-pulse">🪙</div>
+      <p class="text-slate-400">Loading OXO status...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="hidden">
+      <!-- Status Banner -->
+      <div id="status-banner" class="mb-6 p-4 rounded-xl border">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Current Price</span>
+            <span class="text-yellow-400">💰</span>
+          </div>
+          <div id="stat-price" class="text-3xl font-bold text-yellow-400">$0</div>
+          <div class="text-slate-500 text-xs mt-1">per OXO</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Circulating</span>
+            <span class="text-blue-400">📊</span>
+          </div>
+          <div id="stat-circulating" class="text-3xl font-bold text-blue-400">0</div>
+          <div id="stat-circulating-pct" class="text-slate-500 text-xs mt-1">0% of supply</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Market Cap</span>
+            <span class="text-green-400">📈</span>
+          </div>
+          <div id="stat-marketcap" class="text-3xl font-bold text-green-400">$0</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Holders</span>
+            <span class="text-purple-400">👥</span>
+          </div>
+          <div id="stat-holders" class="text-3xl font-bold text-purple-400">0</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Emergency Controls -->
+          <div class="bg-slate-800 rounded-xl border border-red-500/30 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700 bg-red-500/10">
+              <h2 class="font-semibold text-red-400">🚨 Emergency Controls</h2>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button id="btn-pause" class="px-4 py-3 bg-yellow-600 hover:bg-yellow-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  ⏸️ Pause Trading
+                </button>
+                <button id="btn-unpause" class="px-4 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 hidden">
+                  ▶️ Resume Trading
+                </button>
+                <button id="btn-emergency" class="px-4 py-3 bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  🛑 Emergency Stop
+                </button>
+              </div>
+              <div id="pause-reason-container" class="hidden">
+                <label class="block text-sm text-slate-400 mb-1">Reason (required for pause)</label>
+                <input type="text" id="pause-reason" class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-red-500 focus:outline-none" placeholder="Enter reason...">
+              </div>
+              <p class="text-xs text-slate-500">
+                ⚠️ These actions affect all OXO transactions immediately. Use with caution.
+              </p>
+            </div>
+          </div>
+
+          <!-- Supply Distribution -->
+          <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700">
+              <h2 class="font-semibold">📊 Supply Distribution</h2>
+            </div>
+            <div class="p-5">
+              <div class="space-y-3">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-400">Treasury</span>
+                    <span id="supply-treasury" class="font-mono">600M (60%)</span>
+                  </div>
+                  <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="bar-treasury" class="h-full bg-emerald-500" style="width: 60%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-400">Ecosystem Pool</span>
+                    <span id="supply-ecosystem" class="font-mono">200M (20%)</span>
+                  </div>
+                  <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="bar-ecosystem" class="h-full bg-blue-500" style="width: 20%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-400">Team Pool</span>
+                    <span id="supply-team" class="font-mono">100M (10%)</span>
+                  </div>
+                  <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="bar-team" class="h-full bg-purple-500" style="width: 10%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-400">Development</span>
+                    <span id="supply-dev" class="font-mono">100M (10%)</span>
+                  </div>
+                  <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="bar-dev" class="h-full bg-yellow-500" style="width: 10%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-400">Circulating</span>
+                    <span id="supply-circulating" class="font-mono">0 (0%)</span>
+                  </div>
+                  <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="bar-circulating" class="h-full bg-pink-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-4 border-t border-slate-700 flex justify-between">
+                <span class="text-slate-400">Total Supply</span>
+                <span id="supply-total" class="font-bold">1,000,000,000 OXO</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bonding Curve -->
+          <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700">
+              <h2 class="font-semibold">📈 Bonding Curve</h2>
+            </div>
+            <div class="p-5">
+              <div id="curve-formula" class="text-sm text-slate-400 mb-4 font-mono bg-slate-700/50 p-3 rounded-lg">
+                <!-- Formula shown here -->
+              </div>
+              <div class="h-48 flex items-end gap-1" id="curve-chart">
+                <!-- Chart bars filled by JS -->
+              </div>
+              <div class="flex justify-between text-xs text-slate-500 mt-2">
+                <span>0%</span>
+                <span>Circulation →</span>
+                <span>100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+          <!-- Token Settings -->
+          <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700">
+              <h2 class="font-semibold">⚙️ Token Settings</h2>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-medium">Exchange Trading</div>
+                  <div class="text-slate-500 text-xs">Allow OXO on DEXs</div>
+                </div>
+                <button id="toggle-exchange" class="w-12 h-6 rounded-full bg-slate-700 relative transition-colors">
+                  <span class="absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform"></span>
+                </button>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-medium">Buyback Program</div>
+                  <div class="text-slate-500 text-xs">Auto-buy with revenue</div>
+                </div>
+                <button id="toggle-buyback" class="w-12 h-6 rounded-full bg-slate-700 relative transition-colors">
+                  <span class="absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform"></span>
+                </button>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-slate-400">Buyback Rate</span>
+                  <span id="buyback-rate" class="font-medium">50%</span>
+                </div>
+                <input type="range" id="buyback-slider" min="0" max="100" value="50" class="w-full accent-emerald-500" disabled>
+                <p class="text-xs text-slate-500 mt-1">% of revenue used for buybacks</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Stats -->
+          <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700">
+              <h2 class="font-semibold">📊 Activity</h2>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Total Cred Spent</span>
+                <span id="stat-cred-spent" class="font-medium">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">OXO Purchased</span>
+                <span id="stat-oxo-bought" class="font-medium">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Avg Purchase Price</span>
+                <span id="stat-avg-price" class="font-medium">$0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency Log -->
+          <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700">
+              <h2 class="font-semibold">📋 Emergency Log</h2>
+            </div>
+            <div id="emergency-log" class="p-5 max-h-64 overflow-y-auto">
+              <div class="text-slate-500 text-sm text-center py-4">No emergency actions taken</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    let currentToken = null;
+
+    async function fetchOxoStatus() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/oxo-status`);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        currentToken = data.token;
+        renderOxoData(data);
+        
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        
+      } catch (err) {
+        console.error('Failed to fetch OXO status:', err);
+        document.getElementById('loading-state').innerHTML = `
+          <div class="text-4xl mb-4">❌</div>
+          <p class="text-red-400">Failed to load: ${err.message}</p>
+        `;
+      }
+    }
+
+    function renderOxoData(data) {
+      const { token, stats, bonding_curve, emergency_log } = data;
+      
+      // Status banner
+      const banner = document.getElementById('status-banner');
+      if (token.status === 'active') {
+        banner.className = 'mb-6 p-4 rounded-xl border bg-green-500/10 border-green-500/30';
+        banner.innerHTML = '<div class="flex items-center gap-3"><span class="text-2xl">✅</span><div><span class="font-semibold text-green-400">OXO is Active</span><p class="text-slate-400 text-sm">Trading is enabled and functioning normally</p></div></div>';
+        document.getElementById('btn-pause').classList.remove('hidden');
+        document.getElementById('btn-unpause').classList.add('hidden');
+      } else if (token.status === 'paused') {
+        banner.className = 'mb-6 p-4 rounded-xl border bg-yellow-500/10 border-yellow-500/30';
+        banner.innerHTML = `<div class="flex items-center gap-3"><span class="text-2xl">⏸️</span><div><span class="font-semibold text-yellow-400">OXO is Paused</span><p class="text-slate-400 text-sm">Reason: ${token.pause_reason || 'Not specified'}</p></div></div>`;
+        document.getElementById('btn-pause').classList.add('hidden');
+        document.getElementById('btn-unpause').classList.remove('hidden');
+      } else {
+        banner.className = 'mb-6 p-4 rounded-xl border bg-red-500/10 border-red-500/30';
+        banner.innerHTML = `<div class="flex items-center gap-3"><span class="text-2xl">🛑</span><div><span class="font-semibold text-red-400">EMERGENCY STOP</span><p class="text-slate-400 text-sm">Reason: ${token.pause_reason || 'Emergency'}</p></div></div>`;
+        document.getElementById('btn-pause').classList.add('hidden');
+        document.getElementById('btn-unpause').classList.remove('hidden');
+      }
+
+      // Stats
+      document.getElementById('stat-price').textContent = '$' + token.current_price.toFixed(4);
+      document.getElementById('stat-circulating').textContent = formatNumber(token.circulating_supply);
+      document.getElementById('stat-circulating-pct').textContent = (token.curve_progress * 100).toFixed(2) + '% of supply';
+      document.getElementById('stat-marketcap').textContent = '$' + formatNumber(token.market_cap);
+      document.getElementById('stat-holders').textContent = stats.holders_count;
+
+      // Supply distribution
+      const total = token.total_supply;
+      updateSupplyBar('treasury', token.treasury_balance, total);
+      updateSupplyBar('ecosystem', token.ecosystem_pool, total);
+      updateSupplyBar('team', token.team_pool, total);
+      updateSupplyBar('dev', token.development_pool, total);
+      updateSupplyBar('circulating', token.circulating_supply, total);
+      document.getElementById('supply-total').textContent = formatNumber(total) + ' OXO';
+
+      // Settings
+      updateToggle('toggle-exchange', token.exchange_trading_enabled);
+      updateToggle('toggle-buyback', token.buyback_enabled);
+      document.getElementById('buyback-rate').textContent = (token.buyback_rate * 100) + '%';
+      document.getElementById('buyback-slider').value = token.buyback_rate * 100;
+
+      // Activity
+      document.getElementById('stat-cred-spent').textContent = formatNumber(stats.total_cred_spent);
+      document.getElementById('stat-oxo-bought').textContent = formatNumber(stats.total_oxo_bought);
+      document.getElementById('stat-avg-price').textContent = '$' + stats.avg_price.toFixed(4);
+
+      // Bonding curve
+      document.getElementById('curve-formula').textContent = bonding_curve.formula;
+      renderCurveChart(bonding_curve);
+
+      // Emergency log
+      renderEmergencyLog(emergency_log);
+    }
+
+    function updateSupplyBar(name, amount, total) {
+      const pct = (amount / total) * 100;
+      document.getElementById(`supply-${name}`).textContent = formatNumber(amount) + ' (' + pct.toFixed(0) + '%)';
+      document.getElementById(`bar-${name}`).style.width = pct + '%';
+    }
+
+    function updateToggle(id, enabled) {
+      const btn = document.getElementById(id);
+      const dot = btn.querySelector('span');
+      if (enabled) {
+        btn.classList.remove('bg-slate-700');
+        btn.classList.add('bg-emerald-500');
+        dot.classList.add('translate-x-6');
+      } else {
+        btn.classList.add('bg-slate-700');
+        btn.classList.remove('bg-emerald-500');
+        dot.classList.remove('translate-x-6');
+      }
+    }
+
+    function renderCurveChart(curve) {
+      const chart = document.getElementById('curve-chart');
+      const currentPct = curve.current_position.percent;
+      
+      chart.innerHTML = curve.points.map(p => {
+        const height = Math.min(100, (p.price / 0.1) * 100); // Scale to max $0.10
+        const isCurrent = Math.abs(p.circulation_percent - currentPct) < 5;
+        return `<div class="flex-1 ${isCurrent ? 'bg-emerald-500' : 'bg-slate-600'} rounded-t" style="height: ${height}%" title="${p.circulation_percent}%: $${p.price.toFixed(4)}"></div>`;
+      }).join('');
+    }
+
+    function renderEmergencyLog(log) {
+      const container = document.getElementById('emergency-log');
+      if (!log || log.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-sm text-center py-4">No emergency actions taken</div>';
+        return;
+      }
+
+      container.innerHTML = log.map(entry => `
+        <div class="py-2 border-b border-slate-700 last:border-0">
+          <div class="flex justify-between items-center">
+            <span class="font-medium text-sm ${getActionColor(entry.action)}">${entry.action}</span>
+            <span class="text-xs text-slate-500">${new Date(entry.created_at).toLocaleString()}</span>
+          </div>
+          ${entry.reason ? `<p class="text-xs text-slate-400 mt-1">${entry.reason}</p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function getActionColor(action) {
+      if (action.includes('pause') || action.includes('stop')) return 'text-red-400';
+      if (action.includes('enable')) return 'text-green-400';
+      if (action.includes('disable')) return 'text-yellow-400';
+      return 'text-slate-300';
+    }
+
+    function formatNumber(n) {
+      if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
+      if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    async function performAction(action) {
+      const reason = document.getElementById('pause-reason')?.value || '';
+      
+      if ((action === 'pause' || action === 'emergency_stop') && !reason) {
+        alert('Please enter a reason');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) return;
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/oxo-status?action=${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason, performed_by: 'admin' }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        alert('✅ Action completed');
+        fetchOxoStatus();
+        
+      } catch (err) {
+        alert('❌ Failed: ' + err.message);
+      }
+    }
+
+    // Event listeners
+    document.getElementById('btn-refresh').addEventListener('click', fetchOxoStatus);
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      document.getElementById('pause-reason-container').classList.toggle('hidden');
+      if (!document.getElementById('pause-reason-container').classList.contains('hidden')) {
+        document.getElementById('pause-reason').focus();
+      } else {
+        performAction('pause');
+      }
+    });
+    document.getElementById('btn-unpause').addEventListener('click', () => performAction('unpause'));
+    document.getElementById('btn-emergency').addEventListener('click', () => {
+      document.getElementById('pause-reason-container').classList.remove('hidden');
+      document.getElementById('pause-reason').focus();
+      document.getElementById('pause-reason').onkeydown = (e) => {
+        if (e.key === 'Enter') performAction('emergency_stop');
+      };
+    });
+
+    document.getElementById('toggle-exchange').addEventListener('click', () => {
+      performAction(currentToken.exchange_trading_enabled ? 'disable_exchange' : 'enable_exchange');
+    });
+    document.getElementById('toggle-buyback').addEventListener('click', () => {
+      performAction(currentToken.buyback_enabled ? 'disable_buyback' : 'enable_buyback');
+    });
+
+    // Initialize
+    fetchOxoStatus();
+  </script>
+</DashboardLayout>

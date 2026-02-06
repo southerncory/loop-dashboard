@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import DashboardLayout from '../layouts/DashboardLayout.astro';
 import projects from '../data/projects.json';
 import activity from '../data/activity.json';
 import schedule from '../data/schedule.json';
@@ -176,10 +176,10 @@ function getProjectProgress(status: string): number {
 }
 ---
 
-<Layout title="Loop Command Center">
+<DashboardLayout title="Loop Command Center" active="dashboard">
   <div class="min-h-screen bg-slate-900">
-    <!-- Header with Summary Stats -->
-    <header class="bg-slate-800/80 border-b border-slate-700 sticky top-0 z-50 backdrop-blur-sm">
+    <!-- Header with Summary Stats (hidden on mobile - uses layout header instead) -->
+    <header class="hidden md:block bg-slate-800/80 border-b border-slate-700 sticky top-0 z-30 backdrop-blur-sm">
       <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div class="flex items-center gap-3">
@@ -1014,7 +1014,7 @@ function getProjectProgress(status: string): number {
       <p class="text-xs mt-1">Last updated: {aaInsights.lastUpdated}</p>
     </footer>
   </div>
-</Layout>
+</DashboardLayout>
 
 <style>
   /* Tab Styling */

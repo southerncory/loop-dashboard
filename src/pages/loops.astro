@@ -1,0 +1,406 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+---
+
+<DashboardLayout title="Loops Dashboard | Loop Command Center" active="loops">
+  <div class="min-h-screen p-6 bg-slate-900">
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">🌐 Loops Dashboard</h1>
+          <p class="text-slate-400 mt-1">Manage geographic micro-economies</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-create-loop" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors">
+            + Create Loop
+          </button>
+          <button id="btn-refresh" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-20">
+      <div class="text-4xl mb-4 animate-pulse">🌐</div>
+      <p class="text-slate-400">Loading Loops...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="hidden">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Total Loops</span>
+            <span class="text-emerald-400">🌐</span>
+          </div>
+          <div id="stat-loops" class="text-3xl font-bold text-white">0</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Active Loops</span>
+            <span class="text-green-400">✓</span>
+          </div>
+          <div id="stat-active" class="text-3xl font-bold text-green-400">0</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Total Users</span>
+            <span class="text-blue-400">👥</span>
+          </div>
+          <div id="stat-users" class="text-3xl font-bold text-blue-400">0</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">Total Merchants</span>
+            <span class="text-purple-400">🏪</span>
+          </div>
+          <div id="stat-merchants" class="text-3xl font-bold text-purple-400">0</div>
+        </div>
+        
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-slate-400 text-sm">30d Volume</span>
+            <span class="text-yellow-400">💵</span>
+          </div>
+          <div id="stat-volume" class="text-3xl font-bold text-yellow-400">$0</div>
+        </div>
+      </div>
+
+      <!-- Loops Grid -->
+      <div id="loops-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- Create Loop Modal -->
+    <div id="create-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-lg mx-4">
+        <h2 class="text-xl font-bold mb-4">Create New Loop</h2>
+        <form id="create-form" class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Loop Name</label>
+            <input type="text" name="name" required class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Miami Beach">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Slug (URL-friendly)</label>
+            <input type="text" name="slug" required class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-emerald-500 focus:outline-none" placeholder="e.g., miami-beach">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Location</label>
+            <input type="text" name="location" required class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Miami Beach, FL">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Description</label>
+            <textarea name="description" rows="3" class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-emerald-500 focus:outline-none resize-none" placeholder="Describe this Loop..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Status</label>
+            <select name="status" class="w-full bg-slate-700 rounded-lg px-3 py-2 border border-slate-600 focus:border-emerald-500 focus:outline-none">
+              <option value="Active">Active</option>
+              <option value="Growing">Growing</option>
+              <option value="Paused">Paused</option>
+              <option value="Coming Soon">Coming Soon</option>
+            </select>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors">
+              Create Loop
+            </button>
+            <button type="button" id="btn-cancel-create" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loop Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+      <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="detail-title" class="text-xl font-bold">Loop Details</h2>
+          <button id="btn-close-detail" class="text-slate-400 hover:text-white">✕</button>
+        </div>
+        <div id="detail-content">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
+    
+    let loopsData = [];
+
+    async function fetchLoops() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/loops-status`);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        loopsData = data.loops;
+        renderStats(data.totals);
+        renderLoops(data.loops);
+        
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        
+      } catch (err) {
+        console.error('Failed to fetch loops:', err);
+        document.getElementById('loading-state').innerHTML = `
+          <div class="text-4xl mb-4">❌</div>
+          <p class="text-red-400">Failed to load: ${err.message}</p>
+        `;
+      }
+    }
+
+    function renderStats(totals) {
+      document.getElementById('stat-loops').textContent = totals.totalLoops;
+      document.getElementById('stat-active').textContent = totals.activeLoops;
+      document.getElementById('stat-users').textContent = formatNumber(totals.totalUsers);
+      document.getElementById('stat-merchants').textContent = formatNumber(totals.totalMerchants);
+      document.getElementById('stat-volume').textContent = formatCurrency(totals.totalVolume);
+    }
+
+    function renderLoops(loops) {
+      const grid = document.getElementById('loops-grid');
+      
+      if (loops.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <div class="text-4xl mb-4">🌐</div>
+            <p class="text-slate-400">No Loops created yet</p>
+            <button onclick="document.getElementById('create-modal').classList.remove('hidden'); document.getElementById('create-modal').classList.add('flex');" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors">
+              Create Your First Loop
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = loops.map(loop => `
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors cursor-pointer loop-card" data-id="${loop.id}">
+          <div class="p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="font-semibold text-lg">${loop.name}</h3>
+                <p class="text-slate-500 text-sm">${loop.location}</p>
+              </div>
+              <span class="px-2 py-1 text-xs rounded-full ${getStatusColor(loop.status)}">${loop.status}</span>
+            </div>
+            
+            <p class="text-slate-400 text-sm mb-4 line-clamp-2">${loop.description || 'No description'}</p>
+            
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="bg-slate-700/50 rounded-lg p-3">
+                <div class="text-slate-400 text-xs">Users</div>
+                <div class="font-semibold text-blue-400">${formatNumber(loop.real_users || loop.users || 0)}</div>
+              </div>
+              <div class="bg-slate-700/50 rounded-lg p-3">
+                <div class="text-slate-400 text-xs">Merchants</div>
+                <div class="font-semibold text-purple-400">${formatNumber(loop.real_merchants || loop.merchants || 0)}</div>
+              </div>
+              <div class="bg-slate-700/50 rounded-lg p-3">
+                <div class="text-slate-400 text-xs">Volume</div>
+                <div class="font-semibold text-yellow-400">${loop.volume || '$0'}</div>
+              </div>
+              <div class="bg-slate-700/50 rounded-lg p-3">
+                <div class="text-slate-400 text-xs">Cred</div>
+                <div class="font-semibold text-emerald-400">${loop.cred_circulating || '0'}</div>
+              </div>
+            </div>
+            
+            ${loop.launched ? `<div class="mt-3 text-xs text-slate-500">Launched: ${loop.launched}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Add click handlers
+      document.querySelectorAll('.loop-card').forEach(card => {
+        card.addEventListener('click', () => showLoopDetail(card.dataset.id));
+      });
+    }
+
+    function showLoopDetail(loopId) {
+      const loop = loopsData.find(l => l.id === loopId);
+      if (!loop) return;
+
+      document.getElementById('detail-title').textContent = loop.name;
+      document.getElementById('detail-content').innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center gap-4">
+            <span class="px-3 py-1 rounded-full text-sm ${getStatusColor(loop.status)}">${loop.status}</span>
+            <span class="text-slate-400">${loop.location}</span>
+            <span class="text-slate-500 text-sm">Slug: ${loop.slug}</span>
+          </div>
+          
+          <div>
+            <h4 class="text-sm text-slate-400 mb-1">Description</h4>
+            <p class="text-slate-200">${loop.description || 'No description'}</p>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-700/50 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-blue-400">${formatNumber(loop.real_users || loop.users || 0)}</div>
+              <div class="text-slate-400 text-sm">Users</div>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-purple-400">${formatNumber(loop.real_merchants || loop.merchants || 0)}</div>
+              <div class="text-slate-400 text-sm">Merchants</div>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-yellow-400">${loop.volume || '$0'}</div>
+              <div class="text-slate-400 text-sm">Volume</div>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-emerald-400">${loop.cred_circulating || '0'}</div>
+              <div class="text-slate-400 text-sm">Cred</div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Avg Transaction</div>
+              <div class="font-semibold">${loop.avg_transaction || 'N/A'}</div>
+            </div>
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Repeat Rate</div>
+              <div class="font-semibold">${loop.repeat_rate || 'N/A'}</div>
+            </div>
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Stacking Rate</div>
+              <div class="font-semibold">${loop.stacking_rate || 'N/A'}</div>
+            </div>
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Treasury Value</div>
+              <div class="font-semibold text-green-400">${loop.treasury_value || '$0'}</div>
+            </div>
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Launched</div>
+              <div class="font-semibold">${loop.launched || 'N/A'}</div>
+            </div>
+            <div class="bg-slate-700/30 rounded-lg p-3">
+              <div class="text-slate-400 text-xs">Created</div>
+              <div class="font-semibold">${new Date(loop.created_at).toLocaleDateString()}</div>
+            </div>
+          </div>
+          
+          <div class="flex gap-3 pt-4 border-t border-slate-700">
+            <button onclick="editLoop('${loop.id}')" class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
+              ✏️ Edit Loop
+            </button>
+            <button onclick="toggleLoopStatus('${loop.id}', '${loop.status}')" class="px-4 py-2 ${loop.status === 'Paused' ? 'bg-green-600 hover:bg-green-500' : 'bg-yellow-600 hover:bg-yellow-500'} rounded-lg font-medium transition-colors">
+              ${loop.status === 'Paused' ? '▶️ Activate' : '⏸️ Pause'}
+            </button>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('detail-modal').classList.remove('hidden');
+      document.getElementById('detail-modal').classList.add('flex');
+    }
+
+    async function createLoop(formData) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/loops`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            name: formData.get('name'),
+            slug: formData.get('slug'),
+            location: formData.get('location'),
+            description: formData.get('description'),
+            status: formData.get('status'),
+            users: 0,
+            merchants: 0,
+            volume: '$0',
+            cred_circulating: '0',
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Failed to create loop');
+        }
+        
+        alert('✅ Loop created!');
+        document.getElementById('create-modal').classList.add('hidden');
+        document.getElementById('create-form').reset();
+        fetchLoops();
+        
+      } catch (err) {
+        alert('❌ Failed to create: ' + err.message);
+      }
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        'Active': 'bg-green-500/20 text-green-400',
+        'Growing': 'bg-blue-500/20 text-blue-400',
+        'Paused': 'bg-yellow-500/20 text-yellow-400',
+        'Coming Soon': 'bg-purple-500/20 text-purple-400',
+      };
+      return colors[status] || 'bg-slate-500/20 text-slate-400';
+    }
+
+    function formatNumber(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    function formatCurrency(n) {
+      if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
+      return '$' + n.toFixed(0);
+    }
+
+    // Event listeners
+    document.getElementById('btn-refresh').addEventListener('click', fetchLoops);
+    
+    document.getElementById('btn-create-loop').addEventListener('click', () => {
+      document.getElementById('create-modal').classList.remove('hidden');
+      document.getElementById('create-modal').classList.add('flex');
+    });
+    
+    document.getElementById('btn-cancel-create').addEventListener('click', () => {
+      document.getElementById('create-modal').classList.add('hidden');
+    });
+    
+    document.getElementById('btn-close-detail').addEventListener('click', () => {
+      document.getElementById('detail-modal').classList.add('hidden');
+    });
+    
+    document.getElementById('create-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      createLoop(new FormData(e.target));
+    });
+
+    // Close modals on backdrop click
+    ['create-modal', 'detail-modal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', (e) => {
+        if (e.target.id === id) {
+          e.target.classList.add('hidden');
+        }
+      });
+    });
+
+    // Initialize - load data immediately
+    fetchLoops();
+  </script>
+</DashboardLayout>

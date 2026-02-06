@@ -9,20 +9,26 @@
     "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Proportional APY"],
     "tasks": {
       "todo": [
-        {"id": "squads-multisig", "title": "Create Squads Multi-sig Wallet", "priority": "critical"},
-        {"id": "kraken-api-functions", "title": "Build Kraken API Edge Functions", "priority": "critical"},
         {"id": "yield-tracking-schema", "title": "Database schema for yield tracking", "priority": "critical"},
         {"id": "yield-calculation-cron", "title": "Daily yield calculation cron job", "priority": "high"},
         {"id": "marinade-integration", "title": "Integrate Marinade staking", "priority": "high"},
         {"id": "kamino-integration", "title": "Integrate Kamino lending", "priority": "high"},
         {"id": "withdrawal-flow", "title": "Build withdrawal request flow", "priority": "high"},
-        {"id": "treasury-dashboard", "title": "Treasury admin dashboard", "priority": "medium"},
-        {"id": "reconciliation-system", "title": "On-chain/off-chain reconciliation", "priority": "medium"}
+        {"id": "reconciliation-system", "title": "On-chain/off-chain reconciliation", "priority": "medium"},
+        {"id": "whitelist-vault", "title": "Whitelist Squads vault in Kraken for USDC withdrawals", "priority": "high"}
       ],
       "inProgress": [
-        {"id": "kraken-verification", "title": "Kraken Business Verification", "priority": "critical", "note": "Submitted, waiting approval"}
+        {"id": "kraken-verification", "title": "Kraken Full Verification (deposits)", "priority": "critical", "note": "API working, waiting deposit access"}
       ],
       "done": [
+        "✅ Treasury admin dashboard LIVE in Command Center (Feb 4)",
+        "✅ Treasury database schema deployed (7 tables) (Feb 4)",
+        "✅ Dynamic APY migration deployed (Feb 4)",
+        "✅ USDC withdrawal option for merchants (Feb 4)",
+        "✅ Squads multi-sig vault created: MmFao...5on4 (Feb 4)",
+        "✅ Kraken API Edge Functions deployed (Feb 4)",
+        "✅ Kraken API keys generated & stored (Feb 4)",
+        "✅ Solflare wallet setup (Feb 4)",
         "✅ Architecture decided: Option C - Unified Treasury + Virtual Pools (Feb 4)",
         "✅ Mercury business bank account opened (Feb 4)",
         "✅ Kraken business application submitted (Feb 4)",
@@ -243,13 +249,28 @@
     "name": "Command Center",
     "slug": "loop-dashboard",
     "status": "live",
-    "description": "Alex's mission control",
-    "stack": "Astro + Tailwind → Vercel",
-    "highlights": ["Projects", "Tasks", "Activity"],
+    "description": "Alex's mission control + Loop operations",
+    "stack": "Astro + Tailwind + Supabase Edge Functions → Vercel",
+    "highlights": ["10 pages", "Real data", "Persistent sidebar"],
     "tasks": {
-      "todo": [],
+      "todo": [
+        {"id": "cc-cloudflare-auth", "title": "Fix Cloudflare auth (Burt broke it)", "priority": "high"}
+      ],
       "inProgress": [],
       "done": [
+        "✅ COMMAND CENTER COMPLETE - 10/10 pages (Feb 4)",
+        "✅ Dashboard with real Loop metrics",
+        "✅ Treasury page with live APY, vault balance",
+        "✅ Merchants page with real data",
+        "✅ Users page with growth metrics",
+        "✅ Analytics page (acquisition, revenue, geographic)",
+        "✅ Settings page (API keys, team, audit logs)",
+        "✅ OXO Controls (emergency pause, toggles)",
+        "✅ Support Center with AI responses",
+        "✅ Loops page with real data",
+        "✅ Persistent sidebar navigation",
+        "✅ Build tracker (tabbed interface) restored",
+        "✅ 8 new Edge Functions deployed",
         "✅ Treasury System project added (Feb 4)",
         "✅ Dashboard deployed",
         "✅ Auth configured",

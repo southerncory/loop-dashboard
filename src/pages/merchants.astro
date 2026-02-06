@@ -1,0 +1,99 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+---
+
+<DashboardLayout title="Merchants | Loop Command Center" active="merchants">
+  <div class="p-6">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold">🏪 Merchants</h1>
+      <p class="text-slate-400 mt-1">All registered merchants and their pool status</p>
+    </header>
+
+    <div id="loading" class="text-center py-20">
+      <div class="text-4xl mb-4 animate-pulse">🏪</div>
+      <p class="text-slate-400">Loading merchants...</p>
+    </div>
+
+    <div id="content" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="text-slate-400 text-sm mb-1">Total Merchants</div>
+          <div id="stat-total" class="text-3xl font-bold">0</div>
+        </div>
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="text-slate-400 text-sm mb-1">Active Subscriptions</div>
+          <div id="stat-active" class="text-3xl font-bold text-green-400">0</div>
+        </div>
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="text-slate-400 text-sm mb-1">Total Pool Deposits</div>
+          <div id="stat-deposits" class="text-3xl font-bold text-blue-400">$0</div>
+        </div>
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <div class="text-slate-400 text-sm mb-1">Total Yield Earned</div>
+          <div id="stat-yield" class="text-3xl font-bold text-yellow-400">$0</div>
+        </div>
+      </div>
+
+      <div class="bg-slate-800 rounded-xl border border-slate-700">
+        <div class="px-5 py-4 border-b border-slate-700">
+          <h2 class="font-semibold">All Merchants</h2>
+        </div>
+        <div id="merchants-list" class="divide-y divide-slate-700">
+          <div class="p-5 text-slate-500">No merchants yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
+
+    function fmt(n: number) {
+      return n >= 1000 ? '$' + (n/1000).toFixed(1) + 'K' : '$' + n.toLocaleString();
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/merchants-status`, {
+          headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+        const data = await res.json();
+
+        document.getElementById('stat-total')!.textContent = data.totals.total;
+        document.getElementById('stat-active')!.textContent = data.totals.active;
+        document.getElementById('stat-deposits')!.textContent = fmt(data.totals.totalDeposits);
+        document.getElementById('stat-yield')!.textContent = fmt(data.totals.totalYield);
+
+        const list = document.getElementById('merchants-list')!;
+        if (data.merchants.length === 0) {
+          list.innerHTML = '<div class="p-5 text-slate-500">No merchants registered yet. They\'ll appear here when they sign up.</div>';
+        } else {
+          list.innerHTML = data.merchants.map((m: any) => `
+            <div class="p-5 flex items-center justify-between">
+              <div>
+                <div class="font-medium">${m.business_name || 'Unnamed'}</div>
+                <div class="text-sm text-slate-400">${m.loop_name || 'No Loop'} • ${m.email || ''}</div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="text-right">
+                  <div class="text-sm text-slate-400">Pool</div>
+                  <div class="font-medium">${m.pool ? fmt(Number(m.pool.deposited_amount)) : '$0'}</div>
+                </div>
+                <span class="px-2 py-1 rounded text-xs ${m.subscription_status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'}">${m.subscription_status || 'none'}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('loading')!.classList.add('hidden');
+        document.getElementById('content')!.classList.remove('hidden');
+      } catch (e) {
+        console.error(e);
+        document.getElementById('loading')!.innerHTML = '<div class="text-red-400">Failed to load</div>';
+      }
+    }
+
+    load();
+  </script>
+</DashboardLayout>

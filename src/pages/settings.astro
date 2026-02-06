@@ -1,0 +1,131 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+---
+
+<DashboardLayout title="Settings | Loop Command Center" active="settings">
+  <div class="p-6">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold">⚙️ Settings</h1>
+      <p class="text-slate-400 mt-1">System configuration and access control</p>
+    </header>
+
+    <div id="loading" class="text-center py-20">
+      <div class="text-4xl mb-4 animate-pulse">⚙️</div>
+      <p class="text-slate-400">Loading settings...</p>
+    </div>
+
+    <div id="content" class="hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- API Keys -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700">
+          <div class="px-5 py-4 border-b border-slate-700">
+            <h2 class="font-semibold">🔑 API Keys</h2>
+          </div>
+          <div id="api-keys" class="p-5 space-y-3"></div>
+        </div>
+
+        <!-- Team Access -->
+        <div class="bg-slate-800 rounded-xl border border-slate-700">
+          <div class="px-5 py-4 border-b border-slate-700">
+            <h2 class="font-semibold">👥 Team Access</h2>
+          </div>
+          <div id="team-access" class="p-5 space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- System Config -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700 mb-6">
+        <div class="px-5 py-4 border-b border-slate-700">
+          <h2 class="font-semibold">🖥️ System Configuration</h2>
+        </div>
+        <div class="p-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <div class="text-slate-400 text-sm">Environment</div>
+              <div id="config-env" class="font-medium">-</div>
+            </div>
+            <div>
+              <div class="text-slate-400 text-sm">Supabase Project</div>
+              <div id="config-project" class="font-mono text-sm">-</div>
+            </div>
+            <div>
+              <div class="text-slate-400 text-sm">Region</div>
+              <div id="config-region" class="font-medium">-</div>
+            </div>
+          </div>
+          <div>
+            <div class="text-slate-400 text-sm mb-2">Edge Functions (<span id="func-count">0</span>)</div>
+            <div id="edge-functions" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Logs -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700">
+        <div class="px-5 py-4 border-b border-slate-700">
+          <h2 class="font-semibold">📋 Audit Log</h2>
+        </div>
+        <div id="audit-logs" class="divide-y divide-slate-700 max-h-96 overflow-y-auto">
+          <div class="p-5 text-slate-500 text-center">No audit entries yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
+
+    function timeAgo(date: string) {
+      const diff = Date.now() - new Date(date).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/settings-status`, {
+          headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+        const data = await res.json();
+
+        const keyNames: Record<string, string> = { supabase: 'Supabase', kraken: 'Kraken', openai: 'OpenAI', resend: 'Resend', stripe: 'Stripe' };
+        document.getElementById('api-keys')!.innerHTML = Object.entries(data.apiKeys).map(([key, configured]) => 
+          `<div class="flex items-center justify-between py-2"><span>${keyNames[key] || key}</span><span class="${configured ? 'text-green-400' : 'text-red-400'}">${configured ? '✓ Configured' : '✗ Not Set'}</span></div>`
+        ).join('');
+
+        document.getElementById('team-access')!.innerHTML = data.teamAccess.map((t: any) => 
+          `<div class="flex items-center justify-between py-2"><div><div class="font-medium">${t.email}</div><div class="text-xs text-slate-400 capitalize">${t.role}</div></div><span class="px-2 py-1 rounded text-xs ${t.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'}">${t.status}</span></div>`
+        ).join('');
+
+        document.getElementById('config-env')!.textContent = data.systemConfig.environment;
+        document.getElementById('config-project')!.textContent = data.systemConfig.supabaseProject;
+        document.getElementById('config-region')!.textContent = data.systemConfig.region;
+        document.getElementById('func-count')!.textContent = data.systemConfig.edgeFunctions.length;
+        document.getElementById('edge-functions')!.innerHTML = data.systemConfig.edgeFunctions.map((f: string) => 
+          `<span class="px-2 py-1 bg-slate-700 rounded text-xs font-mono">${f}</span>`
+        ).join('');
+
+        const logsEl = document.getElementById('audit-logs')!;
+        if (data.auditLogs.length === 0) {
+          logsEl.innerHTML = '<div class="p-5 text-slate-500 text-center">No audit entries yet</div>';
+        } else {
+          logsEl.innerHTML = data.auditLogs.map((log: any) => 
+            `<div class="px-5 py-3 flex items-center justify-between"><div><div class="font-medium">${log.type}</div><div class="text-sm text-slate-400">${log.description || '-'}</div></div><div class="text-right"><div class="font-medium">${log.amount ? '$' + Number(log.amount).toLocaleString() : '-'}</div><div class="text-xs text-slate-500">${timeAgo(log.created_at)}</div></div></div>`
+          ).join('');
+        }
+
+        document.getElementById('loading')!.classList.add('hidden');
+        document.getElementById('content')!.classList.remove('hidden');
+      } catch (e) {
+        console.error(e);
+        document.getElementById('loading')!.innerHTML = '<div class="text-red-400">Failed to load settings</div>';
+      }
+    }
+
+    load();
+  </script>
+</DashboardLayout>
