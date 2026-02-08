@@ -123,6 +123,87 @@
       ]
     },
     {
+      "id": "local-markets",
+      "name": "📈 Local Markets (Wall Street for Main Street)",
+      "description": "Turn every Loop into a real-time tradeable market - engage users from their couch",
+      "status": "vision",
+      "legal_note": "Requires careful structuring - no USD cash-out for trading gains keeps it defensible as rewards optimization, not securities",
+      "features": [
+        {
+          "title": "Real-Time Merchant Tickers",
+          "description": "Live performance dashboard: JOES ↑3.2%, NEWS ↓0.8%. Transactions flowing in real-time, charts, volume, momentum.",
+          "priority": "critical",
+          "impact": "Makes Loop a daily check, not just at checkout"
+        },
+        {
+          "title": "Trade Positions",
+          "description": "Buy/sell stakes in merchant pools like stocks. Order books, bid/ask, limit orders, stop-loss.",
+          "priority": "critical",
+          "impact": "Full brokerage experience for local economy"
+        },
+        {
+          "title": "Local Economy Indices",
+          "description": "Baskets: 'Miami Airport Index', 'Coffee Sector', 'Rising Stars'. One-click diversification.",
+          "priority": "high",
+          "impact": "Invest in sectors, not just individual merchants"
+        },
+        {
+          "title": "Copy Trading",
+          "description": "Leaderboards of top local traders. One-click copy their portfolio. Learn from the best.",
+          "priority": "high",
+          "impact": "Social proof, easier onboarding"
+        },
+        {
+          "title": "AI Analyst Reports",
+          "description": "Auto-generated research: 'Newslink: Strong location, captive audience. Rating: BUY.' Makes users feel like real investors.",
+          "priority": "medium",
+          "impact": "Professional investing experience"
+        },
+        {
+          "title": "Automated Strategies",
+          "description": "'Rebalance monthly', 'Buy any merchant that drops 10%', 'DCA $20/week into Miami Food Index'. Set and forget.",
+          "priority": "high",
+          "impact": "Passive engagement, set-it-forget-it users"
+        },
+        {
+          "title": "Dividend Payouts",
+          "description": "Weekly/monthly distributions from staked positions based on merchant performance. Passive income stream.",
+          "priority": "medium",
+          "impact": "Regular dopamine hits, recurring engagement"
+        },
+        {
+          "title": "Prediction Markets",
+          "description": "'Will Joe's hit $50K this month?' Bet on outcomes, real stakes, real payouts within ecosystem.",
+          "priority": "medium",
+          "impact": "Speculation layer, high engagement"
+        },
+        {
+          "title": "Paper Trading Mode",
+          "description": "Virtual Cred to practice strategies. Learn without risk. Onboarding ramp for new users.",
+          "priority": "high",
+          "impact": "Safe way to learn, converts to real trading"
+        },
+        {
+          "title": "Portfolio Dashboard",
+          "description": "Total value, P&L by period, sector allocation, unrealized gains, performance vs index. Full brokerage view.",
+          "priority": "critical",
+          "impact": "The home screen that keeps users coming back"
+        },
+        {
+          "title": "Price Alerts",
+          "description": "'Alert me if JOES drops 5%', 'Notify when NEWS hits new high'. Push notifications drive opens.",
+          "priority": "medium",
+          "impact": "Retention and re-engagement"
+        },
+        {
+          "title": "Social Feed",
+          "description": "See friends' trades (optional). 'Alex just increased position in Newslink.' Social layer.",
+          "priority": "low",
+          "impact": "FOMO, social proof, viral loops"
+        }
+      ]
+    },
+    {
       "id": "data-reputation",
       "name": "📊 Data & Reputation",
       "description": "Your Loop history becomes valuable",
@@ -198,6 +279,51 @@
           "description": "Customer loads USDC, pays via Solana Pay. We control entire transaction. Near-zero fees.",
           "priority": "medium",
           "impact": "Ultimate vision - closed loop economy"
+        }
+      ]
+    },
+    {
+      "id": "legal-structure",
+      "name": "⚖️ Legal & Regulatory",
+      "description": "How to structure Loop to stay compliant while enabling the vision",
+      "status": "critical-research",
+      "features": [
+        {
+          "title": "Closed Loop = No Securities Issue",
+          "description": "If trading gains can't convert to USD, strong argument it's 'rewards optimization' not investing. Key defensive structure.",
+          "priority": "critical",
+          "impact": "Enables 80% of vision legally"
+        },
+        {
+          "title": "Rewards Framing",
+          "description": "It's not 'investing' - it's 'optimizing your rewards'. Language matters for regulatory posture.",
+          "priority": "high",
+          "impact": "Marketing and legal positioning"
+        },
+        {
+          "title": "Regulation CF Path",
+          "description": "If we want real USD-convertible merchant investments, Reg CF allows non-accredited investors. $5M/year cap, SEC registration required.",
+          "priority": "medium",
+          "impact": "Path to full securities-grade product"
+        },
+        {
+          "title": "State Fintech Sandboxes",
+          "description": "AZ, WY, UT have sandboxes for fintech innovation. Could test features with regulatory cover.",
+          "priority": "medium",
+          "impact": "Safe testing ground"
+        },
+        {
+          "title": "Non-US Launch First",
+          "description": "Launch full features in crypto-friendly jurisdiction (UAE, Singapore). Geo-fence US users initially.",
+          "priority": "low",
+          "impact": "Faster to market, prove model first"
+        },
+        {
+          "title": "Securities Lawyer Engagement",
+          "description": "Before any trading features go live, need formal legal opinion on structure.",
+          "priority": "critical",
+          "impact": "Required before launch",
+          "note": "Budget: $10-25K for proper opinion"
         }
       ]
     }
