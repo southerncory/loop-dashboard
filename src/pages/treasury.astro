@@ -158,6 +158,92 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
         </div>
       </div>
 
+      <!-- Active Yield Positions -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700 mb-6">
+        <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 class="font-semibold">📍 Active Yield Positions</h2>
+          <button id="add-position-btn" class="text-sm bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded-lg transition">
+            + Add Position
+          </button>
+        </div>
+        <div class="p-5">
+          <div id="positions-loading" class="text-center py-8 text-slate-400">Loading positions...</div>
+          <div id="positions-empty" class="hidden text-center py-8">
+            <div class="text-4xl mb-2">🌱</div>
+            <p class="text-slate-400">No active yield positions yet</p>
+            <p class="text-slate-500 text-sm mt-1">Once USDC is deposited into Kamino/MarginFi, add it here to track</p>
+          </div>
+          <div id="positions-list" class="hidden space-y-3"></div>
+          
+          <!-- Position Summary -->
+          <div id="positions-summary" class="hidden mt-4 pt-4 border-t border-slate-700">
+            <div class="grid grid-cols-4 gap-4 text-sm">
+              <div>
+                <span class="text-slate-400">Total Deposited</span>
+                <div id="pos-total-deposited" class="font-bold text-white">$0</div>
+              </div>
+              <div>
+                <span class="text-slate-400">Current Value</span>
+                <div id="pos-total-value" class="font-bold text-emerald-400">$0</div>
+              </div>
+              <div>
+                <span class="text-slate-400">Total Yield</span>
+                <div id="pos-total-yield" class="font-bold text-green-400">+$0</div>
+              </div>
+              <div>
+                <span class="text-slate-400">Blended APY</span>
+                <div id="pos-blended-apy" class="font-bold text-yellow-400">--%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Position Modal -->
+      <div id="add-position-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-md mx-4">
+          <h3 class="text-xl font-bold mb-4">Add Yield Position</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Protocol</label>
+              <select id="pos-protocol" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+                <option value="kamino">Kamino (USDC Vault)</option>
+                <option value="marginfi">MarginFi (USDC Lending)</option>
+                <option value="solend">Solend</option>
+                <option value="drift">Drift</option>
+                <option value="marinade">Marinade (mSOL)</option>
+                <option value="jito">Jito (jitoSOL)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Vault/Pool Name</label>
+              <input type="text" id="pos-vault" placeholder="e.g., USDC Main Vault" 
+                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Amount Deposited (USDC)</label>
+              <input type="number" id="pos-amount" placeholder="10000" step="0.01"
+                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Transaction Signature (optional)</label>
+              <input type="text" id="pos-tx" placeholder="Solana tx signature" 
+                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white font-mono text-sm">
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Notes</label>
+              <input type="text" id="pos-notes" placeholder="e.g., Initial Newslink deposit" 
+                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button id="pos-cancel" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg transition">Cancel</button>
+              <button id="pos-submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition">Add Position</button>
+            </div>
+            <div id="pos-status" class="text-sm text-center"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Treasury Breakdown -->
       <div class="bg-slate-800 rounded-xl border border-slate-700">
         <div class="px-5 py-4 border-b border-slate-700">
@@ -346,5 +432,191 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
 
     document.getElementById('staking-submit')?.addEventListener('click', submitStakingAction);
     loadTreasuryActions();
+
+    // Yield Positions
+    async function loadPositions() {
+      const loadingEl = document.getElementById('positions-loading')!;
+      const emptyEl = document.getElementById('positions-empty')!;
+      const listEl = document.getElementById('positions-list')!;
+      const summaryEl = document.getElementById('positions-summary')!;
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/yield-positions?action=list`, {
+          headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        const data = await res.json();
+
+        loadingEl.classList.add('hidden');
+
+        if (!data.positions || data.positions.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        const activePositions = data.positions.filter((p: any) => p.status === 'active');
+        
+        if (activePositions.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        listEl.classList.remove('hidden');
+        summaryEl.classList.remove('hidden');
+
+        // Render positions
+        listEl.innerHTML = activePositions.map((p: any) => {
+          const yieldAmt = p.current_value - p.deposited_amount;
+          const yieldPct = p.deposited_amount > 0 ? (yieldAmt / p.deposited_amount * 100).toFixed(2) : '0.00';
+          const protocolColors: Record<string, string> = {
+            kamino: 'bg-green-500/20 text-green-400',
+            marginfi: 'bg-blue-500/20 text-blue-400',
+            solend: 'bg-purple-500/20 text-purple-400',
+            drift: 'bg-orange-500/20 text-orange-400',
+            marinade: 'bg-cyan-500/20 text-cyan-400',
+            jito: 'bg-yellow-500/20 text-yellow-400',
+          };
+          return `
+            <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-1 rounded text-xs font-medium ${protocolColors[p.protocol] || 'bg-slate-600 text-slate-300'}">${p.protocol.toUpperCase()}</span>
+                  <span class="text-white font-medium">${p.vault_name || 'Vault'}</span>
+                </div>
+                <span class="text-sm text-slate-400">${p.current_apy ? (p.current_apy * 100).toFixed(1) + '% APY' : '--'}</span>
+              </div>
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span class="text-slate-400">Deposited</span>
+                  <div class="font-mono text-white">$${Number(p.deposited_amount).toLocaleString()}</div>
+                </div>
+                <div>
+                  <span class="text-slate-400">Current Value</span>
+                  <div class="font-mono text-emerald-400">$${Number(p.current_value).toLocaleString()}</div>
+                </div>
+                <div>
+                  <span class="text-slate-400">Yield</span>
+                  <div class="font-mono ${yieldAmt >= 0 ? 'text-green-400' : 'text-red-400'}">
+                    ${yieldAmt >= 0 ? '+' : ''}$${yieldAmt.toFixed(2)} (${yieldPct}%)
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+                <span>Deposited: ${new Date(p.deposit_date).toLocaleDateString()}</span>
+                <button class="update-pos-btn text-blue-400 hover:text-blue-300" data-id="${p.id}">Update Value</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Summary
+        document.getElementById('pos-total-deposited')!.textContent = '$' + data.summary.totalDeposited.toLocaleString();
+        document.getElementById('pos-total-value')!.textContent = '$' + data.summary.totalValue.toLocaleString();
+        document.getElementById('pos-total-yield')!.textContent = '+$' + data.summary.totalYield.toFixed(2);
+        document.getElementById('pos-blended-apy')!.textContent = (data.summary.weightedApy * 100).toFixed(2) + '%';
+
+        // Add update handlers
+        document.querySelectorAll('.update-pos-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = (btn as HTMLElement).dataset.id;
+            const newValue = prompt('Enter current value (USDC):');
+            const newApy = prompt('Enter current APY (e.g., 0.08 for 8%):');
+            if (newValue) {
+              updatePositionValue(id!, parseFloat(newValue), newApy ? parseFloat(newApy) : null);
+            }
+          });
+        });
+
+      } catch (e) {
+        console.error(e);
+        loadingEl.innerHTML = '<span class="text-red-400">Failed to load positions</span>';
+      }
+    }
+
+    async function updatePositionValue(positionId: string, currentValue: number, currentApy: number | null) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/yield-positions`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'update_value',
+            position_id: positionId,
+            current_value: currentValue,
+            current_apy: currentApy
+          })
+        });
+        if (res.ok) {
+          loadPositions();
+        }
+      } catch (e) {
+        alert('Failed to update position');
+      }
+    }
+
+    async function addPosition() {
+      const protocol = (document.getElementById('pos-protocol') as HTMLSelectElement).value;
+      const vault_name = (document.getElementById('pos-vault') as HTMLInputElement).value;
+      const deposited_amount = parseFloat((document.getElementById('pos-amount') as HTMLInputElement).value);
+      const deposit_tx_signature = (document.getElementById('pos-tx') as HTMLInputElement).value;
+      const notes = (document.getElementById('pos-notes') as HTMLInputElement).value;
+      const statusEl = document.getElementById('pos-status')!;
+
+      if (!deposited_amount || deposited_amount <= 0) {
+        statusEl.textContent = '❌ Enter valid amount';
+        statusEl.className = 'text-sm text-center text-red-400';
+        return;
+      }
+
+      statusEl.textContent = '⏳ Adding...';
+      statusEl.className = 'text-sm text-center text-yellow-400';
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/yield-positions`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'create',
+            protocol,
+            vault_name,
+            deposited_amount,
+            deposit_tx_signature,
+            notes
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          statusEl.textContent = '✅ Position added!';
+          statusEl.className = 'text-sm text-center text-green-400';
+          setTimeout(() => {
+            document.getElementById('add-position-modal')!.classList.add('hidden');
+            loadPositions();
+            load(); // Reload main treasury data
+          }, 1000);
+        } else {
+          statusEl.textContent = '❌ ' + (data.error || 'Failed');
+          statusEl.className = 'text-sm text-center text-red-400';
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ Network error';
+        statusEl.className = 'text-sm text-center text-red-400';
+      }
+    }
+
+    // Modal handlers
+    document.getElementById('add-position-btn')?.addEventListener('click', () => {
+      document.getElementById('add-position-modal')!.classList.remove('hidden');
+    });
+    document.getElementById('pos-cancel')?.addEventListener('click', () => {
+      document.getElementById('add-position-modal')!.classList.add('hidden');
+    });
+    document.getElementById('pos-submit')?.addEventListener('click', addPosition);
+
+    loadPositions();
   </script>
 </DashboardLayout>
