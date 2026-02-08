@@ -1,32 +1,18 @@
 {
   "todo": [
     {
-      "id": "squads-multisig",
-      "title": "💰 Treasury: Create Squads Multi-sig Wallet",
-      "description": "Set up Squads Protocol multi-sig for master treasury on Solana",
+      "id": "checkout-friction",
+      "title": "🎯 PILOT: Solve Checkout Friction",
+      "description": "Choose approach: Card linking (Plaid), Static QR, NFC stickers, or phone-based flow",
       "priority": "critical",
-      "category": "treasury"
+      "category": "product"
     },
     {
-      "id": "kraken-api-functions",
-      "title": "💰 Treasury: Build Kraken API Edge Functions",
-      "description": "kraken-buy-usdc, kraken-withdraw, kraken-sell-usdc, kraken-balance",
-      "priority": "critical",
-      "category": "treasury"
-    },
-    {
-      "id": "yield-tracking-schema",
-      "title": "💰 Treasury: Database Schema for Yield Tracking",
-      "description": "merchant_shares, yield_snapshots, yield_distributions tables",
-      "priority": "critical",
-      "category": "treasury"
-    },
-    {
-      "id": "yield-calculation-cron",
-      "title": "💰 Treasury: Daily Yield Calculation Cron",
-      "description": "Fetch staked balance, calculate yield, distribute proportionally",
+      "id": "wallet-pass-deploy",
+      "title": "📱 Deploy Wallet Pass Server",
+      "description": "Deploy loop-wallet-pass to wallet.looplocal.io for Apple/Google Wallet passes",
       "priority": "high",
-      "category": "treasury"
+      "category": "engineering"
     },
     {
       "id": "marinade-integration",
@@ -45,117 +31,122 @@
     {
       "id": "withdrawal-flow",
       "title": "💰 Treasury: Withdrawal Request Flow",
-      "description": "Merchant requests → Admin approves → Unstake → Kraken → USD payout",
+      "description": "Merchant requests → Admin approves → Unstake → Bridge → USD payout",
       "priority": "high",
       "category": "treasury"
     },
     {
+      "id": "redemption-flow",
+      "title": "🔄 Build Redemption Flow",
+      "description": "Allow customers to redeem Cred at checkout (phone lookup → apply discount)",
+      "priority": "high",
+      "category": "product"
+    },
+    {
       "id": "merchant-app-builds",
-      "title": "Merchant App: Build & Submit to Stores",
+      "title": "📱 Merchant App: Build & Submit to Stores",
       "description": "Build iOS (TestFlight) + Android (Play Store) — waiting on Apple Developer approval",
       "priority": "high",
       "category": "engineering"
     },
     {
-      "id": "solana-initialize",
-      "title": "Solana: Initialize Protocol on Devnet",
-      "description": "Call initialize + initialize_treasury to set up PDAs",
+      "id": "user-app-builds",
+      "title": "📱 User App: Build & Submit to Stores",
+      "description": "Build iOS + Android native apps — waiting on Apple Developer approval",
       "priority": "high",
       "category": "engineering"
     },
     {
-      "id": "data-model-audit",
-      "title": "🔴 PRE-LAUNCH: Full Data Model Audit",
-      "description": "Walk through every table, verify math, test calculations end-to-end",
-      "priority": "critical",
+      "id": "solana-initialize",
+      "title": "⛓️ Solana: Initialize Protocol on Devnet",
+      "description": "Call initialize + initialize_treasury to set up PDAs",
+      "priority": "medium",
       "category": "engineering"
     },
     {
-      "id": "newslink-contact",
-      "title": "Contact News Link (Miami Airport)",
-      "description": "Reach out for pilot partnership - 15-20 locations",
+      "id": "end-to-end-testing",
+      "title": "🧪 End-to-End Flow Testing",
+      "description": "Test complete flows: signup → earn → stack → redeem → withdraw",
+      "priority": "high",
+      "category": "engineering"
+    },
+    {
+      "id": "newslink-pitch",
+      "title": "🤝 Prepare Newslink Pitch",
+      "description": "Create demo, pitch deck, and pricing proposal for 15+ store pilot",
       "priority": "high",
       "category": "business"
     },
     {
       "id": "legal-docs",
-      "title": "Legal: Terms & Privacy Policy",
-      "description": "User ToS, merchant agreement, privacy policy",
+      "title": "📜 Legal: Terms & Privacy Policy",
+      "description": "User ToS, merchant agreement, privacy policy (pages exist, need legal review)",
       "priority": "high",
       "category": "legal"
     },
     {
       "id": "fintech-lawyer",
-      "title": "Legal: Consult Fintech Lawyer",
+      "title": "⚖️ Legal: Consult Fintech Lawyer",
       "description": "Review rewards/commodity framing, money transmission implications",
       "priority": "high",
       "category": "legal"
+    },
+    {
+      "id": "email-templates",
+      "title": "📧 Transactional Email Templates",
+      "description": "Welcome, transaction receipts, weekly summaries via Resend",
+      "priority": "medium",
+      "category": "engineering"
     }
   ],
   "inProgress": [
     {
-      "id": "kraken-verification",
-      "title": "💰 Kraken Business Verification",
-      "description": "Business account submitted, waiting for approval (1-3 days)",
+      "id": "bridge-kyb",
+      "title": "💰 Bridge.xyz KYB Approval",
+      "description": "Submitted 2026-02-06, expected ~1 week for approval",
       "priority": "critical",
-      "category": "treasury"
+      "category": "treasury",
+      "note": "Primary USD↔USDC rail"
     },
     {
-      "id": "bridge-application",
-      "title": "💰 Bridge.xyz Application",
-      "description": "Submitted for USD↔USDC API access, waiting response",
+      "id": "apple-dev",
+      "title": "🍎 Apple Developer Enrollment",
+      "description": "Submitted, waiting for approval (can take up to 48hr)",
       "priority": "high",
-      "category": "treasury"
+      "category": "admin"
     },
     {
       "id": "loop-trader-paper",
       "title": "🤖 Loop Trader: Paper Trading Phase",
       "description": "Running Burt the Beast on A9 Max, monitoring XLM/XRP/HBAR positions",
-      "priority": "high",
-      "category": "trading"
-    },
-    {
-      "id": "react-native-rebuild",
-      "title": "🔄 Rebuild App in React Native",
-      "description": "Porting from React web app to Expo/React Native for App Store",
-      "priority": "critical",
-      "category": "product"
-    },
-    {
-      "id": "apple-dev",
-      "title": "Apple Developer Enrollment",
-      "description": "Submitted, waiting for approval",
       "priority": "medium",
-      "category": "admin"
+      "category": "trading"
     }
   ],
   "done": [
-    "✅ 💰 Treasury Architecture: Option C - Unified Treasury + Virtual Pools (Feb 4)",
-    "✅ 💰 Mercury Business Bank Account opened (Feb 4)",
-    "✅ 💰 Kraken Business Application submitted (Feb 4)",
-    "✅ 💰 Bridge.xyz Application submitted (Feb 4)",
-    "✅ 💰 Circle Web3 Services access (Feb 4)",
-    "✅ 💰 OAR Technologies Stock Ledger created (Feb 4)",
+    "✅ 📱 User App FEATURE COMPLETE (Feb 6) - Referrals, Achievements, Offline, Real-time, Empty states",
+    "✅ 🔧 8-Point App Polish (Feb 6) - Logo, username, QR, Terms/Privacy, Avatar upload",
+    "✅ 🐛 Username display bug fixed (Feb 6) - profiles.metadata.display_name",
+    "✅ 📦 Avatars storage bucket created (Feb 6)",
+    "✅ 🌉 Bridge KYB submitted (Feb 6)",
+    "✅ 👤 POS customer enrollment feature (Feb 6) - create customer on the fly",
+    "✅ 📱 send-welcome-sms Edge Function (Feb 6)",
+    "✅ 🔒 Security audit fixes deployed (Feb 5) - 8 total",
+    "✅ 💰 Yield calculation cron job (Feb 5) - daily at 2 AM UTC",
+    "✅ 💰 Manual staking trigger in Command Center (Feb 5)",
+    "✅ 💰 Treasury database schema (Feb 4) - 7 tables, 2 functions",
+    "✅ 💰 Squads multi-sig vault created (Feb 4) - MmFao...5on4",
+    "✅ 💰 Kraken API Edge Functions (Feb 4) - balance, buy-usdc, withdraw",
+    "✅ 💰 Dynamic APY + USDC withdrawal option (Feb 4)",
+    "✅ 🎛️ Command Center 11/11 pages (Feb 4)",
     "✅ 💳 Stripe pool deposits wired (Feb 4)",
-    "✅ 🌐 Website text visibility fixed (Feb 4)",
-    "✅ 🎨 Merchant App: Custom icons + splash screens (Feb 4)",
-    "✅ 🔧 Merchant App: Fixed TypeScript errors, synced to native",
-    "✅ 🤖 BURT THE BEAST LIVE! Paper trading on A9 Max (Feb 4)",
-    "✅ 🔧 Trading Bot: Strategy tuned for paper trading (trend/volume filters disabled)",
-    "✅ 💻 A9 Max: WSL + Docker + Freqtrade environment set up",
-    "✅ 🧹 EC2 disk cleanup: 95% → 81% usage",
-    "✅ ⬆️ OpenClaw updated to 2026.2.1",
-    "✅ 🚀 MERCHANT PORTAL DEPLOYED! merchant.looplocal.io (Feb 1)",
-    "✅ 📱 Capacitor added for iOS/Android native builds",
-    "✅ 🏪 MERCHANT PORTAL COMPLETE! All 10 pages built (Feb 1)",
-    "✅ Loop Trader repo created with comprehensive README + VISION.md",
-    "✅ Solana: Program upgraded + IDL uploaded to devnet",
-    "✅ 🚀 DEPLOYED TO SOLANA DEVNET!",
-    "✅ 🎙️ Voice: Groq Whisper + ElevenLabs TTS configured",
-    "✅ 📱 User App: Connected to Supabase - real data hook",
-    "✅ Support system LIVE - support@looplocal.io → tickets",
-    "✅ Command Center dashboard created",
-    "✅ Marketing site deployed to looplocal.io",
-    "✅ OXO tokenomics finalized"
+    "✅ 🏦 Mercury business bank account (Feb 4)",
+    "✅ 🤖 BURT THE BEAST LIVE (Feb 4) - Paper trading on A9 Max",
+    "✅ 🚀 Merchant Portal DEPLOYED (Feb 1) - merchant.looplocal.io",
+    "✅ ⛓️ Solana Protocol on Devnet (Feb 1)",
+    "✅ 🎙️ Voice configured - Groq Whisper + ElevenLabs TTS",
+    "✅ 🎧 Support system LIVE - support@looplocal.io → tickets",
+    "✅ 🌐 Marketing site deployed - looplocal.io",
+    "✅ 🪙 OXO tokenomics finalized"
   ]
 }
