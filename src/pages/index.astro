@@ -2,6 +2,7 @@
 import DashboardLayout from '../layouts/DashboardLayout.astro';
 import projects from '../data/projects.json';
 import activity from '../data/activity.json';
+import planned from '../data/planned.json';
 import schedule from '../data/schedule.json';
 import aaInsights from '../data/aa-insights.json';
 import specs from '../data/specs.json';
@@ -223,6 +224,7 @@ function getProjectProgress(status: string): number {
         <!-- Desktop Tabs -->
         <div class="hidden sm:flex bg-slate-800 rounded-lg p-1 gap-1 flex-wrap" id="desktop-tabs">
           <button data-tab="overview" class="tab-btn active px-4 py-2 rounded-md text-sm font-medium transition-all">Overview</button>
+          <button data-tab="planned" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">🚀 Planned</button>
           <button data-tab="projects" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">Projects</button>
           <button data-tab="specs" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">📋 Specs</button>
           <button data-tab="decisions" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-all">⚖️ Decisions</button>
@@ -236,6 +238,7 @@ function getProjectProgress(status: string): number {
         <div class="sm:hidden">
           <select id="mobile-tab-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500/50">
             <option value="overview">Overview</option>
+            <option value="planned">🚀 Planned</option>
             <option value="projects">Projects</option>
             <option value="specs">📋 Specs</option>
             <option value="decisions">⚖️ Decisions</option>
@@ -357,6 +360,69 @@ function getProjectProgress(status: string): number {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- Planned Tab -->
+        <section id="tab-planned" class="tab-panel hidden">
+          <!-- Vision Banner -->
+          <div class="bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-2">🚀 The Loop Vision</h2>
+            <p class="text-emerald-300 text-lg italic">"{planned.vision}"</p>
+            <p class="text-slate-400 text-sm mt-2">Last updated: {planned.lastUpdated}</p>
+          </div>
+
+          <!-- Feature Categories -->
+          <div class="space-y-8">
+            {planned.categories.map((category) => (
+              <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-700">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h3 class="text-xl font-bold text-white">{category.name}</h3>
+                      <p class="text-slate-400 mt-1">{category.description}</p>
+                    </div>
+                    <span class={`px-3 py-1 text-xs font-medium rounded-full ${
+                      category.status === 'core-vision' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                      category.status === 'planned' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                      category.status === 'researching' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                      'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                    }`}>
+                      {category.status}
+                    </span>
+                  </div>
+                </div>
+                <div class="p-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {category.features.map((feature) => (
+                      <div class={`rounded-lg p-4 border ${
+                        feature.priority === 'critical' ? 'bg-red-500/10 border-red-500/30' :
+                        feature.priority === 'high' ? 'bg-orange-500/10 border-orange-500/30' :
+                        feature.priority === 'medium' ? 'bg-yellow-500/10 border-yellow-500/30' :
+                        'bg-slate-700/50 border-slate-600'
+                      }`}>
+                        <div class="flex items-start justify-between mb-2">
+                          <h4 class="font-semibold text-white">{feature.title}</h4>
+                          <span class={`px-2 py-0.5 text-xs rounded ${
+                            feature.priority === 'critical' ? 'bg-red-500/30 text-red-300' :
+                            feature.priority === 'high' ? 'bg-orange-500/30 text-orange-300' :
+                            feature.priority === 'medium' ? 'bg-yellow-500/30 text-yellow-300' :
+                            'bg-slate-600 text-slate-300'
+                          }`}>
+                            {feature.priority}
+                          </span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-2">{feature.description}</p>
+                        <p class="text-cyan-400 text-xs">💡 {feature.impact}</p>
+                        {feature.note && (
+                          <p class="text-slate-500 text-xs mt-2 italic">⚠️ {feature.note}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

@@ -1,0 +1,206 @@
+{
+  "vision": "Loop isn't a rewards card. It's a wealth-building vehicle disguised as loyalty.",
+  "categories": [
+    {
+      "id": "merchant-staking",
+      "name": "🏦 Merchant Pool Staking",
+      "description": "Customers stake Cred into merchant pools, earning yield from merchant success",
+      "status": "core-vision",
+      "features": [
+        {
+          "title": "Customer Staking in Merchant Pools",
+          "description": "Stake your Cred into specific merchants you believe in. Merchant does well → you earn extra yield.",
+          "priority": "critical",
+          "impact": "Turns customers into stakeholders in local economy"
+        },
+        {
+          "title": "Merchant Success Sharing",
+          "description": "When merchants hit milestones (revenue, customers), bonus yield drops to everyone who earned/staked there.",
+          "priority": "high",
+          "impact": "Creates community celebration moments"
+        },
+        {
+          "title": "Champion Status",
+          "description": "#1 staker in a merchant = their 'Champion'. Public title, special badge, real-world perks from merchant.",
+          "priority": "medium",
+          "impact": "Gamified competition for loyalty"
+        }
+      ]
+    },
+    {
+      "id": "gamification",
+      "name": "🎮 Gamification Layer",
+      "description": "Turn passive staking into an engaging game",
+      "status": "planned",
+      "features": [
+        {
+          "title": "Fantasy Local Economy",
+          "description": "Pick a 'portfolio' of merchants you believe in. Compete with friends. Leaderboards, prizes, bragging rights.",
+          "priority": "high",
+          "impact": "Fantasy sports, but for your neighborhood"
+        },
+        {
+          "title": "Merchant IPO Drops",
+          "description": "New merchants launch like sneaker drops. Limited early-staker spots (first 100 get 2x yield). 'Early Believer' NFT badge.",
+          "priority": "high",
+          "impact": "Creates hype, FOMO, discovery of new spots"
+        },
+        {
+          "title": "Merchant Leveling System",
+          "description": "Merchants evolve (Level 1 → 5) based on staker support + performance. Higher level = better perks for stakers.",
+          "priority": "medium",
+          "impact": "Visual progression, community pride"
+        },
+        {
+          "title": "Rescue Missions",
+          "description": "Struggling merchant? Community rallies with 'Save Joe's Coffee' events. Bonus rewards for participating.",
+          "priority": "medium",
+          "impact": "Real community impact, feel-good moments"
+        },
+        {
+          "title": "Streak Multipliers",
+          "description": "Stake in same merchant 30/60/90 days → streak bonuses. Loyalty within loyalty.",
+          "priority": "medium",
+          "impact": "Creates stickiness and habit"
+        },
+        {
+          "title": "Combo Bonuses",
+          "description": "Stake in coffee shop + bakery next door → 'Breakfast Combo' bonus. Encourages ecosystem exploration.",
+          "priority": "low",
+          "impact": "Cross-merchant engagement"
+        },
+        {
+          "title": "Flash Stakes",
+          "description": "Random 1-hour windows: '3x yield on Newslink for the next hour'. Push notification, urgency, dopamine.",
+          "priority": "medium",
+          "impact": "Engagement spikes, app opens"
+        },
+        {
+          "title": "Guild Staking",
+          "description": "Form teams with friends. Pool staking power together. Compete against other guilds for shared glory.",
+          "priority": "low",
+          "impact": "Social layer, team dynamics"
+        }
+      ]
+    },
+    {
+      "id": "wealth-building",
+      "name": "💰 Wealth Building Features",
+      "description": "Turn rewards into real wealth accumulation",
+      "status": "planned",
+      "features": [
+        {
+          "title": "Yield-Bearing Rewards",
+          "description": "Your rewards GROW just by holding. No other loyalty program does this. Airline miles rot. Cred compounds.",
+          "priority": "critical",
+          "impact": "Core differentiator",
+          "note": "Already in architecture"
+        },
+        {
+          "title": "Automated Round-Ups",
+          "description": "Every purchase rounds up to nearest dollar → excess goes into stacking automatically. Passive wealth building.",
+          "priority": "high",
+          "impact": "Effortless savings behavior"
+        },
+        {
+          "title": "Goal-Based Stacking",
+          "description": "'I'm saving for a flight home' → Loop shows progress, optimizes earning toward your goal.",
+          "priority": "medium",
+          "impact": "Purpose-driven engagement"
+        },
+        {
+          "title": "Cred as Collateral",
+          "description": "Use your stacked Cred to borrow against - without selling. Need $500? Borrow against $1000 stack.",
+          "priority": "medium",
+          "impact": "DeFi primitives for normal people"
+        },
+        {
+          "title": "Generational Transfer",
+          "description": "Pass your Loop balance to your kids. Unlike airline miles that die with you. Real wealth transfer.",
+          "priority": "low",
+          "impact": "Long-term value proposition"
+        }
+      ]
+    },
+    {
+      "id": "data-reputation",
+      "name": "📊 Data & Reputation",
+      "description": "Your Loop history becomes valuable",
+      "status": "future",
+      "features": [
+        {
+          "title": "Local Economic Oracle",
+          "description": "Loop becomes the definitive source of local economic data. Anonymized, aggregated. Users earn a cut of data revenue.",
+          "priority": "low",
+          "impact": "Passive income from participation"
+        },
+        {
+          "title": "Portable Reputation",
+          "description": "Your Loop history becomes an on-chain trust score. New merchants trust you instantly. Unlocks VIP access, better rates.",
+          "priority": "medium",
+          "impact": "Reputation that travels with you"
+        },
+        {
+          "title": "Credit-Building History",
+          "description": "Your Loop earning/saving history becomes alternative credit data. Helps people build credit scores.",
+          "priority": "low",
+          "impact": "Real-world financial benefit"
+        }
+      ]
+    },
+    {
+      "id": "universal-aggregator",
+      "name": "🔗 Universal Rewards",
+      "description": "Loop as the hub for all loyalty",
+      "status": "future",
+      "features": [
+        {
+          "title": "Rewards Aggregator",
+          "description": "Import airline miles, hotel points, credit card points → Loop shows ONE number for total rewards wealth. 'Mint for loyalty.'",
+          "priority": "medium",
+          "impact": "Becomes the single source of truth"
+        },
+        {
+          "title": "AI Earning Optimization",
+          "description": "'Shop at Newslink today instead of tomorrow - 2x points event.' Loop tells you how to maximize.",
+          "priority": "medium",
+          "impact": "Active value delivery"
+        }
+      ]
+    },
+    {
+      "id": "checkout-solutions",
+      "name": "🛒 Checkout Solutions",
+      "description": "How customers earn at merchant locations",
+      "status": "researching",
+      "features": [
+        {
+          "title": "Receipt Scanning",
+          "description": "Customer takes photo of receipt. OCR extracts merchant + amount. Zero merchant integration needed. (Fetch/Ibotta model)",
+          "priority": "high",
+          "impact": "Works with ANY merchant, zero friction for business"
+        },
+        {
+          "title": "Static QR at Register",
+          "description": "Merchant has QR code at register. Customer scans, confirms purchase. Near-zero cost.",
+          "priority": "medium",
+          "impact": "Simple, cheap, works everywhere"
+        },
+        {
+          "title": "Card Linking (Future)",
+          "description": "Customer links card once, pays normally, Loop auto-detects. Requires Fidel API or similar ($$$).",
+          "priority": "low",
+          "impact": "Zero friction, but expensive",
+          "note": "Expensive - $10K+/year minimum"
+        },
+        {
+          "title": "Loop Pay (Future)",
+          "description": "Customer loads USDC, pays via Solana Pay. We control entire transaction. Near-zero fees.",
+          "priority": "medium",
+          "impact": "Ultimate vision - closed loop economy"
+        }
+      ]
+    }
+  ],
+  "lastUpdated": "2026-02-08"
+}
