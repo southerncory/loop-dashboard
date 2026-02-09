@@ -57,18 +57,19 @@ const audits = [
   {
     id: 'database',
     name: 'Database Schema',
-    date: '2026-02-05',
-    status: 'warning',
-    grade: '🟡',
-    summary: 'Functional but has tech debt. Not blocking pilot.',
+    date: '2026-02-09',
+    status: 'pass',
+    grade: '✅',
+    summary: 'Users/profiles sync complete. Legacy tables maintained via trigger.',
     fixedIssues: [
       'Treasury tables properly linked',
-      'RLS policies reviewed'
+      'RLS policies reviewed',
+      'users table synced with profiles via trigger',
+      'All profiles now have matching users entries',
+      'New signups auto-create users entry'
     ],
     openIssues: [
-      { text: 'Dual user system (users vs profiles)', severity: 'tech-debt', note: 'Works but messy' },
-      { text: 'Dual merchant system', severity: 'tech-debt', note: 'Works but messy' },
-      { text: '12+ tables reference deprecated users table', severity: 'tech-debt', note: 'Migration needed post-pilot' }
+      { text: 'Legacy merchants table unused', severity: 'tech-debt', note: 'Can drop post-pilot, not urgent' }
     ]
   },
   {
