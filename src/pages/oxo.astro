@@ -255,11 +255,17 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
 
   <script>
     const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
     let currentToken = null;
 
     async function fetchOxoStatus() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/oxo-status`);
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/oxo-status`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          }
+        });
         const data = await res.json();
         
         if (data.error) throw new Error(data.error);
