@@ -1,112 +1,12 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
+import auditData from '../data/audits.json';
 
-// Audit data - Updated 2026-02-09
-const audits = [
-  {
-    id: 'defi-infrastructure',
-    name: 'DeFi Infrastructure',
-    date: '2026-02-09',
-    status: 'pass',
-    grade: '✅',
-    summary: 'Treasury yield engine operational. dSOL staking live, Maple ready for USDC.',
-    fixedIssues: [
-      'Squads multi-sig treasury created',
-      'dSOL staking live (1.004 dSOL @ 6.74% APY)',
-      'treasury-live edge function deployed',
-      'Real-time on-chain balance tracking'
-    ],
-    openIssues: [
-      { text: 'Bridge KYB pending (submitted Feb 6)', severity: 'blocked', note: 'Expected ~Feb 13' },
-      { text: 'Maple/Kamino/MarginFi diversification', severity: 'waiting', note: 'Needs USDC from Bridge' }
-    ]
-  },
-  {
-    id: 'edge-functions',
-    name: 'Edge Functions',
-    date: '2026-02-05',
-    status: 'pass',
-    grade: '✅',
-    summary: 'All 27 functions deployed. Security issues fixed.',
-    fixedIssues: [
-      'oxo-status POST now requires admin auth',
-      'kraken-buy-usdc requires auth + has limits',
-      'kraken-withdraw requires auth + limits',
-      'analytics-status user_id bug fixed',
-      'APY rates now show source/live status',
-      'treasury-live added for on-chain data'
-    ],
-    openIssues: []
-  },
-  {
-    id: 'dataflow',
-    name: 'Data Flow',
-    date: '2026-02-05',
-    status: 'partial',
-    grade: '🟡',
-    summary: 'Stripe → Treasury working. External integrations pending.',
-    fixedIssues: [
-      'Stripe webhook treasury integration',
-      'yield-distribution edge function created'
-    ],
-    openIssues: [
-      { text: 'Mercury bank API not integrated', severity: 'low', note: 'Manual for now, API access available' },
-      { text: 'Staking protocol SDKs not integrated', severity: 'low', note: 'Using Squads UI for manual staking' }
-    ]
-  },
-  {
-    id: 'database',
-    name: 'Database Schema',
-    date: '2026-02-09',
-    status: 'pass',
-    grade: '✅',
-    summary: 'Users/profiles sync complete. Legacy tables maintained via trigger.',
-    fixedIssues: [
-      'Treasury tables properly linked',
-      'RLS policies reviewed',
-      'users table synced with profiles via trigger',
-      'All profiles now have matching users entries',
-      'New signups auto-create users entry'
-    ],
-    openIssues: [
-      { text: 'Legacy merchants table unused', severity: 'tech-debt', note: 'Can drop post-pilot, not urgent' }
-    ]
-  },
-  {
-    id: 'treasury-math',
-    name: 'Treasury Math',
-    date: '2026-02-05',
-    status: 'pass',
-    grade: '✅',
-    summary: 'Core yield distribution formulas verified correct.',
-    fixedIssues: [
-      'Pro-rata yield distribution',
-      'APY calculation formulas',
-      'Pool share tracking'
-    ],
-    openIssues: []
-  },
-  {
-    id: 'user-app',
-    name: 'User App',
-    date: '2026-02-06',
-    status: 'pass',
-    grade: '✅',
-    summary: 'Feature complete. All screens wired to Supabase.',
-    fixedIssues: [
-      'All settings screens connected to real data',
-      'Avatar upload working',
-      'Referral system implemented',
-      'Achievement badges (17) deployed',
-      'Offline caching added',
-      'Real-time updates via Supabase Realtime'
-    ],
-    openIssues: [
-      { text: 'iOS/Android builds pending', severity: 'blocked', note: 'Waiting on Apple Developer approval' }
-    ]
-  }
-];
-
+// Import audit data from JSON file for easier maintenance
+const audits = auditData.audits;
+const lastUpdated = new Date(auditData.lastUpdated).toLocaleDateString('en-US', { 
+  year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+});
 // Calculate stats
 const totalFixed = audits.reduce((sum, a) => sum + a.fixedIssues.length, 0);
 const openIssues = audits.flatMap(a => a.openIssues);
@@ -157,7 +57,7 @@ const getSeverityBadge = (severity: string) => {
         <p class="text-slate-400 text-sm mt-1">Audits, diagnostics, and infrastructure status</p>
       </div>
       <div class="text-sm text-slate-400">
-        Last updated: Feb 9, 2026
+        Last updated: {lastUpdated}
       </div>
     </div>
 

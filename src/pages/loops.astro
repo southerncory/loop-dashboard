@@ -302,6 +302,9 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
             <button onclick="toggleLoopStatus('${loop.id}', '${loop.status}')" class="px-4 py-2 ${loop.status === 'Paused' ? 'bg-green-600 hover:bg-green-500' : 'bg-yellow-600 hover:bg-yellow-500'} rounded-lg font-medium transition-colors">
               ${loop.status === 'Paused' ? '▶️ Activate' : '⏸️ Pause'}
             </button>
+            <button onclick="confirmDeleteLoop('${loop.id}', '${loop.name}')" class="px-4 py-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg font-medium transition-colors border border-red-600/30">
+              🗑️ Delete
+            </button>
           </div>
         </div>
       `;
@@ -368,6 +371,51 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
       if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
       if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
       return '$' + n.toFixed(0);
+    }
+
+    // Confirmation modal for delete
+    function confirmDeleteLoop(loopId, loopName) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4';
+      modal.id = 'delete-confirm-modal';
+      modal.innerHTML = `
+        <div class="bg-slate-800 border border-red-500/30 rounded-xl p-6 max-w-md w-full">
+          <div class="text-center mb-4">
+            <span class="text-4xl">🗑️</span>
+            <h3 class="text-xl font-bold mt-2 text-red-400">Delete Loop?</h3>
+          </div>
+          <p class="text-slate-300 text-center mb-2">Are you sure you want to delete <strong>${loopName}</strong>?</p>
+          <p class="text-slate-500 text-sm text-center mb-6">This will remove all associated data. This action cannot be undone.</p>
+          <div class="flex gap-3">
+            <button class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="document.getElementById('delete-confirm-modal').remove()">Cancel</button>
+            <button class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg font-medium transition" onclick="deleteLoop('${loopId}')">Delete</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    async function deleteLoop(loopId) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/loops?id=eq.${loopId}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+        });
+
+        if (!res.ok) throw new Error('Failed to delete');
+        
+        document.getElementById('delete-confirm-modal')?.remove();
+        document.getElementById('detail-modal').classList.add('hidden');
+        alert('✅ Loop deleted');
+        fetchLoops();
+        
+      } catch (err) {
+        alert('❌ Failed to delete: ' + err.message);
+      }
     }
 
     // Event listeners
