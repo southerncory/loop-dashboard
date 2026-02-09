@@ -4,9 +4,17 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
 
 <DashboardLayout title="Merchants | Loop Command Center" active="merchants">
   <div class="p-6">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold">🏪 Merchants</h1>
-      <p class="text-slate-400 mt-1">All registered merchants and their pool status</p>
+    <header class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold">🏪 Merchants</h1>
+        <p class="text-slate-400 mt-1">All registered merchants and their pool status</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="last-update" class="text-sm text-slate-500"></span>
+        <button id="refresh-btn" onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm transition flex items-center gap-1">
+          🔄 Refresh
+        </button>
+      </div>
     </header>
 
     <div id="loading" class="text-center py-20">
@@ -35,13 +43,25 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
       </div>
 
       <div class="bg-slate-800 rounded-xl border border-slate-700">
-        <div class="px-5 py-4 border-b border-slate-700">
+        <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
           <h2 class="font-semibold">All Merchants</h2>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search by name or email..." 
+            class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:border-emerald-500 focus:outline-none w-64"
+          />
         </div>
-        <div id="merchants-list" class="divide-y divide-slate-700">
+        <div id="merchants-list" class="divide-y divide-slate-700 max-h-[600px] overflow-y-auto">
           <div class="p-5 text-slate-500">No merchants yet</div>
         </div>
       </div>
+    </div>
+
+    <div id="error" class="hidden text-center py-20">
+      <div class="text-4xl mb-4">⚠️</div>
+      <p class="text-red-400 mb-4">Failed to load merchants</p>
+      <button onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Retry</button>
     </div>
   </div>
 
@@ -53,7 +73,36 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
       return n >= 1000 ? '$' + (n/1000).toFixed(1) + 'K' : '$' + n.toLocaleString();
     }
 
+    let allMerchants: any[] = [];
+
+    function renderMerchants(merchants: any[]) {
+      const list = document.getElementById('merchants-list')!;
+      if (merchants.length === 0) {
+        list.innerHTML = '<div class="p-5 text-slate-500">No merchants found.</div>';
+      } else {
+        list.innerHTML = merchants.map((m: any) => `
+          <div class="p-5 flex items-center justify-between hover:bg-slate-700/50 transition">
+            <div>
+              <div class="font-medium">${m.business_name || 'Unnamed'}</div>
+              <div class="text-sm text-slate-400">${m.loop_name || 'No Loop'} • ${m.email || ''}</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="text-sm text-slate-400">Pool</div>
+                <div class="font-medium">${m.pool ? fmt(Number(m.pool.deposited_amount)) : '$0'}</div>
+              </div>
+              <span class="px-2 py-1 rounded text-xs ${m.subscription_status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'}">${m.subscription_status || 'none'}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
     async function load() {
+      document.getElementById('loading')!.classList.remove('hidden');
+      document.getElementById('content')!.classList.add('hidden');
+      document.getElementById('error')!.classList.add('hidden');
+      
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/merchants-status`, {
           headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
@@ -65,34 +114,33 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
         document.getElementById('stat-deposits')!.textContent = fmt(data.totals.totalDeposits);
         document.getElementById('stat-yield')!.textContent = fmt(data.totals.totalYield);
 
-        const list = document.getElementById('merchants-list')!;
-        if (data.merchants.length === 0) {
-          list.innerHTML = '<div class="p-5 text-slate-500">No merchants registered yet. They\'ll appear here when they sign up.</div>';
-        } else {
-          list.innerHTML = data.merchants.map((m: any) => `
-            <div class="p-5 flex items-center justify-between">
-              <div>
-                <div class="font-medium">${m.business_name || 'Unnamed'}</div>
-                <div class="text-sm text-slate-400">${m.loop_name || 'No Loop'} • ${m.email || ''}</div>
-              </div>
-              <div class="flex items-center gap-4">
-                <div class="text-right">
-                  <div class="text-sm text-slate-400">Pool</div>
-                  <div class="font-medium">${m.pool ? fmt(Number(m.pool.deposited_amount)) : '$0'}</div>
-                </div>
-                <span class="px-2 py-1 rounded text-xs ${m.subscription_status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-slate-600 text-slate-400'}">${m.subscription_status || 'none'}</span>
-              </div>
-            </div>
-          `).join('');
-        }
-
+        allMerchants = data.merchants;
+        renderMerchants(allMerchants);
+        
+        document.getElementById('last-update')!.textContent = 'Updated ' + new Date().toLocaleTimeString();
         document.getElementById('loading')!.classList.add('hidden');
         document.getElementById('content')!.classList.remove('hidden');
       } catch (e) {
         console.error(e);
-        document.getElementById('loading')!.innerHTML = '<div class="text-red-400">Failed to load</div>';
+        document.getElementById('loading')!.classList.add('hidden');
+        document.getElementById('error')!.classList.remove('hidden');
       }
     }
+
+    // Search functionality
+    document.getElementById('search-input')?.addEventListener('input', (e) => {
+      const query = (e.target as HTMLInputElement).value.toLowerCase();
+      if (!query) {
+        renderMerchants(allMerchants);
+        return;
+      }
+      const filtered = allMerchants.filter(m => 
+        (m.business_name && m.business_name.toLowerCase().includes(query)) ||
+        (m.email && m.email.toLowerCase().includes(query)) ||
+        (m.loop_name && m.loop_name.toLowerCase().includes(query))
+      );
+      renderMerchants(filtered);
+    });
 
     load();
   </script>
