@@ -1,22 +1,25 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
 
-// Audit data - in the future this could come from an edge function or database
+// Audit data - Updated 2026-02-09
 const audits = [
   {
-    id: 'dataflow',
-    name: 'Data Flow',
-    date: '2026-02-05',
-    status: 'partial',
-    grade: '🟡',
-    summary: 'Stripe → Treasury integration FIXED. Mercury and staking still need work.',
-    criticalIssues: [
-      '✅ FIXED: Stripe webhook treasury integration',
-      '✅ FIXED: yield-distribution edge function created',
-      'Mercury bank - no API integration (needs API access)',
-      'Staking protocols not implemented (needs SDK work)'
+    id: 'defi-infrastructure',
+    name: 'DeFi Infrastructure',
+    date: '2026-02-09',
+    status: 'pass',
+    grade: '✅',
+    summary: 'Treasury yield engine operational. dSOL staking live, Maple ready for USDC.',
+    fixedIssues: [
+      'Squads multi-sig treasury created',
+      'dSOL staking live (1.004 dSOL @ 6.74% APY)',
+      'treasury-live edge function deployed',
+      'Real-time on-chain balance tracking'
     ],
-    findings: 4
+    openIssues: [
+      { text: 'Bridge KYB pending (submitted Feb 6)', severity: 'blocked', note: 'Expected ~Feb 13' },
+      { text: 'Maple/Kamino/MarginFi diversification', severity: 'waiting', note: 'Needs USDC from Bridge' }
+    ]
   },
   {
     id: 'edge-functions',
@@ -24,15 +27,32 @@ const audits = [
     date: '2026-02-05',
     status: 'pass',
     grade: '✅',
-    summary: 'All critical auth issues FIXED. Functions secured.',
-    criticalIssues: [
-      '✅ FIXED: oxo-status POST now requires admin auth',
-      '✅ FIXED: kraken-buy-usdc requires auth + has limits',
-      '✅ FIXED: kraken-withdraw requires auth + limits',
-      '✅ FIXED: analytics-status user_id bug',
-      '✅ FIXED: APY rates now show source/live status'
+    summary: 'All 27 functions deployed. Security issues fixed.',
+    fixedIssues: [
+      'oxo-status POST now requires admin auth',
+      'kraken-buy-usdc requires auth + has limits',
+      'kraken-withdraw requires auth + limits',
+      'analytics-status user_id bug fixed',
+      'APY rates now show source/live status',
+      'treasury-live added for on-chain data'
     ],
-    findings: 7
+    openIssues: []
+  },
+  {
+    id: 'dataflow',
+    name: 'Data Flow',
+    date: '2026-02-05',
+    status: 'partial',
+    grade: '🟡',
+    summary: 'Stripe → Treasury working. External integrations pending.',
+    fixedIssues: [
+      'Stripe webhook treasury integration',
+      'yield-distribution edge function created'
+    ],
+    openIssues: [
+      { text: 'Mercury bank API not integrated', severity: 'low', note: 'Manual for now, API access available' },
+      { text: 'Staking protocol SDKs not integrated', severity: 'low', note: 'Using Squads UI for manual staking' }
+    ]
   },
   {
     id: 'database',
@@ -40,14 +60,16 @@ const audits = [
     date: '2026-02-05',
     status: 'warning',
     grade: '🟡',
-    summary: 'Treasury tables properly linked. Tech debt from dual user/merchant systems.',
-    criticalIssues: [
-      'Dual user system (users vs profiles)',
-      'Dual merchant system (merchants vs merchant_profiles)',
-      '12+ tables reference deprecated users table',
-      'Some RLS policies overly permissive'
+    summary: 'Functional but has tech debt. Not blocking pilot.',
+    fixedIssues: [
+      'Treasury tables properly linked',
+      'RLS policies reviewed'
     ],
-    findings: 5
+    openIssues: [
+      { text: 'Dual user system (users vs profiles)', severity: 'tech-debt', note: 'Works but messy' },
+      { text: 'Dual merchant system', severity: 'tech-debt', note: 'Works but messy' },
+      { text: '12+ tables reference deprecated users table', severity: 'tech-debt', note: 'Migration needed post-pilot' }
+    ]
   },
   {
     id: 'treasury-math',
@@ -56,10 +78,41 @@ const audits = [
     status: 'pass',
     grade: '✅',
     summary: 'Core yield distribution formulas verified correct.',
-    criticalIssues: [],
-    findings: 3
+    fixedIssues: [
+      'Pro-rata yield distribution',
+      'APY calculation formulas',
+      'Pool share tracking'
+    ],
+    openIssues: []
+  },
+  {
+    id: 'user-app',
+    name: 'User App',
+    date: '2026-02-06',
+    status: 'pass',
+    grade: '✅',
+    summary: 'Feature complete. All screens wired to Supabase.',
+    fixedIssues: [
+      'All settings screens connected to real data',
+      'Avatar upload working',
+      'Referral system implemented',
+      'Achievement badges (17) deployed',
+      'Offline caching added',
+      'Real-time updates via Supabase Realtime'
+    ],
+    openIssues: [
+      { text: 'iOS/Android builds pending', severity: 'blocked', note: 'Waiting on Apple Developer approval' }
+    ]
   }
 ];
+
+// Calculate stats
+const totalFixed = audits.reduce((sum, a) => sum + a.fixedIssues.length, 0);
+const openIssues = audits.flatMap(a => a.openIssues);
+const criticalOpen = openIssues.filter(i => i.severity === 'critical').length;
+const blockedOpen = openIssues.filter(i => i.severity === 'blocked').length;
+const techDebtOpen = openIssues.filter(i => i.severity === 'tech-debt').length;
+const lowOpen = openIssues.filter(i => i.severity === 'low' || i.severity === 'waiting').length;
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -71,13 +124,25 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'pass': return 'Passed';
-    case 'partial': return 'Partial';
-    case 'warning': return 'Warning';
-    case 'fail': return 'Failed';
-    default: return 'Unknown';
+const getSeverityColor = (severity: string) => {
+  switch (severity) {
+    case 'critical': return 'text-red-400';
+    case 'blocked': return 'text-orange-400';
+    case 'tech-debt': return 'text-yellow-400';
+    case 'low': return 'text-slate-400';
+    case 'waiting': return 'text-blue-400';
+    default: return 'text-slate-400';
+  }
+};
+
+const getSeverityBadge = (severity: string) => {
+  switch (severity) {
+    case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    case 'blocked': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+    case 'tech-debt': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'low': return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+    case 'waiting': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
   }
 };
 ---
@@ -90,71 +155,109 @@ const getStatusLabel = (status: string) => {
         <h1 class="text-xl sm:text-2xl font-bold text-white">System Health</h1>
         <p class="text-slate-400 text-sm mt-1">Audits, diagnostics, and infrastructure status</p>
       </div>
-      <button id="run-audits-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
-        <span>🔄</span>
-        Run Audits
-      </button>
+      <div class="text-sm text-slate-400">
+        Last updated: Feb 9, 2026
+      </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
       <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-700">
-        <div class="text-slate-400 text-xs sm:text-sm">Total Audits</div>
+        <div class="text-slate-400 text-xs sm:text-sm">Audits</div>
         <div class="text-xl sm:text-2xl font-bold text-white mt-1">{audits.length}</div>
+        <div class="text-xs text-green-400 mt-1">{audits.filter(a => a.status === 'pass').length} passing</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-green-500/30">
+        <div class="text-slate-400 text-xs sm:text-sm">Fixed</div>
+        <div class="text-xl sm:text-2xl font-bold text-green-400 mt-1">{totalFixed}</div>
+        <div class="text-xs text-slate-400 mt-1">issues resolved</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-orange-500/30">
+        <div class="text-slate-400 text-xs sm:text-sm">Blocked</div>
+        <div class="text-xl sm:text-2xl font-bold text-orange-400 mt-1">{blockedOpen}</div>
+        <div class="text-xs text-slate-400 mt-1">waiting on external</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-yellow-500/30">
+        <div class="text-slate-400 text-xs sm:text-sm">Tech Debt</div>
+        <div class="text-xl sm:text-2xl font-bold text-yellow-400 mt-1">{techDebtOpen}</div>
+        <div class="text-xs text-slate-400 mt-1">non-blocking</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-700">
-        <div class="text-slate-400 text-xs sm:text-sm">Passing</div>
-        <div class="text-xl sm:text-2xl font-bold text-green-400 mt-1">{audits.filter(a => a.status === 'pass').length}</div>
+        <div class="text-slate-400 text-xs sm:text-sm">Low Priority</div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-400 mt-1">{lowOpen}</div>
+        <div class="text-xs text-slate-400 mt-1">can wait</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-700">
-        <div class="text-slate-400 text-xs sm:text-sm">Warnings</div>
-        <div class="text-xl sm:text-2xl font-bold text-yellow-400 mt-1">{audits.filter(a => a.status === 'warning' || a.status === 'partial').length}</div>
-      </div>
-      <div class="bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-700">
-        <div class="text-slate-400 text-xs sm:text-sm">Critical Issues</div>
-        <div class="text-xl sm:text-2xl font-bold text-red-400 mt-1">{audits.reduce((sum, a) => sum + a.criticalIssues.length, 0)}</div>
+    </div>
+
+    <!-- Overall Status Banner -->
+    <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">✅</span>
+        <div>
+          <h3 class="text-lg font-semibold text-green-400">System Ready for Pilot</h3>
+          <p class="text-slate-400 text-sm">No critical blockers. Treasury live. App complete. Waiting on Bridge KYB.</p>
+        </div>
       </div>
     </div>
 
     <!-- Audit Results -->
     <div class="bg-slate-800 rounded-xl border border-slate-700">
       <div class="p-4 border-b border-slate-700">
-        <h2 class="text-lg font-semibold text-white">Latest Audits</h2>
-        <p class="text-sm text-slate-400">Last run: February 5, 2026</p>
+        <h2 class="text-lg font-semibold text-white">Audit Results</h2>
       </div>
       
       <div class="divide-y divide-slate-700">
         {audits.map(audit => (
           <div class="p-4 hover:bg-slate-700/30 transition-colors">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <div class="flex items-center gap-3">
-                  <span class="text-xl">{audit.grade}</span>
-                  <h3 class="font-medium text-white">{audit.name}</h3>
-                  <span class={`text-xs px-2 py-0.5 rounded-full border ${getStatusColor(audit.status)}`}>
-                    {getStatusLabel(audit.status)}
-                  </span>
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <span class="text-xl">{audit.grade}</span>
+                <h3 class="font-medium text-white">{audit.name}</h3>
+                <span class={`text-xs px-2 py-0.5 rounded-full border ${getStatusColor(audit.status)}`}>
+                  {audit.status}
+                </span>
+              </div>
+              <span class="text-sm text-slate-500">{audit.date}</span>
+            </div>
+            
+            <p class="text-sm text-slate-400 mb-3">{audit.summary}</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Fixed Issues -->
+              {audit.fixedIssues.length > 0 && (
+                <div>
+                  <div class="text-xs font-medium text-green-400 mb-2">✅ Fixed ({audit.fixedIssues.length})</div>
+                  <ul class="text-xs text-slate-500 space-y-1">
+                    {audit.fixedIssues.map(issue => (
+                      <li class="flex items-start gap-2">
+                        <span class="text-green-500">✓</span>
+                        <span class="line-through opacity-60">{issue}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p class="text-sm text-slate-400 mt-1">{audit.summary}</p>
-                
-                {audit.criticalIssues.length > 0 && (
-                  <div class="mt-3">
-                    <div class="text-xs font-medium text-red-400 mb-1">Critical Issues:</div>
-                    <ul class="text-xs text-slate-400 space-y-1">
-                      {audit.criticalIssues.map(issue => (
-                        <li class="flex items-start gap-2">
-                          <span class="text-red-400">•</span>
-                          <span>{issue}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-              <div class="text-right text-sm text-slate-500">
-                <div>{audit.date}</div>
-                <div>{audit.findings} findings</div>
-              </div>
+              )}
+              
+              <!-- Open Issues -->
+              {audit.openIssues.length > 0 && (
+                <div>
+                  <div class="text-xs font-medium text-orange-400 mb-2">⏳ Open ({audit.openIssues.length})</div>
+                  <ul class="text-xs space-y-2">
+                    {audit.openIssues.map(issue => (
+                      <li class="flex items-start gap-2">
+                        <span class={getSeverityColor(issue.severity)}>•</span>
+                        <div>
+                          <span class="text-slate-300">{issue.text}</span>
+                          <span class={`ml-2 px-1.5 py-0.5 rounded text-[10px] border ${getSeverityBadge(issue.severity)}`}>
+                            {issue.severity}
+                          </span>
+                          {issue.note && <div class="text-slate-500 mt-0.5">{issue.note}</div>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -166,7 +269,7 @@ const getStatusLabel = (status: string) => {
       <!-- Services -->
       <div class="bg-slate-800 rounded-xl border border-slate-700">
         <div class="p-4 border-b border-slate-700">
-          <h2 class="text-lg font-semibold text-white">Services</h2>
+          <h2 class="text-lg font-semibold text-white">External Services</h2>
         </div>
         <div class="p-4 space-y-3">
           <div class="flex items-center justify-between">
@@ -181,149 +284,126 @@ const getStatusLabel = (status: string) => {
               <span class="w-2 h-2 bg-green-500 rounded-full"></span>
               <span class="text-slate-300">Stripe</span>
             </div>
-            <span class="text-xs text-green-400">Active</span>
+            <span class="text-xs text-green-400">Live Mode</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Squads (Solana)</span>
+            </div>
+            <span class="text-xs text-green-400">Vault Active</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Drift (dSOL)</span>
+            </div>
+            <span class="text-xs text-green-400">Staking Live</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+              <span class="text-slate-300">Bridge</span>
+            </div>
+            <span class="text-xs text-yellow-400">KYB Pending (~Feb 13)</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <span class="text-slate-300">Maple Finance</span>
+            </div>
+            <span class="text-xs text-blue-400">Ready (needs USDC)</span>
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
               <span class="text-slate-300">Kraken</span>
             </div>
-            <span class="text-xs text-yellow-400">API Ready (Deposits Pending)</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span class="text-slate-300">Solana RPC</span>
-            </div>
-            <span class="text-xs text-green-400">Mainnet</span>
+            <span class="text-xs text-yellow-400">API Ready (deposits pending)</span>
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <span class="w-2 h-2 bg-slate-500 rounded-full"></span>
               <span class="text-slate-300">Mercury Bank</span>
             </div>
-            <span class="text-xs text-slate-400">Not Integrated</span>
+            <span class="text-xs text-slate-400">Manual (no API yet)</span>
           </div>
         </div>
       </div>
 
-      <!-- Edge Functions -->
+      <!-- Deployments -->
       <div class="bg-slate-800 rounded-xl border border-slate-700">
         <div class="p-4 border-b border-slate-700">
-          <h2 class="text-lg font-semibold text-white">Edge Functions</h2>
+          <h2 class="text-lg font-semibold text-white">Deployments</h2>
         </div>
-        <div class="p-4">
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> dashboard-status
+        <div class="p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">User App</span>
             </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> analytics-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> loops-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> treasury-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> merchants-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> users-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> settings-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> support-tickets
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> oxo-status
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> kraken-buy-usdc
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> kraken-withdraw
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> stripe-webhook
-            </div>
-            <div class="flex items-center gap-2 text-slate-300">
-              <span class="text-green-400">✓</span> yield-distribution
-            </div>
+            <a href="https://app.looplocal.io" class="text-xs text-emerald-400 hover:text-emerald-300">app.looplocal.io ↗</a>
           </div>
-          <div class="mt-3 pt-3 border-t border-slate-700 text-xs text-slate-400">
-            <span class="text-green-400">✓</span> Working &nbsp;
-            <span class="text-yellow-400">⚠</span> Auth Issue &nbsp;
-            <span class="text-red-400">✗</span> Missing
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Merchant App</span>
+            </div>
+            <a href="https://merchant.looplocal.io" class="text-xs text-emerald-400 hover:text-emerald-300">merchant.looplocal.io ↗</a>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Command Center</span>
+            </div>
+            <a href="https://command.looplocal.io" class="text-xs text-emerald-400 hover:text-emerald-300">command.looplocal.io ↗</a>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Marketing Site</span>
+            </div>
+            <a href="https://looplocal.io" class="text-xs text-emerald-400 hover:text-emerald-300">looplocal.io ↗</a>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Edge Functions</span>
+            </div>
+            <span class="text-xs text-green-400">27 deployed</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span class="text-slate-300">Database</span>
+            </div>
+            <span class="text-xs text-green-400">62 tables</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Action Items -->
-    <div class="bg-slate-800 rounded-xl border border-slate-700">
+    <!-- Blockers Section -->
+    <div class="bg-slate-800 rounded-xl border border-orange-500/30">
       <div class="p-4 border-b border-slate-700">
-        <h2 class="text-lg font-semibold text-white">Priority Fixes</h2>
-        <p class="text-sm text-slate-400">Updated: Feb 5, 2026</p>
+        <h2 class="text-lg font-semibold text-orange-400">⏳ External Blockers</h2>
+        <p class="text-sm text-slate-400">Waiting on third parties</p>
       </div>
-      <div class="p-4">
-        <div class="space-y-3">
-          <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <span class="text-green-400 font-bold">✓</span>
-            <div>
-              <div class="font-medium text-white line-through opacity-60">Add auth to oxo-status POST actions</div>
-              <div class="text-sm text-green-400">FIXED: Admin-only auth with email allowlist</div>
-            </div>
+      <div class="p-4 space-y-3">
+        <div class="flex items-start gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+          <span class="text-orange-400 font-bold mt-0.5">1</span>
+          <div class="flex-1">
+            <div class="font-medium text-white">Bridge KYB Approval</div>
+            <div class="text-sm text-slate-400">Submitted Feb 6 — Expected ~Feb 13</div>
+            <div class="text-xs text-orange-400 mt-1">Blocks: USDC funding → Maple/Kamino deposits</div>
           </div>
-          <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <span class="text-green-400 font-bold">✓</span>
-            <div>
-              <div class="font-medium text-white line-through opacity-60">Add auth to Kraken functions</div>
-              <div class="text-sm text-green-400">FIXED: Auth + amount limits ($10k buy, $25k withdraw)</div>
-            </div>
-          </div>
-          <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <span class="text-green-400 font-bold">✓</span>
-            <div>
-              <div class="font-medium text-white line-through opacity-60">Create yield-distribution edge function</div>
-              <div class="text-sm text-green-400">FIXED: Created and deployed with idempotency checks</div>
-            </div>
-          </div>
-          <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <span class="text-green-400 font-bold">✓</span>
-            <div>
-              <div class="font-medium text-white line-through opacity-60">Fix stripe-webhook treasury integration</div>
-              <div class="text-sm text-green-400">FIXED: Now creates treasury_transactions and merchant_pool_shares</div>
-            </div>
-          </div>
-          
-          <div class="mt-4 pt-4 border-t border-slate-700">
-            <h3 class="text-sm font-medium text-slate-300 mb-3">Remaining (Requires External Work)</h3>
-          </div>
-          
-          <div class="flex items-start gap-3 p-3 bg-slate-700/30 rounded-lg border border-slate-600/30">
-            <span class="text-slate-400 font-bold">—</span>
-            <div>
-              <div class="font-medium text-white">Mercury bank API integration</div>
-              <div class="text-sm text-slate-400">Needs Mercury API access to sync balances</div>
-            </div>
-          </div>
-          <div class="flex items-start gap-3 p-3 bg-slate-700/30 rounded-lg border border-slate-600/30">
-            <span class="text-slate-400 font-bold">—</span>
-            <div>
-              <div class="font-medium text-white">Staking protocol integrations</div>
-              <div class="text-sm text-slate-400">Needs Marinade/Jito/Kamino SDK work for actual staking</div>
-            </div>
-          </div>
-          <div class="flex items-start gap-3 p-3 bg-slate-700/30 rounded-lg border border-slate-600/30">
-            <span class="text-slate-400 font-bold">—</span>
-            <div>
-              <div class="font-medium text-white">Database schema consolidation</div>
-              <div class="text-sm text-slate-400">Tech debt: Dual user/merchant systems need migration</div>
-            </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+          <span class="text-orange-400 font-bold mt-0.5">2</span>
+          <div class="flex-1">
+            <div class="font-medium text-white">Apple Developer Account</div>
+            <div class="text-sm text-slate-400">Enrollment pending — Up to 48h</div>
+            <div class="text-xs text-orange-400 mt-1">Blocks: iOS/Android native builds</div>
           </div>
         </div>
       </div>
@@ -333,10 +413,23 @@ const getStatusLabel = (status: string) => {
     <div class="bg-slate-800 rounded-xl border border-slate-700">
       <div class="p-4 border-b border-slate-700">
         <h2 class="text-lg font-semibold text-white">Detailed Reports</h2>
-        <p class="text-sm text-slate-400">Full audit documentation</p>
       </div>
       <div class="p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
+            <span>📄</span>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-white">Infrastructure Audit</div>
+              <div class="text-xs text-slate-400">loop/INFRASTRUCTURE-AUDIT.md</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
+            <span>📄</span>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-white">Vision Document</div>
+              <div class="text-xs text-slate-400">loop/VISION.md</div>
+            </div>
+          </div>
           <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
             <span>📄</span>
             <div class="flex-1">
@@ -347,32 +440,12 @@ const getStatusLabel = (status: string) => {
           <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
             <span>📄</span>
             <div class="flex-1">
-              <div class="text-sm font-medium text-white">Edge Functions Audit</div>
-              <div class="text-xs text-slate-400">memory/2026-02-05-audit-edge-functions.md</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
-            <span>📄</span>
-            <div class="flex-1">
               <div class="text-sm font-medium text-white">Database Schema Audit</div>
               <div class="text-xs text-slate-400">memory/2026-02-05-audit-database.md</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
-            <span>📄</span>
-            <div class="flex-1">
-              <div class="text-sm font-medium text-white">Treasury Math Audit</div>
-              <div class="text-xs text-slate-400">memory/2026-02-05-audit-treasury-math.md</div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <script>
-    document.getElementById('run-audits-btn')?.addEventListener('click', () => {
-      alert('Audit scheduling will be available soon. For now, ask Burt to run audits via WhatsApp.');
-    });
-  </script>
 </DashboardLayout>
