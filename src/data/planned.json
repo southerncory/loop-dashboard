@@ -2,6 +2,66 @@
   "vision": "Loop isn't a rewards card. It's a wealth-building vehicle disguised as loyalty.",
   "categories": [
     {
+      "id": "defi-infrastructure",
+      "name": "⛓️ DeFi Infrastructure",
+      "description": "The yield engine that powers wealth building — T-Bill backed, audited, institutional-grade",
+      "status": "in-progress",
+      "features": [
+        {
+          "title": "Diversified Treasury Yield",
+          "description": "40% Maple (syrupUSDC, 6-9% T-Bill backed), 30% Kamino (3-6%), 30% MarginFi (3-4%). Blended 5-7% APY.",
+          "priority": "critical",
+          "impact": "Sustainable, real yield — not token emissions",
+          "note": "Maple + Drift live; Kamino/MarginFi pending USDC funding"
+        },
+        {
+          "title": "Token-2022 Transfer Hooks",
+          "description": "Rewards (LOOP-RWD) can ONLY transfer to whitelisted addresses: merchants, stacking vaults, OXO allocator. Enforced on-chain.",
+          "priority": "critical",
+          "impact": "Closed-loop enforced at protocol level, not policy"
+        },
+        {
+          "title": "Auto-Compounding Vaults",
+          "description": "Stacked rewards auto-reinvest yields. No manual claims. True set-and-forget wealth building.",
+          "priority": "high",
+          "impact": "Passive exponential growth"
+        },
+        {
+          "title": "OXO Vesting Contracts",
+          "description": "Allocate APY → buy OXO. Locked 6-12 months via Anchor vesting escrow. Prevents dumps, creates patient capital.",
+          "priority": "high",
+          "impact": "Long-term alignment, sustainable tokenomics"
+        },
+        {
+          "title": "Multi-Sig Treasury (Squads)",
+          "description": "All treasury ops require multi-sig approval. No single point of failure. Institutional security.",
+          "priority": "critical",
+          "impact": "Trust and security for merchant funds",
+          "note": "Already live: MmFao...5on4"
+        },
+        {
+          "title": "Bridge USD↔USDC Rails",
+          "description": "Merchants deposit USD via ACH → Bridge converts to USDC → deposited to yield protocols. 0.75% onramp fee.",
+          "priority": "critical",
+          "impact": "Seamless fiat-to-DeFi bridge",
+          "note": "KYB submitted Feb 6, ~1 week approval"
+        },
+        {
+          "title": "Real-Time Treasury Dashboard",
+          "description": "Command Center shows live on-chain balances, APY rates, yield earned. Full transparency.",
+          "priority": "high",
+          "impact": "Merchant and investor confidence",
+          "note": "treasury-live edge function deployed"
+        },
+        {
+          "title": "Governance Staking (OXO)",
+          "description": "Stake OXO to vote on ecosystem decisions + earn share of protocol fees. Users become owners.",
+          "priority": "medium",
+          "impact": "DAO-like participation, long-term alignment"
+        }
+      ]
+    },
+    {
       "id": "merchant-staking",
       "name": "🏦 Merchant Pool Staking",
       "description": "Customers stake Cred into merchant pools, earning yield from merchant success",
@@ -95,6 +155,12 @@
           "priority": "critical",
           "impact": "Core differentiator",
           "note": "Already in architecture"
+        },
+        {
+          "title": "APY Allocation to OXO",
+          "description": "Choose 0/50/100% of your stacking yield → auto-buy vested OXO. Wealth building on autopilot.",
+          "priority": "critical",
+          "impact": "Passive OXO accumulation"
         },
         {
           "title": "Automated Round-Ups",
@@ -204,6 +270,96 @@
       ]
     },
     {
+      "id": "oxo-tokenomics",
+      "name": "🪙 OXO Tokenomics",
+      "description": "The ecosystem token that captures long-term value",
+      "status": "planned",
+      "features": [
+        {
+          "title": "Fixed Supply",
+          "description": "1 billion OXO total. No inflation. Burns reduce supply over time. Scarcity by design.",
+          "priority": "critical",
+          "impact": "Deflationary pressure"
+        },
+        {
+          "title": "Bonding Curve Pricing",
+          "description": "OXO price rises algorithmically with circulation. Early users get better rates. $0.001 → $1+ potential.",
+          "priority": "high",
+          "impact": "Rewards early believers"
+        },
+        {
+          "title": "Revenue Buybacks",
+          "description": "50% of company revenue → OXO buybacks → treasury holdings. Constant buy pressure.",
+          "priority": "critical",
+          "impact": "Real value backing"
+        },
+        {
+          "title": "Merchant Staking Locks",
+          "description": "Merchants stake OXO for premium features. 80% locked, 20% liquid. Reduces circulating supply.",
+          "priority": "high",
+          "impact": "Supply contraction"
+        },
+        {
+          "title": "Vesting Periods",
+          "description": "All OXO acquired via APY allocation vests 6-12 months. No quick flips. Patient capital.",
+          "priority": "critical",
+          "impact": "Price stability, long-term holders"
+        },
+        {
+          "title": "Governance Rights",
+          "description": "OXO holders vote on ecosystem decisions: new Loops, fee structures, treasury allocation.",
+          "priority": "medium",
+          "impact": "Community ownership"
+        },
+        {
+          "title": "Utility Token Status",
+          "description": "OXO is for governance + premium features, not investment returns. Defensible legal position.",
+          "priority": "critical",
+          "impact": "Regulatory clarity"
+        }
+      ]
+    },
+    {
+      "id": "checkout-solutions",
+      "name": "🛒 Checkout Solutions",
+      "description": "How customers earn at merchant locations",
+      "status": "researching",
+      "features": [
+        {
+          "title": "Receipt Scanning",
+          "description": "Customer takes photo of receipt. OCR extracts merchant + amount. Zero merchant integration needed. (Fetch/Ibotta model)",
+          "priority": "high",
+          "impact": "Works with ANY merchant, zero friction for business"
+        },
+        {
+          "title": "Static QR at Register",
+          "description": "Merchant has QR code at register. Customer scans, confirms purchase. Near-zero cost.",
+          "priority": "medium",
+          "impact": "Simple, cheap, works everywhere"
+        },
+        {
+          "title": "Phone Lookup at POS",
+          "description": "Cashier enters customer phone number at checkout. Already built in merchant app.",
+          "priority": "high",
+          "impact": "Works now, no customer app needed",
+          "note": "Already implemented"
+        },
+        {
+          "title": "Card Linking (Future)",
+          "description": "Customer links card once, pays normally, Loop auto-detects. Requires Fidel API or similar ($$$).",
+          "priority": "low",
+          "impact": "Zero friction, but expensive",
+          "note": "Expensive - $10K+/year minimum"
+        },
+        {
+          "title": "Loop Pay (Future)",
+          "description": "Customer loads USDC, pays via Solana Pay. We control entire transaction. Near-zero fees.",
+          "priority": "medium",
+          "impact": "Ultimate vision - closed loop economy"
+        }
+      ]
+    },
+    {
       "id": "data-reputation",
       "name": "📊 Data & Reputation",
       "description": "Your Loop history becomes valuable",
@@ -230,59 +386,6 @@
       ]
     },
     {
-      "id": "universal-aggregator",
-      "name": "🔗 Universal Rewards",
-      "description": "Loop as the hub for all loyalty",
-      "status": "future",
-      "features": [
-        {
-          "title": "Rewards Aggregator",
-          "description": "Import airline miles, hotel points, credit card points → Loop shows ONE number for total rewards wealth. 'Mint for loyalty.'",
-          "priority": "medium",
-          "impact": "Becomes the single source of truth"
-        },
-        {
-          "title": "AI Earning Optimization",
-          "description": "'Shop at Newslink today instead of tomorrow - 2x points event.' Loop tells you how to maximize.",
-          "priority": "medium",
-          "impact": "Active value delivery"
-        }
-      ]
-    },
-    {
-      "id": "checkout-solutions",
-      "name": "🛒 Checkout Solutions",
-      "description": "How customers earn at merchant locations",
-      "status": "researching",
-      "features": [
-        {
-          "title": "Receipt Scanning",
-          "description": "Customer takes photo of receipt. OCR extracts merchant + amount. Zero merchant integration needed. (Fetch/Ibotta model)",
-          "priority": "high",
-          "impact": "Works with ANY merchant, zero friction for business"
-        },
-        {
-          "title": "Static QR at Register",
-          "description": "Merchant has QR code at register. Customer scans, confirms purchase. Near-zero cost.",
-          "priority": "medium",
-          "impact": "Simple, cheap, works everywhere"
-        },
-        {
-          "title": "Card Linking (Future)",
-          "description": "Customer links card once, pays normally, Loop auto-detects. Requires Fidel API or similar ($$$).",
-          "priority": "low",
-          "impact": "Zero friction, but expensive",
-          "note": "Expensive - $10K+/year minimum"
-        },
-        {
-          "title": "Loop Pay (Future)",
-          "description": "Customer loads USDC, pays via Solana Pay. We control entire transaction. Near-zero fees.",
-          "priority": "medium",
-          "impact": "Ultimate vision - closed loop economy"
-        }
-      ]
-    },
-    {
       "id": "legal-structure",
       "name": "⚖️ Legal & Regulatory",
       "description": "How to structure Loop to stay compliant while enabling the vision",
@@ -299,6 +402,12 @@
           "description": "It's not 'investing' - it's 'optimizing your rewards'. Language matters for regulatory posture.",
           "priority": "high",
           "impact": "Marketing and legal positioning"
+        },
+        {
+          "title": "Token-2022 Enforcement",
+          "description": "Transfer hooks prevent rewards leaving ecosystem. On-chain enforcement > policy enforcement.",
+          "priority": "critical",
+          "impact": "Technical backing for closed-loop claim"
         },
         {
           "title": "Regulation CF Path",
@@ -328,5 +437,5 @@
       ]
     }
   ],
-  "lastUpdated": "2026-02-08"
+  "lastUpdated": "2026-02-09"
 }
