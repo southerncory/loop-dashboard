@@ -1,0 +1,254 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+
+const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
+---
+
+<DashboardLayout title="Waitlist | Loop Command Center" active="waitlist">
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Waitlist Signups</h1>
+        <p class="text-gray-500 mt-1">Users waiting for Loop to launch</p>
+      </div>
+      <div class="flex gap-3">
+        <button id="refresh-btn" class="btn-secondary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
+        <button id="export-btn" class="btn-primary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="card p-4">
+        <div class="text-sm text-gray-500">Total Signups</div>
+        <div class="text-2xl font-bold text-forest-600" id="total-count">-</div>
+      </div>
+      <div class="card p-4">
+        <div class="text-sm text-gray-500">This Week</div>
+        <div class="text-2xl font-bold text-gold-600" id="week-count">-</div>
+      </div>
+      <div class="card p-4">
+        <div class="text-sm text-gray-500">Today</div>
+        <div class="text-2xl font-bold text-blue-600" id="today-count">-</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="card p-8 text-center">
+      <div class="animate-spin w-8 h-8 border-4 border-forest-200 border-t-forest-600 rounded-full mx-auto mb-4"></div>
+      <p class="text-gray-500">Loading waitlist...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden card p-8 text-center bg-red-50 border-red-200">
+      <p class="text-red-600 font-medium" id="error-message">Failed to load waitlist</p>
+      <button id="retry-btn" class="btn-secondary mt-4">Try Again</button>
+    </div>
+
+    <!-- Table -->
+    <div id="table-container" class="hidden card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Signed Up</th>
+            </tr>
+          </thead>
+          <tbody id="waitlist-body" class="bg-white divide-y divide-gray-200">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty" class="hidden card p-8 text-center">
+      <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <p class="text-gray-500">No waitlist signups yet</p>
+      <p class="text-sm text-gray-400 mt-1">Share looplocal.io to get your first signup!</p>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script define:vars={{ SUPABASE_URL, SUPABASE_ANON_KEY }}>
+  let waitlistData = [];
+
+  async function loadWaitlist() {
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const tableContainer = document.getElementById('table-container');
+    const empty = document.getElementById('empty');
+
+    loading.classList.remove('hidden');
+    error.classList.add('hidden');
+    tableContainer.classList.add('hidden');
+    empty.classList.add('hidden');
+
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=*&order=created_at.desc`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to load waitlist');
+
+      waitlistData = await response.json();
+      
+      loading.classList.add('hidden');
+
+      if (waitlistData.length === 0) {
+        empty.classList.remove('hidden');
+      } else {
+        renderTable(waitlistData);
+        tableContainer.classList.remove('hidden');
+      }
+
+      updateStats(waitlistData);
+    } catch (err) {
+      loading.classList.add('hidden');
+      error.classList.remove('hidden');
+      document.getElementById('error-message').textContent = err.message;
+    }
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('waitlist-body');
+    tbody.innerHTML = data.map(row => `
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm font-medium text-gray-900">${escapeHtml(row.email)}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-500">${escapeHtml(row.phone || '-')}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+            ${escapeHtml(row.source || 'website')}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${formatDate(row.created_at)}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function updateStats(data) {
+    const now = new Date();
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const weekCount = data.filter(r => new Date(r.created_at) >= weekAgo).length;
+    const todayCount = data.filter(r => new Date(r.created_at) >= todayStart).length;
+
+    document.getElementById('total-count').textContent = data.length;
+    document.getElementById('week-count').textContent = weekCount;
+    document.getElementById('today-count').textContent = todayCount;
+  }
+
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function exportCSV() {
+    if (waitlistData.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    const headers = ['Email', 'Phone', 'Source', 'Signed Up'];
+    const rows = waitlistData.map(r => [
+      r.email,
+      r.phone || '',
+      r.source || 'website',
+      new Date(r.created_at).toISOString()
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `loop-waitlist-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Event listeners
+  document.getElementById('refresh-btn').addEventListener('click', loadWaitlist);
+  document.getElementById('retry-btn').addEventListener('click', loadWaitlist);
+  document.getElementById('export-btn').addEventListener('click', exportCSV);
+
+  // Initial load
+  loadWaitlist();
+</script>
+
+<style>
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    background-color: #166534;
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.15s;
+  }
+  .btn-primary:hover {
+    background-color: #15803d;
+  }
+  .btn-secondary {
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.15s;
+  }
+  .btn-secondary:hover {
+    background-color: #e5e7eb;
+  }
+  .card {
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+</style>

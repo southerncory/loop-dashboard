@@ -24,12 +24,14 @@
       "sequence": "22148",
       "dates": "Feb 9-11",
       "days": ["2026-02-09", "2026-02-10", "2026-02-11"],
-      "route": "MIA → AUS → STI → MIA",
+      "route": "MIA → AUS → STI → MIA → NAS → MIA",
       "credit": "16:30",
       "details": [
-        {"date": "2026-02-09", "dep": "MIA 0810", "arr": "AUS 1714"},
-        {"date": "2026-02-10", "dep": "AUS 0715", "arr": "STI 1550"},
-        {"date": "2026-02-11", "dep": "STI 0600", "arr": "MIA 1309"}
+        {"date": "2026-02-09", "flight": "AA", "dep": "MIA 0810", "arr": "AUS 1714"},
+        {"date": "2026-02-10", "flight": "AA", "dep": "AUS 0715", "arr": "STI 1550"},
+        {"date": "2026-02-11", "flight": "AA 660", "dep": "STI 0600", "arr": "MIA 0723"},
+        {"date": "2026-02-11", "flight": "AA 1884", "dep": "MIA 0935", "arr": "NAS 1053"},
+        {"date": "2026-02-11", "flight": "AA 1884", "dep": "NAS 1158", "arr": "MIA 1309"}
       ]
     },
     {

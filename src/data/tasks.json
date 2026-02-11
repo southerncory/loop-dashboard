@@ -8,6 +8,14 @@
       "category": "product"
     },
     {
+      "id": "stacking-siloed-integration",
+      "title": "📈 Stacking: Integrate with Siloed Balances",
+      "description": "When stacking goes live, update to read from user_merchant_balances (per-merchant) instead of user_cred_balances (per-loop). User has $50 at Cafe Luna + $30 at Green Market → stacking $80 should deduct proportionally from each merchant balance.",
+      "priority": "medium",
+      "category": "engineering",
+      "note": "Added 2026-02-10: Rewards are now siloed per merchant for redemption. Stacking needs to aggregate and deduct from multiple merchant balances."
+    },
+    {
       "id": "wallet-pass-deploy",
       "title": "📱 Deploy Wallet Pass Server",
       "description": "Deploy loop-wallet-pass to wallet.looplocal.io for Apple/Google Wallet passes",

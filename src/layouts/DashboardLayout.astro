@@ -94,6 +94,10 @@ const { title, active } = Astro.props;
             <span>👥</span>
             <span>Users</span>
           </a>
+          <a href="/waitlist" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'waitlist' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
+            <span>📝</span>
+            <span>Waitlist</span>
+          </a>
           <a href="/support" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'support' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
             <span>🎧</span>
             <span>Support</span>
