@@ -1,0 +1,451 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+
+// Supabase connection for client-side
+const supabaseUrl = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
+---
+
+<DashboardLayout title="Trading - Burt" active="trading">
+  <div class="p-4 md:p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold">🤖 Burt Trading</h1>
+        <p class="text-slate-400 mt-1">Hybrid AI trading system status</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="last-update" class="text-sm text-slate-500">Loading...</span>
+        <button id="refresh-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-2">
+          <span>🔄</span> Refresh
+        </button>
+        <a href="https://freqtrade.looplocal.io" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors flex items-center gap-2">
+          <span>📊</span> FreqUI
+        </a>
+      </div>
+    </div>
+
+    <!-- Status Cards Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- Survival Status -->
+      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+        <div class="text-slate-400 text-sm mb-1">Survival Status</div>
+        <div id="survival-status" class="text-2xl font-bold text-yellow-400">--</div>
+        <div id="survival-streak" class="text-xs text-slate-500 mt-1">-- day streak</div>
+      </div>
+
+      <!-- Total P&L -->
+      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+        <div class="text-slate-400 text-sm mb-1">Total P&L</div>
+        <div id="total-pnl" class="text-2xl font-bold">--</div>
+        <div id="total-pnl-pct" class="text-xs text-slate-500 mt-1">--%</div>
+      </div>
+
+      <!-- Win Rate -->
+      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+        <div class="text-slate-400 text-sm mb-1">Win Rate</div>
+        <div id="win-rate" class="text-2xl font-bold text-white">--%</div>
+        <div id="trade-count" class="text-xs text-slate-500 mt-1">-- trades</div>
+      </div>
+
+      <!-- Market Regime -->
+      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+        <div class="text-slate-400 text-sm mb-1">Market Regime</div>
+        <div id="market-regime" class="text-2xl font-bold text-white">--</div>
+        <div id="fear-greed" class="text-xs text-slate-500 mt-1">F&G: --</div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Open Positions -->
+      <div class="lg:col-span-2 bg-slate-800 rounded-xl border border-slate-700">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 class="font-semibold flex items-center gap-2">
+            <span>📈</span> Open Positions
+          </h2>
+          <span id="position-count" class="text-sm text-slate-400">0 positions</span>
+        </div>
+        <div id="positions-container" class="p-4">
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">🎯</div>
+            <div>No open positions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Signals -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700">
+        <div class="p-4 border-b border-slate-700">
+          <h2 class="font-semibold flex items-center gap-2">
+            <span>📡</span> Active Signals
+          </h2>
+        </div>
+        <div id="signals-container" class="p-4 space-y-3 max-h-80 overflow-y-auto">
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">📭</div>
+            <div>No active signals</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Trades & Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Recent Trades -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 class="font-semibold flex items-center gap-2">
+            <span>📜</span> Recent Trades
+          </h2>
+          <span class="text-sm text-slate-400">Last 10</span>
+        </div>
+        <div id="trades-container" class="divide-y divide-slate-700 max-h-96 overflow-y-auto">
+          <div class="p-4 text-center text-slate-500">Loading trades...</div>
+        </div>
+      </div>
+
+      <!-- Daily Performance -->
+      <div class="bg-slate-800 rounded-xl border border-slate-700">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 class="font-semibold flex items-center gap-2">
+            <span>📅</span> Daily Performance
+          </h2>
+          <span class="text-sm text-slate-400">Last 7 days</span>
+        </div>
+        <div id="daily-container" class="p-4">
+          <div class="space-y-2" id="daily-bars">
+            <div class="text-center py-8 text-slate-500">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700">
+      <div class="p-4 border-b border-slate-700">
+        <h2 class="font-semibold flex items-center gap-2">
+          <span>🔧</span> System Status
+        </h2>
+      </div>
+      <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="flex items-center gap-3">
+          <div id="brain-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
+          <div>
+            <div class="text-sm font-medium">Brain (OpenClaw)</div>
+            <div class="text-xs text-slate-400">Signal generation</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="bridge-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
+          <div>
+            <div class="text-sm font-medium">Bridge Server</div>
+            <div class="text-xs text-slate-400">A9:8888</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="freqtrade-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
+          <div>
+            <div class="text-sm font-medium">FreqTrade</div>
+            <div class="text-xs text-slate-400">Trade execution</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="ollama-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
+          <div>
+            <div class="text-sm font-medium">Ollama (LLM)</div>
+            <div class="text-xs text-slate-400">Trade validation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
+      <h2 class="font-semibold flex items-center gap-2 mb-4">
+        <span>🏗️</span> Architecture
+      </h2>
+      <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
+        <div class="bg-emerald-500/20 border border-emerald-500/30 rounded-lg px-4 py-2 text-center">
+          <div class="font-medium text-emerald-400">OpenClaw</div>
+          <div class="text-xs text-slate-400">Brain / Strategy</div>
+        </div>
+        <div class="text-slate-500">→</div>
+        <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg px-4 py-2 text-center">
+          <div class="font-medium text-blue-400">Bridge Server</div>
+          <div class="text-xs text-slate-400">Validation Layer</div>
+        </div>
+        <div class="text-slate-500">→</div>
+        <div class="bg-purple-500/20 border border-purple-500/30 rounded-lg px-4 py-2 text-center">
+          <div class="font-medium text-purple-400">FreqTrade</div>
+          <div class="text-xs text-slate-400">Body / Execution</div>
+        </div>
+        <div class="text-slate-500">→</div>
+        <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg px-4 py-2 text-center">
+          <div class="font-medium text-yellow-400">Binance</div>
+          <div class="text-xs text-slate-400">Exchange</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ supabaseUrl, supabaseAnonKey }}>
+    // Supabase client (lightweight, no SDK needed)
+    async function fetchFromSupabase(table, options = {}) {
+      const params = new URLSearchParams();
+      if (options.select) params.set('select', options.select);
+      if (options.order) params.set('order', options.order);
+      if (options.limit) params.set('limit', options.limit);
+      
+      const url = `${supabaseUrl}/rest/v1/${table}?${params}`;
+      const res = await fetch(url, {
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`
+        }
+      });
+      return res.json();
+    }
+
+    // Color helpers
+    function getSurvivalColor(status) {
+      const colors = {
+        'THRIVING': 'text-green-400',
+        'SURVIVING': 'text-blue-400', 
+        'DYING': 'text-yellow-400',
+        'PAUSED': 'text-red-400'
+      };
+      return colors[status] || 'text-slate-400';
+    }
+
+    function getPnlColor(value) {
+      if (value > 0) return 'text-green-400';
+      if (value < 0) return 'text-red-400';
+      return 'text-slate-400';
+    }
+
+    // Format helpers
+    function formatCurrency(val) {
+      const num = parseFloat(val) || 0;
+      const sign = num >= 0 ? '+' : '';
+      return `${sign}$${num.toFixed(2)}`;
+    }
+
+    function formatPercent(val) {
+      const num = parseFloat(val) || 0;
+      const sign = num >= 0 ? '+' : '';
+      return `${sign}${num.toFixed(2)}%`;
+    }
+
+    function timeAgo(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const seconds = Math.floor((now - date) / 1000);
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return `${Math.floor(seconds/60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds/3600)}h ago`;
+      return `${Math.floor(seconds/86400)}d ago`;
+    }
+
+    // Render functions
+    function renderPositions(positions) {
+      const container = document.getElementById('positions-container');
+      const countEl = document.getElementById('position-count');
+      
+      if (!positions || positions.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">🎯</div>
+            <div>No open positions</div>
+          </div>`;
+        countEl.textContent = '0 positions';
+        return;
+      }
+
+      countEl.textContent = `${positions.length} position${positions.length > 1 ? 's' : ''}`;
+      container.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-slate-400 text-left">
+              <tr>
+                <th class="pb-2">Pair</th>
+                <th class="pb-2">Side</th>
+                <th class="pb-2">Size</th>
+                <th class="pb-2">Entry</th>
+                <th class="pb-2">Current</th>
+                <th class="pb-2">P&L</th>
+                <th class="pb-2">Age</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700">
+              ${positions.map(p => `
+                <tr>
+                  <td class="py-2 font-medium">${p.pair}</td>
+                  <td class="py-2">
+                    <span class="px-2 py-0.5 rounded text-xs ${p.side === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+                      ${p.side?.toUpperCase()}
+                    </span>
+                  </td>
+                  <td class="py-2">$${parseFloat(p.stake_amount || 0).toFixed(0)}</td>
+                  <td class="py-2">$${parseFloat(p.open_rate || 0).toFixed(4)}</td>
+                  <td class="py-2">$${parseFloat(p.current_rate || p.open_rate || 0).toFixed(4)}</td>
+                  <td class="py-2 ${getPnlColor(p.unrealized_pnl)}">${formatCurrency(p.unrealized_pnl || 0)}</td>
+                  <td class="py-2 text-slate-400">${timeAgo(p.open_date)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderSignals(signals) {
+      const container = document.getElementById('signals-container');
+      
+      if (!signals || signals.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">📭</div>
+            <div>No active signals</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = signals.map(s => `
+        <div class="bg-slate-700/50 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-medium">${s.pair}</span>
+            <span class="px-2 py-0.5 rounded text-xs ${s.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+              ${s.direction?.toUpperCase()}
+            </span>
+          </div>
+          <div class="text-xs text-slate-400 space-y-1">
+            <div class="flex justify-between">
+              <span>Conviction:</span>
+              <span class="text-white">${(parseFloat(s.conviction || 0) * 100).toFixed(0)}%</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Kelly Size:</span>
+              <span class="text-white">${(parseFloat(s.kelly_fraction || 0) * 100).toFixed(1)}%</span>
+            </div>
+            ${s.reasoning ? `<div class="text-slate-500 mt-2 italic">"${s.reasoning.slice(0, 80)}..."</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTrades(trades) {
+      const container = document.getElementById('trades-container');
+      
+      if (!trades || trades.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-slate-500">No trades yet</div>`;
+        return;
+      }
+
+      container.innerHTML = trades.map(t => `
+        <div class="p-3 flex items-center justify-between hover:bg-slate-700/50">
+          <div>
+            <div class="font-medium">${t.pair}</div>
+            <div class="text-xs text-slate-400">${timeAgo(t.close_date || t.open_date)}</div>
+          </div>
+          <div class="text-right">
+            <div class="${getPnlColor(t.profit_abs)}">${formatCurrency(t.profit_abs)}</div>
+            <div class="text-xs ${getPnlColor(t.profit_ratio)}">${formatPercent((t.profit_ratio || 0) * 100)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDailyPerformance(daily) {
+      const container = document.getElementById('daily-bars');
+      
+      if (!daily || daily.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-500">No daily data</div>`;
+        return;
+      }
+
+      const maxAbs = Math.max(...daily.map(d => Math.abs(d.pnl || 0)), 1);
+      
+      container.innerHTML = daily.map(d => {
+        const pnl = parseFloat(d.pnl || 0);
+        const width = Math.abs(pnl) / maxAbs * 100;
+        const isPositive = pnl >= 0;
+        
+        return `
+          <div class="flex items-center gap-3">
+            <div class="w-16 text-xs text-slate-400">${d.date?.slice(5) || '--'}</div>
+            <div class="flex-1 h-6 bg-slate-700 rounded relative overflow-hidden">
+              <div class="absolute inset-y-0 ${isPositive ? 'left-1/2' : 'right-1/2'} ${isPositive ? 'bg-green-500/50' : 'bg-red-500/50'}" 
+                   style="width: ${width/2}%"></div>
+            </div>
+            <div class="w-20 text-right text-sm ${getPnlColor(pnl)}">${formatCurrency(pnl)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateSystemStatus(status) {
+      const components = ['brain', 'bridge', 'freqtrade', 'ollama'];
+      components.forEach(c => {
+        const el = document.getElementById(`${c}-status`);
+        const isOnline = status?.[c] === true;
+        el.className = `w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`;
+      });
+    }
+
+    // Main data fetch
+    async function loadData() {
+      try {
+        document.getElementById('last-update').textContent = 'Loading...';
+
+        // Fetch latest status
+        const [statusRows, tradesRows, signalsRows, dailyRows] = await Promise.all([
+          fetchFromSupabase('burt_status', { order: 'updated_at.desc', limit: '1' }),
+          fetchFromSupabase('burt_trades', { order: 'close_date.desc', limit: '10' }),
+          fetchFromSupabase('burt_signals', { order: 'created_at.desc', limit: '10' }),
+          fetchFromSupabase('burt_daily', { order: 'date.desc', limit: '7' })
+        ]);
+
+        const status = statusRows?.[0] || {};
+        
+        // Update status cards
+        const survivalEl = document.getElementById('survival-status');
+        survivalEl.textContent = status.survival_status || '--';
+        survivalEl.className = `text-2xl font-bold ${getSurvivalColor(status.survival_status)}`;
+        document.getElementById('survival-streak').textContent = `${status.streak_days || 0} day streak`;
+
+        const pnlEl = document.getElementById('total-pnl');
+        const pnl = parseFloat(status.total_pnl || 0);
+        pnlEl.textContent = formatCurrency(pnl);
+        pnlEl.className = `text-2xl font-bold ${getPnlColor(pnl)}`;
+        document.getElementById('total-pnl-pct').textContent = formatPercent(status.total_pnl_pct || 0);
+
+        document.getElementById('win-rate').textContent = `${(status.win_rate || 0).toFixed(0)}%`;
+        document.getElementById('trade-count').textContent = `${status.total_trades || 0} trades`;
+
+        document.getElementById('market-regime').textContent = status.market_regime || '--';
+        document.getElementById('fear-greed').textContent = `F&G: ${status.fear_greed || '--'}`;
+
+        // Render components
+        renderPositions(status.open_positions || []);
+        renderSignals(signalsRows || []);
+        renderTrades(tradesRows || []);
+        renderDailyPerformance(dailyRows?.reverse() || []);
+        updateSystemStatus(status.system_status || {});
+
+        document.getElementById('last-update').textContent = `Updated ${timeAgo(status.updated_at || new Date())}`;
+      } catch (err) {
+        console.error('Failed to load trading data:', err);
+        document.getElementById('last-update').textContent = 'Failed to load';
+      }
+    }
+
+    // Initial load
+    loadData();
+
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+    // Auto-refresh every 60 seconds
+    setInterval(loadData, 60000);
+  </script>
+</DashboardLayout>
