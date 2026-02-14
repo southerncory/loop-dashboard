@@ -1,21 +1,61 @@
 [
   {
+    "id": "dec-007",
+    "date": "2026-02-12",
+    "category": "architecture",
+    "decision": "Yield-first model - no redemption flow",
+    "context": "Simplify MVP by focusing on stacking and yield, not spending rewards",
+    "alternatives": ["Full redemption flow", "Hybrid approach"],
+    "rationale": "Reduces complexity, aligns with wealth-building narrative. Redemption can come later.",
+    "status": "final"
+  },
+  {
+    "id": "dec-008",
+    "date": "2026-02-12",
+    "category": "integration",
+    "decision": "Auto-Earn via POS OAuth (Square/Stripe/Clover)",
+    "context": "Need automatic reward crediting without merchant action at checkout",
+    "alternatives": ["Receipt scanning", "Card linking ($$$)", "Manual phone lookup only"],
+    "rationale": "OAuth gives real-time transaction data. Zero friction for merchant after setup. Free tier available.",
+    "status": "final"
+  },
+  {
+    "id": "dec-009",
+    "date": "2026-02-12",
+    "category": "multi-agent",
+    "decision": "Burt + Dex coordination via file handoff",
+    "context": "Two AI agents need to collaborate on tasks",
+    "alternatives": ["Telegram relay", "Direct API calls", "Shared file system"],
+    "rationale": "Telegram bots can't see each other. File handoff (COORDINATION.md) is reliable.",
+    "status": "final"
+  },
+  {
+    "id": "dec-010",
+    "date": "2026-02-13",
+    "category": "design",
+    "decision": "Command Center design system - no emojis",
+    "context": "Dashboard needed professional Bloomberg/Stripe aesthetic",
+    "alternatives": ["Keep emoji indicators", "Icon library"],
+    "rationale": "Emojis feel casual. StatusDot components + monospace data = executive dashboard feel.",
+    "status": "final"
+  },
+  {
     "id": "dec-001",
     "date": "2026-01-30",
     "category": "platform",
     "decision": "Mobile App: React Native (Expo) for App Store",
-    "context": "Need native app for iOS App Store and Google Play. PWA not acceptable.",
+    "context": "Need native app for iOS App Store and Google Play",
     "alternatives": ["React web app (PWA)", "Capacitor wrapper", "Swift/Kotlin native"],
-    "rationale": "React Native gives native performance, single codebase, and Expo simplifies App Store deployment. Team has React experience.",
+    "rationale": "React Native gives native performance, single codebase. Expo simplifies deployment.",
     "status": "final"
   },
   {
     "id": "dec-002",
     "date": "2026-01-30",
     "category": "auth",
-    "decision": "SMS OTP via Twilio Verify (not standard Twilio SMS)",
-    "context": "Standard Twilio SMS blocked by carriers due to 10DLC requirements.",
-    "alternatives": ["Register 10DLC (takes days)", "Email only", "Twilio Verify"],
+    "decision": "SMS OTP via Twilio Verify (not standard SMS)",
+    "context": "Standard Twilio SMS blocked by carriers due to 10DLC",
+    "alternatives": ["Register 10DLC", "Email only", "Twilio Verify"],
     "rationale": "Twilio Verify bypasses 10DLC restrictions, works immediately.",
     "status": "final"
   },
@@ -24,27 +64,27 @@
     "date": "2026-01-30",
     "category": "email",
     "decision": "Transactional email via Resend SMTP",
-    "context": "Need branded emails from looplocal.io, not Supabase default.",
-    "alternatives": ["Supabase default", "SendGrid", "Mailgun", "Cloudflare Workers + MailChannels"],
-    "rationale": "MailChannels discontinued free tier. Resend has free tier, simple SMTP setup, good DX.",
+    "context": "Need branded emails from looplocal.io",
+    "alternatives": ["Supabase default", "SendGrid", "Mailgun"],
+    "rationale": "Resend has free tier, simple SMTP setup, good DX.",
     "status": "final"
   },
   {
     "id": "dec-004",
     "date": "2026-01-30",
     "category": "backend",
-    "decision": "Supabase for backend (auth, database, edge functions)",
-    "context": "Need managed backend with auth, real-time, and serverless functions.",
+    "decision": "Supabase for backend",
+    "context": "Need managed backend with auth, real-time, serverless functions",
     "alternatives": ["Firebase", "AWS Amplify", "Custom backend"],
-    "rationale": "Supabase has excellent Postgres, row-level security, edge functions. Already invested.",
+    "rationale": "Excellent Postgres, RLS, edge functions. Already invested.",
     "status": "final"
   },
   {
     "id": "dec-005",
     "date": "2026-01-28",
     "category": "tokenomics",
-    "decision": "OXO token with bonding curve unlock mechanism",
-    "context": "Need reward token that appreciates and has unlock/vesting mechanics.",
+    "decision": "OXO token with bonding curve",
+    "context": "Need reward token that appreciates with ecosystem growth",
     "alternatives": ["Simple points", "Fixed-price token", "External crypto"],
     "rationale": "Bonding curve creates natural appreciation. Unlock meter gamifies holding.",
     "status": "final"
@@ -54,9 +94,9 @@
     "date": "2026-01-28",
     "category": "rewards",
     "decision": "Multi-Loop model with siloed rewards per merchant",
-    "context": "Users can belong to multiple merchant Loops, each with separate balances.",
-    "alternatives": ["Universal balance across all merchants", "Single Loop membership"],
-    "rationale": "Siloed rewards let merchants control their own pools. Users see value per relationship.",
+    "context": "Users can belong to multiple Loops with separate balances",
+    "alternatives": ["Universal balance", "Single Loop membership"],
+    "rationale": "Siloed rewards let merchants control pools. Users see value per relationship.",
     "status": "final"
   }
 ]

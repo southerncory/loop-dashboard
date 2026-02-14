@@ -1,0 +1,38 @@
+---
+/**
+ * StatusDot — Replaces emoji status indicators
+ * Usage: <StatusDot status="success" /> or <StatusDot status="warning" pulse />
+ */
+export interface Props {
+  status: 'success' | 'warning' | 'error' | 'info' | 'progress' | 'neutral';
+  size?: 'sm' | 'md' | 'lg';
+  pulse?: boolean;
+}
+
+const { status, size = 'md', pulse = false } = Astro.props;
+
+const sizeClasses = {
+  sm: 'w-2 h-2',
+  md: 'w-2.5 h-2.5',
+  lg: 'w-3 h-3'
+};
+
+const colorClasses = {
+  success: 'bg-green-500',
+  warning: 'bg-amber-500',
+  error: 'bg-red-500',
+  info: 'bg-blue-500',
+  progress: 'bg-purple-500',
+  neutral: 'bg-slate-500'
+};
+---
+
+<span 
+  class:list={[
+    'inline-block rounded-full',
+    sizeClasses[size],
+    colorClasses[status],
+    pulse && 'animate-pulse'
+  ]}
+  aria-hidden="true"
+></span>

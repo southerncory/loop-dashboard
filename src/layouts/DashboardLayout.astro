@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import '../styles/design-system.css'
 
 interface Props {
   title: string;
@@ -7,6 +8,33 @@ interface Props {
 }
 
 const { title, active } = Astro.props;
+
+// Navigation structure - no emojis, clean hierarchy
+const navSections = [
+  {
+    title: null, // Main nav, no header
+    items: [
+      { id: 'dashboard', label: 'Dashboard', href: '/' },
+      { id: 'loops', label: 'Loops', href: '/loops' },
+      { id: 'treasury', label: 'Treasury', href: '/treasury' },
+      { id: 'merchants', label: 'Merchants', href: '/merchants' },
+      { id: 'users', label: 'Users', href: '/users' },
+      { id: 'waitlist', label: 'Waitlist', href: '/waitlist' },
+      { id: 'support', label: 'Support', href: '/support' },
+    ]
+  },
+  {
+    title: 'Infrastructure',
+    items: [
+      { id: 'trading', label: 'Trading', href: '/trading' },
+      { id: 'solana', label: 'Solana', href: '/solana' },
+      { id: 'oxo', label: 'OXO Token', href: '/oxo' },
+      { id: 'analytics', label: 'Analytics', href: '/analytics' },
+      { id: 'system-health', label: 'System Health', href: '/system-health' },
+      { id: 'settings', label: 'Settings', href: '/settings' },
+    ]
+  }
+];
 ---
 
 <!doctype html>
@@ -15,17 +43,20 @@ const { title, active } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <title>{title}</title>
     <style>
-      /* Mobile sidebar transitions */
+      /* Sidebar transitions */
       #sidebar {
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.2s ease-out;
       }
       #sidebar.mobile-hidden {
         transform: translateX(-100%);
       }
       #sidebar-overlay {
-        transition: opacity 0.3s ease-in-out;
+        transition: opacity 0.2s ease-out;
       }
       #sidebar-overlay.hidden {
         opacity: 0;
@@ -39,114 +70,92 @@ const { title, active } = Astro.props;
           display: none !important;
         }
       }
+      
+      /* Nav item indicator */
+      .nav-item.active {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 2px solid #10b981;
+      }
+      .nav-item:not(.active) {
+        border-left: 2px solid transparent;
+      }
     </style>
   </head>
-  <body class="bg-slate-900 text-white min-h-screen">
+  <body class="bg-[#0f1419] text-slate-300 min-h-screen font-sans antialiased">
     <div class="flex min-h-screen">
       <!-- Mobile Header -->
-      <header class="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between">
+      <header class="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#1a2028] border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
         <a href="/" class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-lg">∞</div>
-          <span class="font-bold text-white">Loop</span>
+          <div class="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center text-white font-bold text-sm">L</div>
+          <span class="font-semibold text-white">Loop</span>
         </a>
-        <button id="menu-toggle" class="p-2 hover:bg-slate-700 rounded-lg transition-colors" aria-label="Toggle menu">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <button id="menu-toggle" class="p-2 hover:bg-slate-700/50 rounded transition-colors" aria-label="Toggle menu">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </header>
 
       <!-- Sidebar Overlay (mobile) -->
-      <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/50 z-40 md:hidden"></div>
+      <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"></div>
 
       <!-- Sidebar -->
-      <aside id="sidebar" class="mobile-hidden md:translate-x-0 w-64 bg-slate-800 border-r border-slate-700 flex flex-col fixed h-full z-50">
+      <aside id="sidebar" class="mobile-hidden md:translate-x-0 w-56 bg-[#1a2028] border-r border-slate-700/50 flex flex-col fixed h-full z-50">
         <!-- Logo -->
-        <div class="p-4 border-b border-slate-700">
+        <div class="p-4 border-b border-slate-700/50">
           <a href="/" class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center text-xl">∞</div>
+            <div class="w-9 h-9 bg-emerald-600 rounded flex items-center justify-center text-white font-bold">L</div>
             <div>
-              <div class="font-bold text-white">Loop</div>
-              <div class="text-xs text-slate-400">Command Center</div>
+              <div class="font-semibold text-white text-sm">Loop</div>
+              <div class="text-xs text-slate-500">Command Center</div>
             </div>
           </a>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-          <a href="/" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'dashboard' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🏠</span>
-            <span>Dashboard</span>
-          </a>
-          <a href="/loops" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'loops' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🌐</span>
-            <span>Loops</span>
-          </a>
-          <a href="/treasury" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'treasury' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>💰</span>
-            <span>Treasury</span>
-          </a>
-          <a href="/merchants" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'merchants' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🏪</span>
-            <span>Merchants</span>
-          </a>
-          <a href="/users" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'users' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>👥</span>
-            <span>Users</span>
-          </a>
-          <a href="/waitlist" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'waitlist' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>📝</span>
-            <span>Waitlist</span>
-          </a>
-          <a href="/support" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'support' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🎧</span>
-            <span>Support</span>
-          </a>
-          
-          <div class="pt-4 pb-2">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3">Infrastructure</div>
-          </div>
-          
-          <a href="/trading" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'trading' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🤖</span>
-            <span>Trading (Burt)</span>
-          </a>
-          <a href="/solana" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'solana' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>⛓️</span>
-            <span>Solana</span>
-          </a>
-          <a href="/oxo" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'oxo' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🪙</span>
-            <span>OXO Token</span>
-          </a>
-          <a href="/analytics" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'analytics' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>📊</span>
-            <span>Analytics</span>
-          </a>
-          <a href="/system-health" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'system-health' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>🩺</span>
-            <span>System Health</span>
-          </a>
-          <a href="/settings" class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active === 'settings' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'}`}>
-            <span>⚙️</span>
-            <span>Settings</span>
-          </a>
+        <nav class="flex-1 py-4 overflow-y-auto">
+          {navSections.map((section) => (
+            <div class="mb-4">
+              {section.title && (
+                <div class="px-4 mb-2">
+                  <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {section.title}
+                  </span>
+                </div>
+              )}
+              <div class="space-y-0.5 px-2">
+                {section.items.map((item) => (
+                  <a 
+                    href={item.href}
+                    class:list={[
+                      'nav-item flex items-center px-3 py-2 text-sm rounded-r transition-colors',
+                      active === item.id 
+                        ? 'active text-emerald-400 font-medium' 
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                    ]}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <!-- User -->
-        <div class="p-4 border-t border-slate-700">
+        <div class="p-4 border-t border-slate-700/50">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400">A</div>
+            <div class="w-8 h-8 bg-slate-700 rounded flex items-center justify-center text-slate-300 text-sm font-medium">A</div>
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-white truncate">Alex</div>
-              <div class="text-xs text-slate-400">Admin</div>
+              <div class="text-sm font-medium text-slate-200 truncate">Alex</div>
+              <div class="text-xs text-slate-500">Administrator</div>
             </div>
           </div>
         </div>
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 md:ml-64 pt-14 md:pt-0 overflow-auto min-h-screen">
+      <main class="flex-1 md:ml-56 pt-14 md:pt-0 overflow-auto min-h-screen">
         <slot />
       </main>
     </div>
@@ -165,7 +174,6 @@ const { title, active } = Astro.props;
       menuToggle?.addEventListener('click', toggleSidebar);
       overlay?.addEventListener('click', toggleSidebar);
 
-      // Close sidebar when clicking a link (on mobile)
       sidebar?.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
           if (window.innerWidth < 768) {

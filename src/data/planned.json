@@ -3,7 +3,7 @@
   "categories": [
     {
       "id": "defi-infrastructure",
-      "name": "⛓️ DeFi Infrastructure",
+      "name": "DeFi Infrastructure",
       "description": "The yield engine that powers wealth building — T-Bill backed, audited, institutional-grade",
       "status": "in-progress",
       "features": [
@@ -63,7 +63,7 @@
     },
     {
       "id": "merchant-staking",
-      "name": "🏦 Merchant Pool Staking",
+      "name": "Merchant Pool Staking",
       "description": "Customers stake Cred into merchant pools, earning yield from merchant success",
       "status": "core-vision",
       "features": [
@@ -89,7 +89,7 @@
     },
     {
       "id": "gamification",
-      "name": "🎮 Gamification Layer",
+      "name": "Gamification Layer",
       "description": "Turn passive staking into an engaging game",
       "status": "planned",
       "features": [
@@ -145,7 +145,7 @@
     },
     {
       "id": "wealth-building",
-      "name": "💰 Wealth Building Features",
+      "name": "Wealth Building",
       "description": "Turn rewards into real wealth accumulation",
       "status": "planned",
       "features": [
@@ -190,7 +190,7 @@
     },
     {
       "id": "local-markets",
-      "name": "📈 Local Markets (Wall Street for Main Street)",
+      "name": "Local Markets",
       "description": "Turn every Loop into a real-time tradeable market - engage users from their couch",
       "status": "vision",
       "legal_note": "Requires careful structuring - no USD cash-out for trading gains keeps it defensible as rewards optimization, not securities",
@@ -271,7 +271,7 @@
     },
     {
       "id": "oxo-tokenomics",
-      "name": "🪙 OXO Tokenomics",
+      "name": "OXO Tokenomics",
       "description": "The ecosystem token that captures long-term value",
       "status": "planned",
       "features": [
@@ -321,7 +321,7 @@
     },
     {
       "id": "checkout-solutions",
-      "name": "🛒 Checkout Solutions",
+      "name": "Checkout Solutions",
       "description": "How customers earn at merchant locations",
       "status": "researching",
       "features": [
@@ -361,7 +361,7 @@
     },
     {
       "id": "data-reputation",
-      "name": "📊 Data & Reputation",
+      "name": "Data & Reputation",
       "description": "Your Loop history becomes valuable",
       "status": "future",
       "features": [
@@ -387,7 +387,7 @@
     },
     {
       "id": "legal-structure",
-      "name": "⚖️ Legal & Regulatory",
+      "name": "Legal & Regulatory",
       "description": "How to structure Loop to stay compliant while enabling the vision",
       "status": "critical-research",
       "features": [

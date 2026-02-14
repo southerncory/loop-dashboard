@@ -1,206 +1,163 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
-
-// Helper functions
-function getPriorityColor(priority: string): string {
-  switch (priority) {
-    case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
-    case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    case 'normal': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    case 'low': return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
-    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
-  }
-}
-
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'open': return 'bg-yellow-500/20 text-yellow-400';
-    case 'in_progress': return 'bg-blue-500/20 text-blue-400';
-    case 'waiting_customer': return 'bg-purple-500/20 text-purple-400';
-    case 'resolved': return 'bg-green-500/20 text-green-400';
-    case 'closed': return 'bg-slate-500/20 text-slate-400';
-    default: return 'bg-slate-500/20 text-slate-400';
-  }
-}
-
-function getCategoryIcon(category: string): string {
-  switch (category) {
-    case 'bug': return '🐛';
-    case 'billing': return '💳';
-    case 'account': return '👤';
-    case 'feature': return '✨';
-    case 'merchant': return '🏪';
-    case 'partnership': return '🤝';
-    case 'general': return '❓';
-    case 'feedback': return '💬';
-    default: return '📧';
-  }
-}
+import StatusDot from '../components/ui/StatusDot.astro';
+import Badge from '../components/ui/Badge.astro';
 ---
 
-<DashboardLayout title="Support Command Center | Loop" active="support">
-  <div class="min-h-screen p-6">
+<DashboardLayout title="Support | Loop" active="support">
+  <div class="min-h-screen bg-[#0f1419] p-4 md:p-6">
     <!-- Header -->
-    <header class="mb-8">
+    <header class="mb-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold">🎧 Support Command Center</h1>
-          <p class="text-slate-400 mt-1">Real-time customer support for Loop</p>
+          <h1 class="text-xl font-semibold text-slate-100">Support</h1>
+          <p class="text-slate-500 text-sm mt-0.5">Customer support queue</p>
         </div>
-        <div class="flex gap-3">
-          <button id="btn-refresh" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
-            🔄 Refresh
-          </button>
-        </div>
+        <button id="btn-refresh" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded text-sm font-medium text-slate-300 transition-colors">
+          Refresh
+        </button>
       </div>
     </header>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-open" class="text-2xl font-bold text-yellow-400">-</div>
-        <div class="text-slate-400 text-sm">Open Tickets</div>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Open</div>
+        <div id="stat-open" class="text-xl font-semibold font-mono text-amber-400">-</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-pending" class="text-2xl font-bold text-purple-400">-</div>
-        <div class="text-slate-400 text-sm">Awaiting Reply</div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Pending</div>
+        <div id="stat-pending" class="text-xl font-semibold font-mono text-purple-400">-</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-resolved" class="text-2xl font-bold text-green-400">-</div>
-        <div class="text-slate-400 text-sm">Resolved (30d)</div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Resolved</div>
+        <div id="stat-resolved" class="text-xl font-semibold font-mono text-green-400">-</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-response-time" class="text-2xl font-bold text-blue-400">-</div>
-        <div class="text-slate-400 text-sm">Avg Response</div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Avg Time</div>
+        <div id="stat-response-time" class="text-xl font-semibold font-mono text-blue-400">-</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-ai-handled" class="text-2xl font-bold text-emerald-400">-</div>
-        <div class="text-slate-400 text-sm">AI Handled</div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">AI Rate</div>
+        <div id="stat-ai-handled" class="text-xl font-semibold font-mono text-emerald-400">-</div>
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div id="stat-total" class="text-2xl font-bold text-pink-400">-</div>
-        <div class="text-slate-400 text-sm">Total Tickets</div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Total</div>
+        <div id="stat-total" class="text-xl font-semibold font-mono text-slate-300">-</div>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Ticket List -->
       <div class="lg:col-span-2">
-        <div class="bg-slate-800 rounded-xl border border-slate-700">
-          <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Support Tickets</h2>
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+          <div class="p-3 border-b border-slate-700/50 flex items-center justify-between flex-wrap gap-2">
+            <h2 class="text-sm font-medium text-slate-200">Tickets</h2>
             <div class="flex gap-2">
-              <select id="filter-status" class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
+              <select id="filter-status" class="bg-slate-800 text-sm rounded px-2 py-1 border border-slate-700/50 text-slate-300 focus:outline-none focus:border-slate-600">
                 <option value="all">All Status</option>
                 <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="waiting_customer">Awaiting Reply</option>
+                <option value="waiting">Waiting</option>
                 <option value="resolved">Resolved</option>
                 <option value="closed">Closed</option>
               </select>
-              <select id="filter-category" class="bg-slate-700 text-sm rounded-lg px-3 py-1.5 border border-slate-600">
+              <select id="filter-category" class="bg-slate-800 text-sm rounded px-2 py-1 border border-slate-700/50 text-slate-300 focus:outline-none focus:border-slate-600">
                 <option value="all">All Categories</option>
                 <option value="general">General</option>
-                <option value="bug">Bug</option>
+                <option value="technical">Technical</option>
                 <option value="billing">Billing</option>
-                <option value="account">Account</option>
-                <option value="feature">Feature</option>
-                <option value="merchant">Merchant</option>
-                <option value="partnership">Partnership</option>
+                <option value="feedback">Feedback</option>
               </select>
             </div>
           </div>
           
-          <div id="ticket-list" class="divide-y divide-slate-700">
-            <div class="p-8 text-center text-slate-500">
-              <div class="text-4xl mb-2">⏳</div>
+          <div id="ticket-list" class="divide-y divide-slate-700/30">
+            <div class="p-8 text-center text-slate-500 text-sm">
               Loading tickets...
             </div>
           </div>
           
-          <div id="load-more-container" class="p-4 border-t border-slate-700 text-center hidden">
-            <button id="btn-load-more" class="text-blue-400 hover:text-blue-300 text-sm">
-              Load more tickets →
+          <div id="load-more-container" class="p-3 border-t border-slate-700/50 text-center hidden">
+            <button id="btn-load-more" class="text-emerald-400 hover:text-emerald-300 text-sm font-medium">
+              Load more
             </button>
           </div>
         </div>
       </div>
 
       <!-- Right Sidebar -->
-      <div class="space-y-6">
+      <div class="space-y-4">
         <!-- Selected Ticket Detail -->
-        <div id="ticket-detail" class="bg-slate-800 rounded-xl border border-slate-700 p-4 hidden">
-          <h3 class="font-semibold mb-4">📋 Ticket Detail</h3>
+        <div id="ticket-detail" class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-4 hidden">
+          <h3 class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Ticket Detail</h3>
           <div id="ticket-detail-content">
             <!-- Filled by JS -->
           </div>
         </div>
 
         <!-- AI Response Panel -->
-        <div id="ai-response-panel" class="bg-slate-800 rounded-xl border border-emerald-500/30 p-4 hidden">
-          <h3 class="font-semibold mb-4 flex items-center gap-2">
-            🤖 AI Response Draft
-          </h3>
-          <div id="ai-response-content" class="text-sm text-slate-300 bg-slate-700/50 rounded-lg p-3 mb-4">
+        <div id="ai-response-panel" class="bg-[#1a2028] border border-emerald-500/20 rounded-lg p-4 hidden">
+          <h3 class="text-xs font-medium text-emerald-400 uppercase tracking-wide mb-3">AI Response Draft</h3>
+          <div id="ai-response-content" class="text-sm text-slate-300 bg-slate-800/50 rounded p-3 mb-3">
             <!-- Filled by JS -->
           </div>
           <div class="flex gap-2">
-            <button id="btn-approve-ai" class="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition-colors">
-              ✅ Approve & Send
+            <button id="btn-approve-ai" class="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition-colors">
+              Approve
             </button>
-            <button id="btn-edit-response" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
-              ✏️ Edit
+            <button id="btn-edit-response" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">
+              Edit
             </button>
-            <button id="btn-regenerate-ai" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
-              🔄
+            <button id="btn-regenerate-ai" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">
+              Retry
             </button>
           </div>
         </div>
 
         <!-- Edit Response Panel -->
-        <div id="edit-response-panel" class="bg-slate-800 rounded-xl border border-blue-500/30 p-4 hidden">
-          <h3 class="font-semibold mb-4">✏️ Edit Response</h3>
-          <textarea id="edit-response-text" class="w-full h-32 bg-slate-700 rounded-lg p-3 text-sm border border-slate-600 focus:border-blue-500 focus:outline-none resize-none"></textarea>
+        <div id="edit-response-panel" class="bg-[#1a2028] border border-blue-500/20 rounded-lg p-4 hidden">
+          <h3 class="text-xs font-medium text-blue-400 uppercase tracking-wide mb-3">Edit Response</h3>
+          <textarea id="edit-response-text" class="w-full h-28 bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700/50 focus:border-slate-600 focus:outline-none resize-none"></textarea>
           <div class="flex gap-2 mt-3">
-            <button id="btn-send-custom" class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
-              📤 Send Response
+            <button id="btn-send-custom" class="flex-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-sm font-medium transition-colors">
+              Send
             </button>
-            <button id="btn-cancel-edit" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+            <button id="btn-cancel-edit" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">
               Cancel
             </button>
           </div>
-          <label class="flex items-center gap-2 mt-3 text-sm text-slate-400">
+          <label class="flex items-center gap-2 mt-3 text-xs text-slate-500">
             <input type="checkbox" id="close-after-send" class="rounded bg-slate-700 border-slate-600">
             Close ticket after sending
           </label>
         </div>
 
         <!-- Category Breakdown -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
-          <h3 class="font-semibold mb-4">📊 By Category (30d)</h3>
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-4">
+          <h3 class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">By Category (30d)</h3>
           <div id="category-breakdown" class="space-y-2">
-            <div class="text-slate-500 text-sm">Loading...</div>
+            <div class="text-slate-600 text-sm">Loading...</div>
           </div>
         </div>
 
         <!-- Support Channels -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
-          <h3 class="font-semibold mb-4">📡 Support Channels</h3>
-          <div class="space-y-3">
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-4">
+          <h3 class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Channels</h3>
+          <div class="space-y-2">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                <span class="text-sm">Email</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                <span class="text-sm text-slate-300">Email</span>
               </div>
-              <span class="text-xs text-slate-400">support@looplocal.io</span>
+              <span class="text-xs text-slate-500 font-mono">support@looplocal.io</span>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                <span class="text-sm">API</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                <span class="text-sm text-slate-300">API</span>
               </div>
-              <span class="text-xs text-slate-400">Connected</span>
+              <span class="text-xs text-slate-500">Connected</span>
             </div>
           </div>
         </div>
@@ -216,7 +173,6 @@ function getCategoryIcon(category: string): string {
     let currentOffset = 0;
     const LIMIT = 20;
 
-    // Fetch tickets from API
     async function fetchTickets(append = false) {
       const status = document.getElementById('filter-status').value;
       const category = document.getElementById('filter-category').value;
@@ -236,13 +192,9 @@ function getCategoryIcon(category: string): string {
         
         if (data.error) throw new Error(data.error);
         
-        // Update stats
         updateStats(data.stats);
-        
-        // Update category breakdown
         updateCategories(data.categories);
         
-        // Update ticket list
         if (append) {
           currentTickets = [...currentTickets, ...data.tickets];
         } else {
@@ -250,7 +202,6 @@ function getCategoryIcon(category: string): string {
         }
         renderTickets();
         
-        // Show/hide load more
         const loadMoreContainer = document.getElementById('load-more-container');
         if (data.pagination.hasMore) {
           loadMoreContainer.classList.remove('hidden');
@@ -261,9 +212,8 @@ function getCategoryIcon(category: string): string {
       } catch (err) {
         console.error('Failed to fetch tickets:', err);
         document.getElementById('ticket-list').innerHTML = `
-          <div class="p-8 text-center text-red-400">
-            <div class="text-4xl mb-2">❌</div>
-            Failed to load tickets: ${err.message}
+          <div class="p-8 text-center text-red-400 text-sm">
+            Failed to load tickets
           </div>
         `;
       }
@@ -280,22 +230,17 @@ function getCategoryIcon(category: string): string {
 
     function updateCategories(categories) {
       const container = document.getElementById('category-breakdown');
-      const icons = {
-        general: '❓', bug: '🐛', billing: '💳', account: '👤',
-        feature: '✨', merchant: '🏪', partnership: '🤝', feedback: '💬'
-      };
-      
       const sorted = Object.entries(categories).sort((a, b) => b[1] - a[1]);
       
       if (sorted.length === 0) {
-        container.innerHTML = '<div class="text-slate-500 text-sm">No data</div>';
+        container.innerHTML = '<div class="text-slate-600 text-sm">No data</div>';
         return;
       }
       
       container.innerHTML = sorted.map(([cat, count]) => `
         <div class="flex items-center justify-between">
-          <span class="text-sm">${icons[cat] || '📧'} ${cat}</span>
-          <span class="text-sm text-slate-400">${count}</span>
+          <span class="text-sm text-slate-400 capitalize">${cat}</span>
+          <span class="text-sm text-slate-500 font-mono">${count}</span>
         </div>
       `).join('');
     }
@@ -305,8 +250,7 @@ function getCategoryIcon(category: string): string {
       
       if (currentTickets.length === 0) {
         container.innerHTML = `
-          <div class="p-8 text-center text-slate-500">
-            <div class="text-4xl mb-2">📭</div>
+          <div class="p-8 text-center text-slate-500 text-sm">
             No tickets found
           </div>
         `;
@@ -314,72 +258,68 @@ function getCategoryIcon(category: string): string {
       }
 
       container.innerHTML = currentTickets.map(ticket => `
-        <div class="p-4 hover:bg-slate-700/50 transition-colors cursor-pointer ticket-row ${selectedTicketId === ticket.id ? 'bg-slate-700/50' : ''}" data-id="${ticket.id}">
-          <div class="flex items-start gap-4">
-            <div class="text-2xl">${getCategoryIcon(ticket.category_slug)}</div>
+        <div class="p-3 hover:bg-slate-800/30 transition-colors cursor-pointer ticket-row ${selectedTicketId === ticket.id ? 'bg-slate-800/30' : ''}" data-id="${ticket.id}">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full mt-1.5 shrink-0 ${getStatusDotColor(ticket.status)}"></div>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1 flex-wrap">
-                <span class="text-xs text-slate-500 font-mono">${ticket.ticket_number}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full ${getStatusColor(ticket.status)}">
-                  ${ticket.status.replace('_', ' ')}
+              <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                <span class="text-xs text-slate-600 font-mono">${ticket.id?.slice(0, 8) || 'N/A'}</span>
+                <span class="text-xs px-1.5 py-0.5 rounded ${getStatusBadgeColor(ticket.status)}">
+                  ${ticket.status}
                 </span>
-                <span class="text-xs px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}">
-                  ${ticket.priority}
+                <span class="text-xs px-1.5 py-0.5 rounded border ${getPriorityColor(ticket.priority)}">
+                  ${ticket.priority || 'normal'}
                 </span>
-                ${ticket.ai_handled ? '<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">🤖 AI</span>' : ''}
+                <span class="text-xs px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-400">
+                  ${ticket.category || 'general'}
+                </span>
+                ${ticket.metadata?.ai_resolved ? '<span class="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">AI</span>' : ''}
               </div>
-              <h3 class="font-medium text-white truncate">${ticket.subject}</h3>
-              <div class="flex items-center gap-3 mt-1 text-sm text-slate-400">
-                <span class="truncate">${ticket.email}</span>
-                <span>•</span>
-                <span>${formatDate(ticket.created_at)}</span>
+              <h3 class="text-sm font-medium text-slate-200 truncate">${ticket.user_name || 'Unknown User'}</h3>
+              <p class="text-xs text-slate-400 truncate mt-0.5">${ticket.last_message?.content || ticket.subject || 'No messages'}</p>
+              <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                <span class="truncate">${ticket.user_email || ''}</span>
+                <span>·</span>
+                <span>${formatDate(ticket.last_message_at || ticket.created_at)}</span>
               </div>
             </div>
-            ${ticket.ai_confidence > 0 ? `
-              <div class="text-right">
-                <div class="text-xs text-slate-500">AI Conf</div>
-                <div class="text-sm font-medium ${ticket.ai_confidence > 0.7 ? 'text-emerald-400' : ticket.ai_confidence > 0.4 ? 'text-yellow-400' : 'text-red-400'}">
-                  ${Math.round(ticket.ai_confidence * 100)}%
-                </div>
-              </div>
-            ` : ''}
           </div>
         </div>
       `).join('');
 
-      // Add click handlers
       document.querySelectorAll('.ticket-row').forEach(row => {
         row.addEventListener('click', () => selectTicket(row.dataset.id));
       });
     }
 
-    function getCategoryIcon(category) {
-      const icons = {
-        bug: '🐛', billing: '💳', account: '👤', feature: '✨',
-        merchant: '🏪', partnership: '🤝', general: '❓', feedback: '💬'
+    function getStatusDotColor(status) {
+      const colors = {
+        open: 'bg-amber-500',
+        waiting: 'bg-purple-500',
+        resolved: 'bg-green-500',
+        closed: 'bg-slate-500'
       };
-      return icons[category] || '📧';
+      return colors[status] || 'bg-slate-500';
     }
 
-    function getStatusColor(status) {
+    function getStatusBadgeColor(status) {
       const colors = {
-        open: 'bg-yellow-500/20 text-yellow-400',
-        in_progress: 'bg-blue-500/20 text-blue-400',
-        waiting_customer: 'bg-purple-500/20 text-purple-400',
-        resolved: 'bg-green-500/20 text-green-400',
-        closed: 'bg-slate-500/20 text-slate-400'
+        open: 'bg-amber-500/10 text-amber-400',
+        waiting: 'bg-purple-500/10 text-purple-400',
+        resolved: 'bg-green-500/10 text-green-400',
+        closed: 'bg-slate-500/10 text-slate-400'
       };
-      return colors[status] || 'bg-slate-500/20 text-slate-400';
+      return colors[status] || 'bg-slate-500/10 text-slate-400';
     }
 
     function getPriorityColor(priority) {
       const colors = {
-        critical: 'bg-red-500/20 text-red-400 border-red-500/30',
-        high: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-        normal: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-        low: 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+        critical: 'bg-red-500/10 text-red-400 border-red-500/20',
+        high: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        normal: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+        low: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
       };
-      return colors[priority] || 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+      return colors[priority] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     }
 
     function formatDate(dateStr) {
@@ -400,45 +340,69 @@ function getCategoryIcon(category: string): string {
       const ticket = currentTickets.find(t => t.id === ticketId);
       if (!ticket) return;
       
-      // Highlight selected row
       document.querySelectorAll('.ticket-row').forEach(row => {
-        row.classList.toggle('bg-slate-700/50', row.dataset.id === ticketId);
+        row.classList.toggle('bg-slate-800/30', row.dataset.id === ticketId);
       });
 
-      // Show ticket detail
       const detailPanel = document.getElementById('ticket-detail');
       const detailContent = document.getElementById('ticket-detail-content');
       detailPanel.classList.remove('hidden');
       
-      detailContent.innerHTML = `
-        <div class="space-y-3">
-          <div>
-            <div class="text-xs text-slate-500">Subject</div>
-            <div class="font-medium">${ticket.subject}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-500">From</div>
-            <div class="text-sm">${ticket.email}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-500">Message</div>
-            <div class="text-sm bg-slate-700/50 rounded-lg p-3 mt-1 whitespace-pre-wrap">${ticket.body}</div>
-          </div>
-          <button id="btn-generate-ai" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition-colors mt-4">
-            🤖 Generate AI Response
-          </button>
-        </div>
-      `;
-
-      document.getElementById('btn-generate-ai').addEventListener('click', () => generateAiResponse(ticketId));
-
-      // If ticket already has AI response, show it
-      if (ticket.ai_response) {
-        showAiResponse(ticket.ai_response, ticket.ai_confidence);
-      } else {
-        document.getElementById('ai-response-panel').classList.add('hidden');
-      }
+      detailContent.innerHTML = '<div class="text-slate-400 text-sm">Loading conversation...</div>';
       
+      // Fetch full ticket with messages
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/support-tickets?id=${ticketId}`);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        const messages = data.messages || [];
+        const messagesHtml = messages.length > 0 
+          ? messages.map(m => `
+            <div class="p-2 rounded ${m.sender_type === 'user' ? 'bg-slate-700/50 ml-4' : m.sender_type === 'system' ? 'bg-slate-800/50 italic text-center' : 'bg-emerald-900/20 mr-4'}">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-medium ${m.sender_type === 'user' ? 'text-blue-400' : m.sender_type === 'ai' ? 'text-emerald-400' : m.sender_type === 'agent' ? 'text-purple-400' : 'text-slate-500'}">
+                  ${m.sender_type === 'user' ? ticket.user_name : m.sender_type === 'ai' ? 'Loop AI' : m.sender_type === 'agent' ? 'Support' : 'System'}
+                </span>
+                <span class="text-xs text-slate-600">${formatDate(m.created_at)}</span>
+              </div>
+              <p class="text-sm text-slate-300 whitespace-pre-wrap">${m.content}</p>
+            </div>
+          `).join('')
+          : '<div class="text-slate-500 text-sm text-center py-2">No messages yet</div>';
+        
+        detailContent.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium text-slate-200">${ticket.user_name || 'Unknown'}</div>
+                <div class="text-xs text-slate-500">${ticket.user_email || ''}</div>
+              </div>
+              <span class="text-xs px-2 py-1 rounded ${getStatusBadgeColor(ticket.status)}">${ticket.status}</span>
+            </div>
+            
+            <div class="border-t border-slate-700/50 pt-3">
+              <div class="text-xs text-slate-600 mb-2">Conversation</div>
+              <div class="space-y-2 max-h-64 overflow-y-auto">
+                ${messagesHtml}
+              </div>
+            </div>
+            
+            <button id="btn-generate-ai" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition-colors">
+              Generate AI Response
+            </button>
+          </div>
+        `;
+        
+        document.getElementById('btn-generate-ai').addEventListener('click', () => generateAiResponse(ticketId));
+        
+      } catch (err) {
+        console.error('Failed to load ticket:', err);
+        detailContent.innerHTML = '<div class="text-red-400 text-sm">Failed to load conversation</div>';
+      }
+
+      document.getElementById('ai-response-panel').classList.add('hidden');
       document.getElementById('edit-response-panel').classList.add('hidden');
     }
 
@@ -447,7 +411,7 @@ function getCategoryIcon(category: string): string {
       const content = document.getElementById('ai-response-content');
       
       panel.classList.remove('hidden');
-      content.innerHTML = '<div class="text-slate-400">🔄 Generating AI response...</div>';
+      content.innerHTML = '<div class="text-slate-400">Generating...</div>';
 
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/support-ai-response`, {
@@ -457,12 +421,10 @@ function getCategoryIcon(category: string): string {
         });
         
         const data = await res.json();
-        
         if (data.error) throw new Error(data.error);
         
         showAiResponse(data.response, data.confidence);
         
-        // Update ticket in local cache
         const ticket = currentTickets.find(t => t.id === ticketId);
         if (ticket) {
           ticket.ai_response = data.response;
@@ -470,7 +432,7 @@ function getCategoryIcon(category: string): string {
         }
         
       } catch (err) {
-        content.innerHTML = `<div class="text-red-400">❌ ${err.message}</div>`;
+        content.innerHTML = `<div class="text-red-400 text-sm">${err.message}</div>`;
       }
     }
 
@@ -480,9 +442,9 @@ function getCategoryIcon(category: string): string {
       
       panel.classList.remove('hidden');
       content.innerHTML = `
-        <div class="whitespace-pre-wrap">${response}</div>
+        <div class="whitespace-pre-wrap text-sm">${response}</div>
         <div class="mt-2 text-xs text-slate-500">
-          Confidence: <span class="${confidence > 0.7 ? 'text-emerald-400' : confidence > 0.4 ? 'text-yellow-400' : 'text-red-400'}">${Math.round(confidence * 100)}%</span>
+          Confidence: <span class="${confidence > 0.7 ? 'text-emerald-400' : confidence > 0.4 ? 'text-amber-400' : 'text-red-400'} font-mono">${Math.round(confidence * 100)}%</span>
         </div>
       `;
     }
@@ -503,22 +465,19 @@ function getCategoryIcon(category: string): string {
         });
         
         const data = await res.json();
-        
         if (data.error) throw new Error(data.error);
         
-        alert(data.emailSent ? '✅ Response sent!' : '⚠️ Response saved but email failed');
+        alert(data.emailSent ? 'Response sent' : 'Saved but email failed');
         
-        // Refresh tickets
         fetchTickets();
         
-        // Hide panels
         document.getElementById('ai-response-panel').classList.add('hidden');
         document.getElementById('edit-response-panel').classList.add('hidden');
         document.getElementById('ticket-detail').classList.add('hidden');
         selectedTicketId = null;
         
       } catch (err) {
-        alert('❌ Failed to send: ' + err.message);
+        alert('Failed: ' + err.message);
       }
     }
 
@@ -563,7 +522,7 @@ function getCategoryIcon(category: string): string {
       }
     });
 
-    // Initialize - load data immediately
+    // Initialize
     fetchTickets();
   </script>
 </DashboardLayout>

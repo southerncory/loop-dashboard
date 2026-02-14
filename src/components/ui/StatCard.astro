@@ -1,0 +1,49 @@
+---
+/**
+ * StatCard — Clean metric display card
+ * Usage: <StatCard label="Open Tickets" value="12" change="+3 today" status="warning" />
+ */
+export interface Props {
+  label: string;
+  value: string | number;
+  change?: string;
+  status?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  mono?: boolean;
+}
+
+const { label, value, change, status = 'neutral', mono = true } = Astro.props;
+
+const statusColors = {
+  success: 'text-green-400',
+  warning: 'text-amber-400',
+  error: 'text-red-400',
+  info: 'text-blue-400',
+  neutral: 'text-slate-100'
+};
+
+const changeColors = {
+  success: 'text-green-400',
+  warning: 'text-amber-400', 
+  error: 'text-red-400',
+  info: 'text-blue-400',
+  neutral: 'text-slate-500'
+};
+---
+
+<div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+  <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+    {label}
+  </div>
+  <div class:list={[
+    'text-2xl font-semibold leading-tight',
+    statusColors[status],
+    mono && 'font-mono tabular-nums'
+  ]}>
+    {value}
+  </div>
+  {change && (
+    <div class:list={['text-xs mt-1', changeColors[status]]}>
+      {change}
+    </div>
+  )}
+</div>

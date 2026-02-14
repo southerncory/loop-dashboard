@@ -6,19 +6,19 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
   <div class="p-6">
     <header class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold">🏪 Merchants</h1>
+        <h1 class="text-3xl font-bold">Merchants</h1>
         <p class="text-slate-400 mt-1">All registered merchants and their pool status</p>
       </div>
       <div class="flex items-center gap-3">
         <span id="last-update" class="text-sm text-slate-500"></span>
         <button id="refresh-btn" onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm transition flex items-center gap-1">
-          🔄 Refresh
+          Refresh
         </button>
       </div>
     </header>
 
     <div id="loading" class="text-center py-20">
-      <div class="text-4xl mb-4 animate-pulse">🏪</div>
+      <!-- Loading -->
       <p class="text-slate-400">Loading merchants...</p>
     </div>
 
@@ -59,7 +59,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
     </div>
 
     <div id="error" class="hidden text-center py-20">
-      <div class="text-4xl mb-4">⚠️</div>
+      <!-- Error -->
       <p class="text-red-400 mb-4">Failed to load merchants</p>
       <button onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Retry</button>
     </div>

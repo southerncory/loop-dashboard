@@ -1,197 +1,248 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
+import StatusDot from '../components/ui/StatusDot.astro';
+import Badge from '../components/ui/Badge.astro';
 
-// Supabase connection for client-side
+const bridgeApiUrl = 'https://due-senior-first-scholar.trycloudflare.com';
 const supabaseUrl = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
 ---
 
-<DashboardLayout title="Trading - Burt" active="trading">
-  <div class="p-4 md:p-6 space-y-6">
+<DashboardLayout title="Trading | Loop" active="trading">
+  <div class="min-h-screen bg-[#0f1419] p-4 md:p-6 space-y-4">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-bold">🤖 Burt Trading</h1>
-        <p class="text-slate-400 mt-1">Hybrid AI trading system status</p>
+        <h1 class="text-xl font-semibold text-slate-100">Trading</h1>
+        <p class="text-slate-500 text-sm mt-0.5">Burt Hybrid AI System v2.1</p>
       </div>
       <div class="flex items-center gap-3">
-        <span id="last-update" class="text-sm text-slate-500">Loading...</span>
-        <button id="refresh-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-2">
-          <span>🔄</span> Refresh
+        <div id="connection-status" class="flex items-center gap-2 text-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+          <span class="text-slate-500">Connecting...</span>
+        </div>
+        <button id="refresh-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded text-sm text-slate-300 transition-colors">
+          Refresh
         </button>
-        <a href="https://intended-fri-moderate-font.trycloudflare.com" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors flex items-center gap-2" title="Temporary URL - changes on restart">
-          <span>📊</span> FreqUI
-        </a>
       </div>
     </div>
 
-    <!-- Status Cards Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <!-- Survival Status -->
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-slate-400 text-sm mb-1">Survival Status</div>
-        <div id="survival-status" class="text-2xl font-bold text-yellow-400">--</div>
-        <div id="survival-streak" class="text-xs text-slate-500 mt-1">-- day streak</div>
-      </div>
-
-      <!-- Total P&L -->
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-slate-400 text-sm mb-1">Total P&L</div>
-        <div id="total-pnl" class="text-2xl font-bold">--</div>
-        <div id="total-pnl-pct" class="text-xs text-slate-500 mt-1">--%</div>
-      </div>
-
-      <!-- Win Rate -->
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-slate-400 text-sm mb-1">Win Rate</div>
-        <div id="win-rate" class="text-2xl font-bold text-white">--%</div>
-        <div id="trade-count" class="text-xs text-slate-500 mt-1">-- trades</div>
-      </div>
-
-      <!-- Market Regime -->
-      <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <div class="text-slate-400 text-sm mb-1">Market Regime</div>
-        <div id="market-regime" class="text-2xl font-bold text-white">--</div>
-        <div id="fear-greed" class="text-xs text-slate-500 mt-1">F&G: --</div>
+    <!-- Control Bar -->
+    <div class="bg-[#1a2028] rounded-lg border border-slate-700/50 p-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">Trading</span>
+            <button id="pause-toggle" class="relative w-12 h-6 rounded-full bg-slate-700 transition-colors">
+              <span id="pause-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-slate-400 transition-transform"></span>
+            </button>
+            <span id="pause-label" class="text-sm text-slate-400">--</span>
+          </div>
+          <div class="h-5 w-px bg-slate-700"></div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">Mode</span>
+            <span id="survival-badge" class="px-2 py-0.5 rounded text-xs font-medium bg-slate-700 text-slate-400">--</span>
+          </div>
+        </div>
+        <span id="last-update" class="text-xs text-slate-600 font-mono">--</span>
       </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Total P&L</div>
+        <div id="total-pnl" class="text-xl font-semibold font-mono text-slate-200">--</div>
+        <div id="total-pnl-pct" class="text-xs text-slate-600 font-mono mt-0.5">--%</div>
+      </div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Today</div>
+        <div id="today-pnl" class="text-xl font-semibold font-mono text-slate-200">--</div>
+        <div id="today-trades" class="text-xs text-slate-600 mt-0.5">-- trades</div>
+      </div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Win Rate</div>
+        <div id="win-rate" class="text-xl font-semibold font-mono text-slate-200">--%</div>
+        <div id="trade-count" class="text-xs text-slate-600 mt-0.5">-- trades</div>
+      </div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Open</div>
+        <div id="open-count" class="text-xl font-semibold font-mono text-slate-200">0</div>
+        <div id="open-pnl" class="text-xs text-slate-600 mt-0.5">$0 unrealized</div>
+      </div>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Fear & Greed</div>
+        <div id="fear-greed" class="text-xl font-semibold font-mono text-slate-200">--</div>
+        <div id="market-regime" class="text-xs text-slate-600 mt-0.5">--</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Open Positions -->
-      <div class="lg:col-span-2 bg-slate-800 rounded-xl border border-slate-700">
-        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-          <h2 class="font-semibold flex items-center gap-2">
-            <span>📈</span> Open Positions
-          </h2>
-          <span id="position-count" class="text-sm text-slate-400">0 positions</span>
+      <div class="lg:col-span-2 bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50 flex items-center justify-between">
+          <h2 class="text-sm font-medium text-slate-200">Open Positions</h2>
+          <span id="position-label" class="text-xs text-slate-500">--</span>
         </div>
         <div id="positions-container" class="p-4">
-          <div class="text-center py-8 text-slate-500">
-            <div class="text-4xl mb-2">🎯</div>
-            <div>No open positions</div>
+          <div class="text-center py-6 text-slate-600 text-sm">
+            No open positions
           </div>
         </div>
       </div>
 
-      <!-- Active Signals -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700">
-        <div class="p-4 border-b border-slate-700">
-          <h2 class="font-semibold flex items-center gap-2">
-            <span>📡</span> Active Signals
-          </h2>
+      <!-- Services -->
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50">
+          <h2 class="text-sm font-medium text-slate-200">Services</h2>
         </div>
-        <div id="signals-container" class="p-4 space-y-3 max-h-80 overflow-y-auto">
-          <div class="text-center py-8 text-slate-500">
-            <div class="text-4xl mb-2">📭</div>
-            <div>No active signals</div>
+        <div class="p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div id="svc-freqtrade" class="w-2 h-2 rounded-full bg-slate-600"></div>
+              <span class="text-sm text-slate-300">FreqTrade</span>
+            </div>
+            <span id="svc-freqtrade-label" class="text-xs text-slate-500 font-mono">--</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div id="svc-ollama" class="w-2 h-2 rounded-full bg-slate-600"></div>
+              <span class="text-sm text-slate-300">Ollama LLM</span>
+            </div>
+            <span id="svc-ollama-label" class="text-xs text-slate-500 font-mono">--</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div id="svc-bridge" class="w-2 h-2 rounded-full bg-slate-600"></div>
+              <span class="text-sm text-slate-300">Bridge API</span>
+            </div>
+            <span id="svc-bridge-label" class="text-xs text-slate-500 font-mono">--</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div id="svc-reconciler" class="w-2 h-2 rounded-full bg-slate-600"></div>
+              <span class="text-sm text-slate-300">Reconciler</span>
+            </div>
+            <span id="svc-reconciler-label" class="text-xs text-slate-500 font-mono">--</span>
+          </div>
+        </div>
+        
+        <div class="p-3 border-t border-slate-700/50">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">DLQ</span>
+            <button id="process-dlq" class="text-xs px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-300">Process</button>
+          </div>
+          <div class="flex items-center gap-4 text-xs">
+            <div><span class="text-slate-500">Pending:</span> <span id="dlq-pending" class="text-slate-300 font-mono">--</span></div>
+            <div><span class="text-slate-500">Failed:</span> <span id="dlq-failed" class="text-slate-300 font-mono">--</span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Recent Trades & Performance -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Recent Trades -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700">
-        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-          <h2 class="font-semibold flex items-center gap-2">
-            <span>📜</span> Recent Trades
-          </h2>
-          <span class="text-sm text-slate-400">Last 10</span>
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Signals -->
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50 flex items-center justify-between">
+          <h2 class="text-sm font-medium text-slate-200">Recent Signals</h2>
+          <span class="text-xs text-slate-500">Last 10</span>
         </div>
-        <div id="trades-container" class="divide-y divide-slate-700 max-h-96 overflow-y-auto">
-          <div class="p-4 text-center text-slate-500">Loading trades...</div>
+        <div id="signals-container" class="divide-y divide-slate-700/30 max-h-64 overflow-y-auto">
+          <div class="p-4 text-center text-slate-600 text-sm">Loading...</div>
         </div>
       </div>
 
-      <!-- Daily Performance -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700">
-        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-          <h2 class="font-semibold flex items-center gap-2">
-            <span>📅</span> Daily Performance
-          </h2>
-          <span class="text-sm text-slate-400">Last 7 days</span>
+      <!-- Trades -->
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50 flex items-center justify-between">
+          <h2 class="text-sm font-medium text-slate-200">Recent Trades</h2>
+          <span class="text-xs text-slate-500">Last 10</span>
         </div>
-        <div id="daily-container" class="p-4">
-          <div class="space-y-2" id="daily-bars">
-            <div class="text-center py-8 text-slate-500">Loading...</div>
-          </div>
+        <div id="trades-container" class="divide-y divide-slate-700/30 max-h-64 overflow-y-auto">
+          <div class="p-4 text-center text-slate-600 text-sm">Loading...</div>
         </div>
       </div>
     </div>
 
-    <!-- System Status -->
-    <div class="bg-slate-800 rounded-xl border border-slate-700">
-      <div class="p-4 border-b border-slate-700">
-        <h2 class="font-semibold flex items-center gap-2">
-          <span>🔧</span> System Status
-        </h2>
+    <!-- Daily Chart -->
+    <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+      <div class="p-3 border-b border-slate-700/50 flex items-center justify-between">
+        <h2 class="text-sm font-medium text-slate-200">Daily Performance</h2>
+        <span class="text-xs text-slate-500">Last 14 days</span>
       </div>
-      <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="flex items-center gap-3">
-          <div id="brain-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
-          <div>
-            <div class="text-sm font-medium">Brain (OpenClaw)</div>
-            <div class="text-xs text-slate-400">Signal generation</div>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div id="bridge-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
-          <div>
-            <div class="text-sm font-medium">Bridge Server</div>
-            <div class="text-xs text-slate-400">A9:8888</div>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div id="freqtrade-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
-          <div>
-            <div class="text-sm font-medium">FreqTrade</div>
-            <div class="text-xs text-slate-400">Trade execution</div>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div id="ollama-status" class="w-3 h-3 rounded-full bg-slate-600"></div>
-          <div>
-            <div class="text-sm font-medium">Ollama (LLM)</div>
-            <div class="text-xs text-slate-400">Trade validation</div>
-          </div>
-        </div>
+      <div class="p-4">
+        <div id="daily-chart" class="h-32 flex items-end gap-1"></div>
       </div>
     </div>
 
-    <!-- Architecture Diagram -->
-    <div class="bg-slate-800 rounded-xl border border-slate-700 p-4">
-      <h2 class="font-semibold flex items-center gap-2 mb-4">
-        <span>🏗️</span> Architecture
-      </h2>
-      <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
-        <div class="bg-emerald-500/20 border border-emerald-500/30 rounded-lg px-4 py-2 text-center">
-          <div class="font-medium text-emerald-400">OpenClaw</div>
-          <div class="text-xs text-slate-400">Brain / Strategy</div>
+    <!-- Architecture -->
+    <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-4">
+      <h2 class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Architecture</h2>
+      <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded px-3 py-1.5 text-center">
+          <div class="font-medium text-emerald-400 text-xs">OpenClaw</div>
+          <div class="text-xs text-slate-500">Brain</div>
         </div>
-        <div class="text-slate-500">→</div>
-        <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg px-4 py-2 text-center">
-          <div class="font-medium text-blue-400">Bridge Server</div>
-          <div class="text-xs text-slate-400">Validation Layer</div>
+        <span class="text-slate-600">→</span>
+        <div class="bg-blue-500/10 border border-blue-500/20 rounded px-3 py-1.5 text-center">
+          <div class="font-medium text-blue-400 text-xs">Bridge</div>
+          <div class="text-xs text-slate-500">Validator</div>
         </div>
-        <div class="text-slate-500">→</div>
-        <div class="bg-purple-500/20 border border-purple-500/30 rounded-lg px-4 py-2 text-center">
-          <div class="font-medium text-purple-400">FreqTrade</div>
-          <div class="text-xs text-slate-400">Body / Execution</div>
+        <span class="text-slate-600">→</span>
+        <div class="bg-purple-500/10 border border-purple-500/20 rounded px-3 py-1.5 text-center">
+          <div class="font-medium text-purple-400 text-xs">Ollama</div>
+          <div class="text-xs text-slate-500">LLM</div>
         </div>
-        <div class="text-slate-500">→</div>
-        <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg px-4 py-2 text-center">
-          <div class="font-medium text-yellow-400">Binance</div>
-          <div class="text-xs text-slate-400">Exchange</div>
+        <span class="text-slate-600">→</span>
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded px-3 py-1.5 text-center">
+          <div class="font-medium text-amber-400 text-xs">FreqTrade</div>
+          <div class="text-xs text-slate-500">Execute</div>
+        </div>
+        <span class="text-slate-600">→</span>
+        <div class="bg-yellow-500/10 border border-yellow-500/20 rounded px-3 py-1.5 text-center">
+          <div class="font-medium text-yellow-400 text-xs">Binance</div>
+          <div class="text-xs text-slate-500">Exchange</div>
         </div>
       </div>
     </div>
   </div>
 
-  <script define:vars={{ supabaseUrl, supabaseAnonKey }}>
-    // Supabase client (lightweight, no SDK needed)
-    async function fetchFromSupabase(table, options = {}) {
+  <script define:vars={{ bridgeApiUrl, supabaseUrl, supabaseAnonKey }}>
+    async function fetchBridge(endpoint) {
+      try {
+        const res = await fetch(`${bridgeApiUrl}${endpoint}`, {
+          mode: 'cors',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn(`Bridge fetch failed: ${endpoint}`, err);
+        return null;
+      }
+    }
+
+    async function postBridge(endpoint, body = {}) {
+      try {
+        const res = await fetch(`${bridgeApiUrl}${endpoint}`, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        return await res.json();
+      } catch (err) {
+        console.warn(`Bridge post failed: ${endpoint}`, err);
+        return null;
+      }
+    }
+
+    async function fetchSupabase(table, options = {}) {
       const params = new URLSearchParams();
       if (options.select) params.set('select', options.select);
       if (options.order) params.set('order', options.order);
@@ -207,245 +258,276 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       return res.json();
     }
 
-    // Color helpers
-    function getSurvivalColor(status) {
-      const colors = {
-        'THRIVING': 'text-green-400',
-        'SURVIVING': 'text-blue-400', 
-        'DYING': 'text-yellow-400',
-        'PAUSED': 'text-red-400'
-      };
-      return colors[status] || 'text-slate-400';
-    }
-
-    function getPnlColor(value) {
-      if (value > 0) return 'text-green-400';
-      if (value < 0) return 'text-red-400';
-      return 'text-slate-400';
-    }
-
-    // Format helpers
     function formatCurrency(val) {
       const num = parseFloat(val) || 0;
       const sign = num >= 0 ? '+' : '';
-      return `${sign}$${num.toFixed(2)}`;
+      return `${sign}$${Math.abs(num).toFixed(2)}`;
     }
 
-    function formatPercent(val) {
+    function formatPct(val) {
       const num = parseFloat(val) || 0;
       const sign = num >= 0 ? '+' : '';
       return `${sign}${num.toFixed(2)}%`;
     }
 
-    function timeAgo(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const seconds = Math.floor((now - date) / 1000);
-      if (seconds < 60) return 'just now';
-      if (seconds < 3600) return `${Math.floor(seconds/60)}m ago`;
-      if (seconds < 86400) return `${Math.floor(seconds/3600)}h ago`;
-      return `${Math.floor(seconds/86400)}d ago`;
+    function colorForValue(val) {
+      const num = parseFloat(val) || 0;
+      if (num > 0) return 'text-green-400';
+      if (num < 0) return 'text-red-400';
+      return 'text-slate-400';
     }
 
-    // Render functions
-    function renderPositions(positions) {
-      const container = document.getElementById('positions-container');
-      const countEl = document.getElementById('position-count');
+    function formatTime(date) {
+      if (!date) return '--';
+      const d = new Date(date);
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function updateHealth() {
+      const health = await fetchBridge('/health');
+      const statusEl = document.getElementById('connection-status');
       
-      if (!positions || positions.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 text-slate-500">
-            <div class="text-4xl mb-2">🎯</div>
-            <div>No open positions</div>
-          </div>`;
-        countEl.textContent = '0 positions';
+      if (!health) {
+        statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-red-400">Offline</span>`;
         return;
       }
+      
+      statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span><span class="text-green-400">Online</span>`;
+      
+      // Services
+      const svcFreq = document.getElementById('svc-freqtrade');
+      const svcOllama = document.getElementById('svc-ollama');
+      const svcBridge = document.getElementById('svc-bridge');
+      const svcRecon = document.getElementById('svc-reconciler');
+      
+      svcFreq.className = `w-2 h-2 rounded-full ${health.services?.freqtrade ? 'bg-green-500' : 'bg-red-500'}`;
+      svcOllama.className = `w-2 h-2 rounded-full ${health.services?.ollama ? 'bg-green-500' : 'bg-red-500'}`;
+      svcBridge.className = 'w-2 h-2 rounded-full bg-green-500';
+      svcRecon.className = `w-2 h-2 rounded-full ${health.services?.reconciler ? 'bg-green-500' : 'bg-amber-500'}`;
+      
+      document.getElementById('svc-freqtrade-label').textContent = health.services?.freqtrade ? 'running' : 'stopped';
+      document.getElementById('svc-ollama-label').textContent = health.services?.ollama ? 'ready' : 'offline';
+      document.getElementById('svc-bridge-label').textContent = 'v2.1';
+      document.getElementById('svc-reconciler-label').textContent = health.services?.reconciler ? 'active' : 'idle';
+      
+      // DLQ
+      if (health.dlq) {
+        document.getElementById('dlq-pending').textContent = health.dlq.pending || 0;
+        document.getElementById('dlq-failed').textContent = health.dlq.failed || 0;
+      }
+      
+      // Last update
+      document.getElementById('last-update').textContent = formatTime(new Date());
+    }
 
-      countEl.textContent = `${positions.length} position${positions.length > 1 ? 's' : ''}`;
+    async function updateSurvival() {
+      const survival = await fetchBridge('/survival');
+      if (!survival) return;
+      
+      const badge = document.getElementById('survival-badge');
+      const status = survival.status || 'UNKNOWN';
+      
+      const colors = {
+        THRIVING: 'bg-green-500/10 text-green-400',
+        SURVIVING: 'bg-amber-500/10 text-amber-400',
+        DYING: 'bg-red-500/10 text-red-400',
+        CRITICAL: 'bg-red-500/20 text-red-400'
+      };
+      
+      badge.className = `px-2 py-0.5 rounded text-xs font-medium ${colors[status] || 'bg-slate-700 text-slate-400'}`;
+      badge.textContent = status;
+      
+      // Update stats
+      if (survival.stats) {
+        const pnl = survival.stats.total_pnl || 0;
+        const pnlEl = document.getElementById('total-pnl');
+        pnlEl.textContent = formatCurrency(pnl);
+        pnlEl.className = `text-xl font-semibold font-mono ${colorForValue(pnl)}`;
+        
+        const pctEl = document.getElementById('total-pnl-pct');
+        const pct = survival.stats.total_pnl_pct || 0;
+        pctEl.textContent = formatPct(pct);
+        pctEl.className = `text-xs font-mono mt-0.5 ${colorForValue(pct)}`;
+        
+        document.getElementById('win-rate').textContent = `${(survival.stats.win_rate || 0).toFixed(1)}%`;
+        document.getElementById('trade-count').textContent = `${survival.stats.total_trades || 0} trades`;
+      }
+    }
+
+    async function updatePositions() {
+      const data = await fetchBridge('/positions');
+      const container = document.getElementById('positions-container');
+      const label = document.getElementById('position-label');
+      
+      if (!data || !data.positions || data.positions.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 text-slate-600 text-sm">No open positions</div>';
+        label.textContent = '0 positions';
+        document.getElementById('open-count').textContent = '0';
+        document.getElementById('open-pnl').textContent = '$0 unrealized';
+        return;
+      }
+      
+      const positions = data.positions;
+      label.textContent = `${positions.length} position${positions.length !== 1 ? 's' : ''}`;
+      document.getElementById('open-count').textContent = positions.length;
+      
+      let totalUnrealized = 0;
+      
       container.innerHTML = `
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
-            <thead class="text-slate-400 text-left">
-              <tr>
-                <th class="pb-2">Pair</th>
-                <th class="pb-2">Side</th>
-                <th class="pb-2">Size</th>
-                <th class="pb-2">Entry</th>
-                <th class="pb-2">Current</th>
-                <th class="pb-2">P&L</th>
-                <th class="pb-2">Age</th>
+            <thead>
+              <tr class="text-slate-500 text-xs uppercase tracking-wide">
+                <th class="text-left py-2 px-2">Pair</th>
+                <th class="text-right py-2 px-2">Size</th>
+                <th class="text-right py-2 px-2">Entry</th>
+                <th class="text-right py-2 px-2">Current</th>
+                <th class="text-right py-2 px-2">P&L</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-700">
-              ${positions.map(p => `
-                <tr>
-                  <td class="py-2 font-medium">${p.pair}</td>
-                  <td class="py-2">
-                    <span class="px-2 py-0.5 rounded text-xs ${p.side === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
-                      ${p.side?.toUpperCase()}
-                    </span>
-                  </td>
-                  <td class="py-2">$${parseFloat(p.stake_amount || 0).toFixed(0)}</td>
-                  <td class="py-2">$${parseFloat(p.open_rate || 0).toFixed(4)}</td>
-                  <td class="py-2">$${parseFloat(p.current_rate || p.open_rate || 0).toFixed(4)}</td>
-                  <td class="py-2 ${getPnlColor(p.unrealized_pnl)}">${formatCurrency(p.unrealized_pnl || 0)}</td>
-                  <td class="py-2 text-slate-400">${timeAgo(p.open_date)}</td>
-                </tr>
-              `).join('')}
+            <tbody class="divide-y divide-slate-700/30">
+              ${positions.map(p => {
+                const pnl = parseFloat(p.unrealized_pnl) || 0;
+                totalUnrealized += pnl;
+                return `
+                  <tr class="hover:bg-slate-800/30">
+                    <td class="py-2 px-2 font-medium text-slate-200 font-mono">${p.pair}</td>
+                    <td class="py-2 px-2 text-right text-slate-400 font-mono">${parseFloat(p.amount).toFixed(4)}</td>
+                    <td class="py-2 px-2 text-right text-slate-400 font-mono">$${parseFloat(p.open_rate).toFixed(2)}</td>
+                    <td class="py-2 px-2 text-right text-slate-300 font-mono">$${parseFloat(p.current_rate).toFixed(2)}</td>
+                    <td class="py-2 px-2 text-right font-mono ${colorForValue(pnl)}">${formatCurrency(pnl)}</td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
-        </div>`;
+        </div>
+      `;
+      
+      const openPnlEl = document.getElementById('open-pnl');
+      openPnlEl.textContent = `${formatCurrency(totalUnrealized)} unrealized`;
+      openPnlEl.className = `text-xs mt-0.5 ${colorForValue(totalUnrealized)}`;
     }
 
-    function renderSignals(signals) {
+    async function updateSignals() {
+      const data = await fetchBridge('/signals');
       const container = document.getElementById('signals-container');
       
-      if (!signals || signals.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 text-slate-500">
-            <div class="text-4xl mb-2">📭</div>
-            <div>No active signals</div>
-          </div>`;
+      if (!data || !data.signals || data.signals.length === 0) {
+        container.innerHTML = '<div class="p-4 text-center text-slate-600 text-sm">No recent signals</div>';
         return;
       }
-
-      container.innerHTML = signals.map(s => `
-        <div class="bg-slate-700/50 rounded-lg p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-medium">${s.pair}</span>
-            <span class="px-2 py-0.5 rounded text-xs ${s.direction === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
-              ${s.direction?.toUpperCase()}
-            </span>
-          </div>
-          <div class="text-xs text-slate-400 space-y-1">
-            <div class="flex justify-between">
-              <span>Conviction:</span>
-              <span class="text-white">${(parseFloat(s.conviction || 0) * 100).toFixed(0)}%</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Kelly Size:</span>
-              <span class="text-white">${(parseFloat(s.kelly_fraction || 0) * 100).toFixed(1)}%</span>
-            </div>
-            ${s.reasoning ? `<div class="text-slate-500 mt-2 italic">"${s.reasoning.slice(0, 80)}..."</div>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderTrades(trades) {
-      const container = document.getElementById('trades-container');
       
-      if (!trades || trades.length === 0) {
-        container.innerHTML = `<div class="p-4 text-center text-slate-500">No trades yet</div>`;
-        return;
-      }
-
-      container.innerHTML = trades.map(t => `
-        <div class="p-3 flex items-center justify-between hover:bg-slate-700/50">
-          <div>
-            <div class="font-medium">${t.pair}</div>
-            <div class="text-xs text-slate-400">${timeAgo(t.close_date || t.open_date)}</div>
+      container.innerHTML = data.signals.slice(0, 10).map(s => `
+        <div class="p-2 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full ${s.action === 'BUY' ? 'bg-green-500' : 'bg-red-500'}"></span>
+            <span class="font-mono text-sm text-slate-300">${s.pair}</span>
+            <span class="text-xs text-slate-500 uppercase">${s.action}</span>
           </div>
           <div class="text-right">
-            <div class="${getPnlColor(t.profit_abs)}">${formatCurrency(t.profit_abs)}</div>
-            <div class="text-xs ${getPnlColor(t.profit_ratio)}">${formatPercent((t.profit_ratio || 0) * 100)}</div>
+            <div class="text-xs text-slate-400">${s.conviction || '--'}</div>
+            <div class="text-xs text-slate-600 font-mono">${formatTime(s.timestamp)}</div>
           </div>
         </div>
       `).join('');
     }
 
-    function renderDailyPerformance(daily) {
-      const container = document.getElementById('daily-bars');
+    async function updateTrades() {
+      const data = await fetchBridge('/trades?limit=10');
+      const container = document.getElementById('trades-container');
       
-      if (!daily || daily.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-slate-500">No daily data</div>`;
+      if (!data || !data.trades || data.trades.length === 0) {
+        container.innerHTML = '<div class="p-4 text-center text-slate-600 text-sm">No recent trades</div>';
         return;
       }
-
-      const maxAbs = Math.max(...daily.map(d => Math.abs(d.pnl || 0)), 1);
       
-      container.innerHTML = daily.map(d => {
-        const pnl = parseFloat(d.pnl || 0);
-        const width = Math.abs(pnl) / maxAbs * 100;
-        const isPositive = pnl >= 0;
+      let todayPnl = 0;
+      let todayCount = 0;
+      const today = new Date().toDateString();
+      
+      container.innerHTML = data.trades.map(t => {
+        const pnl = parseFloat(t.profit_abs) || 0;
+        const tradeDate = new Date(t.close_date || t.open_date).toDateString();
+        if (tradeDate === today) {
+          todayPnl += pnl;
+          todayCount++;
+        }
         
         return `
-          <div class="flex items-center gap-3">
-            <div class="w-16 text-xs text-slate-400">${d.date?.slice(5) || '--'}</div>
-            <div class="flex-1 h-6 bg-slate-700 rounded relative overflow-hidden">
-              <div class="absolute inset-y-0 ${isPositive ? 'left-1/2' : 'right-1/2'} ${isPositive ? 'bg-green-500/50' : 'bg-red-500/50'}" 
-                   style="width: ${width/2}%"></div>
+          <div class="p-2 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full ${t.is_open ? 'bg-blue-500' : (pnl >= 0 ? 'bg-green-500' : 'bg-red-500')}"></span>
+              <span class="font-mono text-sm text-slate-300">${t.pair}</span>
             </div>
-            <div class="w-20 text-right text-sm ${getPnlColor(pnl)}">${formatCurrency(pnl)}</div>
+            <div class="text-right">
+              <div class="font-mono text-sm ${colorForValue(pnl)}">${formatCurrency(pnl)}</div>
+              <div class="text-xs text-slate-600 font-mono">${formatTime(t.close_date || t.open_date)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      const todayPnlEl = document.getElementById('today-pnl');
+      todayPnlEl.textContent = formatCurrency(todayPnl);
+      todayPnlEl.className = `text-xl font-semibold font-mono ${colorForValue(todayPnl)}`;
+      document.getElementById('today-trades').textContent = `${todayCount} trades`;
+    }
+
+    async function updateDailyChart() {
+      const data = await fetchBridge('/performance/daily?days=14');
+      const container = document.getElementById('daily-chart');
+      
+      if (!data || !data.daily || data.daily.length === 0) {
+        container.innerHTML = '<div class="text-slate-600 text-sm">No data</div>';
+        return;
+      }
+      
+      const maxVal = Math.max(...data.daily.map(d => Math.abs(d.pnl)));
+      const scale = maxVal > 0 ? 100 / maxVal : 1;
+      
+      container.innerHTML = data.daily.map(d => {
+        const height = Math.max(4, Math.abs(d.pnl) * scale);
+        const color = d.pnl >= 0 ? 'bg-green-500/60' : 'bg-red-500/60';
+        return `
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full ${color} rounded-sm" style="height: ${height}px"></div>
+            <span class="text-xs text-slate-600 font-mono">${d.date.slice(5)}</span>
           </div>
         `;
       }).join('');
     }
 
-    function updateSystemStatus(status) {
-      const components = ['brain', 'bridge', 'freqtrade', 'ollama'];
-      components.forEach(c => {
-        const el = document.getElementById(`${c}-status`);
-        const isOnline = status?.[c] === true;
-        el.className = `w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`;
-      });
+    async function updateAll() {
+      await Promise.all([
+        updateHealth(),
+        updateSurvival(),
+        updatePositions(),
+        updateSignals(),
+        updateTrades(),
+        updateDailyChart()
+      ]);
     }
 
-    // Main data fetch
-    async function loadData() {
-      try {
-        document.getElementById('last-update').textContent = 'Loading...';
+    // Event listeners
+    document.getElementById('refresh-btn').addEventListener('click', updateAll);
+    
+    document.getElementById('pause-toggle').addEventListener('click', async () => {
+      const current = document.getElementById('pause-label').textContent;
+      const action = current === 'Running' ? 'stop' : 'start';
+      await postBridge(`/trading/${action}`);
+      setTimeout(updateSurvival, 500);
+    });
 
-        // Fetch latest status
-        const [statusRows, tradesRows, signalsRows, dailyRows] = await Promise.all([
-          fetchFromSupabase('burt_status', { order: 'updated_at.desc', limit: '1' }),
-          fetchFromSupabase('burt_trades', { order: 'close_date.desc', limit: '10' }),
-          fetchFromSupabase('burt_signals', { order: 'created_at.desc', limit: '10' }),
-          fetchFromSupabase('burt_daily', { order: 'date.desc', limit: '7' })
-        ]);
-
-        const status = statusRows?.[0] || {};
-        
-        // Update status cards
-        const survivalEl = document.getElementById('survival-status');
-        survivalEl.textContent = status.survival_status || '--';
-        survivalEl.className = `text-2xl font-bold ${getSurvivalColor(status.survival_status)}`;
-        document.getElementById('survival-streak').textContent = `${status.streak_days || 0} day streak`;
-
-        const pnlEl = document.getElementById('total-pnl');
-        const pnl = parseFloat(status.total_pnl || 0);
-        pnlEl.textContent = formatCurrency(pnl);
-        pnlEl.className = `text-2xl font-bold ${getPnlColor(pnl)}`;
-        document.getElementById('total-pnl-pct').textContent = formatPercent(status.total_pnl_pct || 0);
-
-        document.getElementById('win-rate').textContent = `${(status.win_rate || 0).toFixed(0)}%`;
-        document.getElementById('trade-count').textContent = `${status.total_trades || 0} trades`;
-
-        document.getElementById('market-regime').textContent = status.market_regime || '--';
-        document.getElementById('fear-greed').textContent = `F&G: ${status.fear_greed || '--'}`;
-
-        // Render components
-        renderPositions(status.open_positions || []);
-        renderSignals(signalsRows || []);
-        renderTrades(tradesRows || []);
-        renderDailyPerformance(dailyRows?.reverse() || []);
-        updateSystemStatus(status.system_status || {});
-
-        document.getElementById('last-update').textContent = `Updated ${timeAgo(status.updated_at || new Date())}`;
-      } catch (err) {
-        console.error('Failed to load trading data:', err);
-        document.getElementById('last-update').textContent = 'Failed to load';
-      }
-    }
+    document.getElementById('process-dlq').addEventListener('click', async () => {
+      await postBridge('/dlq/process');
+      setTimeout(updateHealth, 500);
+    });
 
     // Initial load
-    loadData();
-
-    // Refresh button
-    document.getElementById('refresh-btn').addEventListener('click', loadData);
-
-    // Auto-refresh every 60 seconds
-    setInterval(loadData, 60000);
+    updateAll();
+    
+    // Auto-refresh every 30s
+    setInterval(updateAll, 30000);
   </script>
 </DashboardLayout>

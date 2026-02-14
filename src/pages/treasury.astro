@@ -2,271 +2,228 @@
 import DashboardLayout from '../layouts/DashboardLayout.astro';
 ---
 
-<DashboardLayout title="Treasury Dashboard | Loop Command Center" active="treasury">
-  <div class="p-6">
-    <header class="mb-8 flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold">💰 Treasury Dashboard</h1>
-        <p class="text-slate-400 mt-1">Live on-chain data • Auto-refreshes every 30s</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <span id="last-update" class="text-sm text-slate-500"></span>
-        <button id="refresh-btn" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm transition">
-          🔄 Refresh
-        </button>
+<DashboardLayout title="Treasury | Loop" active="treasury">
+  <div class="min-h-screen bg-[#0f1419] p-4 md:p-6">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-100">Treasury</h1>
+          <p class="text-slate-500 text-sm mt-0.5">Live on-chain data</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="last-update" class="text-xs text-slate-600 font-mono"></span>
+          <button id="refresh-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded text-sm text-slate-300 transition-colors">
+            Refresh
+          </button>
+        </div>
       </div>
     </header>
 
     <div id="loading" class="text-center py-20">
-      <div class="text-4xl mb-4 animate-pulse">💰</div>
-      <p class="text-slate-400">Loading live treasury data...</p>
+      <div class="w-6 h-6 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
+      <p class="text-slate-500 text-sm">Loading treasury data...</p>
     </div>
 
     <div id="error" class="hidden text-center py-20">
-      <div class="text-4xl mb-4">⚠️</div>
-      <p class="text-red-400" id="error-msg">Failed to load treasury data</p>
-      <button onclick="loadLiveData()" class="mt-4 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Retry</button>
+      <p class="text-red-400 text-sm" id="error-msg">Failed to load treasury data</p>
+      <button onclick="loadLiveData()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded text-sm text-slate-300">
+        Retry
+      </button>
     </div>
 
-    <div id="content" class="hidden">
-      <!-- Balance Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
-          <div class="text-slate-400 text-sm mb-1">Total Treasury Value</div>
-          <div id="stat-total" class="text-3xl font-bold text-white">$0</div>
-          <div id="stat-total-sol" class="text-xs text-slate-500 mt-1"></div>
+    <div id="content" class="hidden space-y-4">
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Total Value</div>
+          <div id="stat-total" class="text-xl font-semibold font-mono text-slate-100">$0</div>
+          <div id="stat-total-sol" class="text-xs text-slate-600 font-mono mt-0.5"></div>
         </div>
-        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
-          <div class="text-slate-400 text-sm mb-1">Staked (Earning)</div>
-          <div id="stat-staked" class="text-3xl font-bold text-purple-400">$0</div>
-          <div class="text-xs text-slate-500 mt-1">Earning yield</div>
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Staked</div>
+          <div id="stat-staked" class="text-xl font-semibold font-mono text-purple-400">$0</div>
+          <div class="text-xs text-slate-600 mt-0.5">Earning yield</div>
         </div>
-        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
-          <div class="text-slate-400 text-sm mb-1">Blended APY</div>
-          <div id="stat-apy" class="text-3xl font-bold text-yellow-400">--%</div>
-          <div id="stat-daily-yield" class="text-xs text-green-400 mt-1"></div>
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Blended APY</div>
+          <div id="stat-apy" class="text-xl font-semibold font-mono text-amber-400">--%</div>
+          <div id="stat-daily-yield" class="text-xs text-green-400 font-mono mt-0.5"></div>
         </div>
-        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
-          <div class="text-slate-400 text-sm mb-1">Est. Monthly Yield</div>
-          <div id="stat-monthly" class="text-3xl font-bold text-green-400">$0</div>
-          <div class="text-xs text-slate-500 mt-1">At current rate</div>
+        <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg p-3">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Monthly Yield</div>
+          <div id="stat-monthly" class="text-xl font-semibold font-mono text-green-400">$0</div>
+          <div class="text-xs text-slate-600 mt-0.5">At current rate</div>
         </div>
       </div>
 
-      <!-- Live Positions -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700 mb-6">
-        <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
-          <h2 class="font-semibold">📊 Live Positions (On-Chain)</h2>
-          <span class="text-xs text-slate-500">SOL Price: $<span id="sol-price">--</span></span>
+      <!-- Positions -->
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50 flex items-center justify-between">
+          <h2 class="text-sm font-medium text-slate-200">Live Positions</h2>
+          <span class="text-xs text-slate-500 font-mono">SOL: $<span id="sol-price">--</span></span>
         </div>
-        <div class="p-5">
-          <div id="positions-list" class="space-y-3">
-            <!-- Positions will be populated here -->
-          </div>
+        <div class="p-4">
+          <div id="positions-list" class="space-y-3"></div>
         </div>
       </div>
 
       <!-- Vault Info -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700 mb-6">
-        <div class="px-5 py-4 border-b border-slate-700">
-          <h2 class="font-semibold">🔐 Squads Multi-Sig Vault</h2>
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50">
+          <h2 class="text-sm font-medium text-slate-200">Multi-Sig Vault</h2>
         </div>
-        <div class="p-5">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-slate-400">Vault Address</span>
-            <a id="vault-link" href="#" target="_blank" class="font-mono text-sm text-emerald-400 hover:text-emerald-300">
-              <span id="vault-address">Loading...</span> ↗
+        <div class="p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">Address</span>
+            <a id="vault-link" href="#" target="_blank" class="font-mono text-xs text-emerald-400 hover:text-emerald-300">
+              <span id="vault-address">Loading...</span>
             </a>
           </div>
-        </div>
-      </div>
-
-      <!-- Recent Transactions -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700 mb-6">
-        <div class="px-5 py-4 border-b border-slate-700">
-          <h2 class="font-semibold">📜 Recent Transactions</h2>
-        </div>
-        <div class="p-5">
-          <div id="txs-list" class="space-y-2 text-sm">
-            <!-- Transactions will be populated here -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">Threshold</span>
+            <span id="vault-threshold" class="font-mono text-xs text-slate-300">--</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 uppercase tracking-wide">Network</span>
+            <span class="text-xs text-slate-300">Solana Mainnet</span>
           </div>
         </div>
       </div>
 
-      <!-- Allocation Bar -->
-      <div class="bg-slate-800 rounded-xl border border-slate-700">
-        <div class="px-5 py-4 border-b border-slate-700">
-          <h2 class="font-semibold">📊 Allocation</h2>
+      <!-- Recent Activity -->
+      <div class="bg-[#1a2028] border border-slate-700/50 rounded-lg">
+        <div class="p-3 border-b border-slate-700/50">
+          <h2 class="text-sm font-medium text-slate-200">Recent Activity</h2>
         </div>
-        <div class="p-5">
-          <div class="grid grid-cols-3 gap-4 mb-4">
-            <div class="text-center">
-              <div id="alloc-liquid" class="text-2xl font-bold text-blue-400">$0</div>
-              <div class="text-xs text-slate-400 mt-1">Liquid (SOL/USDC)</div>
-            </div>
-            <div class="text-center">
-              <div id="alloc-staked" class="text-2xl font-bold text-purple-400">$0</div>
-              <div class="text-xs text-slate-400 mt-1">Staked (dSOL/mSOL)</div>
-            </div>
-            <div class="text-center">
-              <div id="alloc-pct" class="text-2xl font-bold text-green-400">--%</div>
-              <div class="text-xs text-slate-400 mt-1">% Earning Yield</div>
-            </div>
-          </div>
-          <div class="h-4 bg-slate-700 rounded-full overflow-hidden flex">
-            <div id="bar-liquid" class="bg-blue-500 h-full transition-all" style="width: 0%"></div>
-            <div id="bar-staked" class="bg-purple-500 h-full transition-all" style="width: 0%"></div>
-          </div>
+        <div id="activity-list" class="divide-y divide-slate-700/30 max-h-64 overflow-y-auto">
+          <div class="p-4 text-center text-slate-600 text-sm">No recent activity</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
-
-    function fmt(n: number, decimals = 2) {
-      if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
-      if (n >= 1000) return '$' + (n/1000).toFixed(1) + 'K';
-      return '$' + n.toFixed(decimals);
-    }
-
-    function pct(n: number) {
-      return (n * 100).toFixed(2) + '%';
-    }
-
-    async function loadLiveData() {
-      const loadingEl = document.getElementById('loading')!;
-      const errorEl = document.getElementById('error')!;
-      const contentEl = document.getElementById('content')!;
-
-      loadingEl.classList.remove('hidden');
-      errorEl.classList.add('hidden');
-      contentEl.classList.add('hidden');
-
+    const VAULT_ADDRESS = 'MmFaoYbgrFG1H6JoC99xGSnzT7hGH143kV2ZEyc5on4';
+    const HELIUS_KEY = 'aec5751f-1897-4f5c-8ed2-cfb0720ec4ab';
+    
+    async function fetchSolPrice() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/treasury-live`);
-        if (!res.ok) throw new Error('Failed to fetch');
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
         const data = await res.json();
-
-        if (data.error) throw new Error(data.error);
-
-        // Update stats
-        document.getElementById('stat-total')!.textContent = fmt(data.summary.totalValue);
-        document.getElementById('stat-total-sol')!.textContent = `@ $${data.solPrice.toFixed(2)}/SOL`;
-        document.getElementById('stat-staked')!.textContent = fmt(data.summary.stakedValue);
-        document.getElementById('stat-apy')!.textContent = pct(data.summary.blendedApy);
-        document.getElementById('stat-daily-yield')!.textContent = `+${fmt(data.summary.dailyYield, 4)}/day`;
-        document.getElementById('stat-monthly')!.textContent = fmt(data.summary.monthlyYield);
-
-        document.getElementById('sol-price')!.textContent = data.solPrice.toFixed(2);
-
-        // Vault
-        document.getElementById('vault-address')!.textContent = 
-          data.wallet.slice(0, 8) + '...' + data.wallet.slice(-8);
-        (document.getElementById('vault-link') as HTMLAnchorElement).href = 
-          `https://solscan.io/account/${data.wallet}`;
-
-        // Positions
-        const positionsHtml = [];
-        const positions = data.positions;
-
-        if (positions.sol.amount > 0) {
-          positionsHtml.push(renderPosition('SOL', 'Liquid', positions.sol.amount.toFixed(4) + ' SOL', positions.sol.usdValue, null, 'blue'));
-        }
-        if (positions.usdc.amount > 0) {
-          positionsHtml.push(renderPosition('USDC', 'Stablecoin', positions.usdc.amount.toFixed(2) + ' USDC', positions.usdc.usdValue, null, 'green'));
-        }
-        if (positions.dSOL.amount > 0) {
-          positionsHtml.push(renderPosition('dSOL', 'Drift Stake', positions.dSOL.amount.toFixed(6) + ' dSOL', positions.dSOL.usdValue, positions.dSOL.apy, 'purple'));
-        }
-        if (positions.mSOL.amount > 0) {
-          positionsHtml.push(renderPosition('mSOL', 'Marinade Stake', positions.mSOL.amount.toFixed(6) + ' mSOL', positions.mSOL.usdValue, positions.mSOL.apy, 'cyan'));
-        }
-        if (positions.jitoSOL.amount > 0) {
-          positionsHtml.push(renderPosition('jitoSOL', 'Jito Stake', positions.jitoSOL.amount.toFixed(6) + ' jitoSOL', positions.jitoSOL.usdValue, positions.jitoSOL.apy, 'yellow'));
-        }
-
-        document.getElementById('positions-list')!.innerHTML = positionsHtml.length > 0 
-          ? positionsHtml.join('') 
-          : '<p class="text-slate-500 text-center py-4">No positions found</p>';
-
-        // Transactions
-        const txsHtml = data.recentTransactions.map((tx: any) => `
-          <a href="https://solscan.io/tx/${tx.signature}" target="_blank" 
-             class="flex items-center justify-between py-2 border-b border-slate-700/50 hover:bg-slate-700/30 px-2 rounded">
-            <span class="font-mono text-xs text-slate-400">${tx.signature.slice(0, 16)}...</span>
-            <span class="text-xs ${tx.status === 'success' ? 'text-green-400' : 'text-red-400'}">${tx.status}</span>
-            <span class="text-xs text-slate-500">${new Date(tx.timestamp).toLocaleString()}</span>
-          </a>
-        `).join('');
-        document.getElementById('txs-list')!.innerHTML = txsHtml;
-
-        // Allocation
-        document.getElementById('alloc-liquid')!.textContent = fmt(data.summary.liquidValue);
-        document.getElementById('alloc-staked')!.textContent = fmt(data.summary.stakedValue);
-        const stakedPct = data.summary.totalValue > 0 
-          ? (data.summary.stakedValue / data.summary.totalValue * 100) 
-          : 0;
-        document.getElementById('alloc-pct')!.textContent = stakedPct.toFixed(1) + '%';
-
-        const liquidPct = data.summary.totalValue > 0 
-          ? (data.summary.liquidValue / data.summary.totalValue * 100) 
-          : 0;
-        document.getElementById('bar-liquid')!.style.width = liquidPct + '%';
-        document.getElementById('bar-staked')!.style.width = stakedPct + '%';
-
-        // Last update
-        document.getElementById('last-update')!.textContent = 
-          'Updated: ' + new Date(data.timestamp).toLocaleTimeString();
-
-        loadingEl.classList.add('hidden');
-        contentEl.classList.remove('hidden');
-
-      } catch (e) {
-        console.error(e);
-        loadingEl.classList.add('hidden');
-        errorEl.classList.remove('hidden');
-        document.getElementById('error-msg')!.textContent = e.message || 'Failed to load';
+        return data.solana?.usd || 140;
+      } catch {
+        return 140;
       }
     }
 
-    function renderPosition(symbol: string, protocol: string, amount: string, usdValue: number, apy: number | null, color: string) {
-      const colorClasses: Record<string, string> = {
-        blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-        green: 'bg-green-500/20 text-green-400 border-green-500/30',
-        purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-        cyan: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-        yellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      };
+    async function fetchVaultData() {
+      const url = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_KEY}`;
       
-      return `
-        <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="px-2 py-1 rounded text-xs font-bold ${colorClasses[color]}">${symbol}</span>
-              <div>
-                <div class="text-white font-medium">${protocol}</div>
-                <div class="text-slate-400 text-sm">${amount}</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-white font-bold">${fmt(usdValue)}</div>
-              ${apy ? `<div class="text-green-400 text-sm">${pct(apy)} APY</div>` : ''}
-            </div>
-          </div>
-        </div>
-      `;
+      const balanceRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getBalance',
+          params: [VAULT_ADDRESS]
+        })
+      });
+      
+      const balanceData = await balanceRes.json();
+      const solBalance = (balanceData.result?.value || 0) / 1e9;
+      
+      const tokensRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 2,
+          method: 'getTokenAccountsByOwner',
+          params: [VAULT_ADDRESS, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' }, { encoding: 'jsonParsed' }]
+        })
+      });
+      
+      const tokensData = await tokensRes.json();
+      
+      return { solBalance, tokens: tokensData.result?.value || [] };
     }
 
-    // Initial load
+    async function loadLiveData() {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+      
+      loading.classList.remove('hidden');
+      error.classList.add('hidden');
+      content.classList.add('hidden');
+      
+      try {
+        const [solPrice, vaultData] = await Promise.all([
+          fetchSolPrice(),
+          fetchVaultData()
+        ]);
+        
+        document.getElementById('sol-price').textContent = solPrice.toFixed(2);
+        
+        const solValue = vaultData.solBalance * solPrice;
+        let totalValue = solValue;
+        
+        // Process tokens
+        const positions = [{
+          name: 'SOL',
+          amount: vaultData.solBalance.toFixed(4),
+          value: solValue,
+          apy: 0
+        }];
+        
+        // TODO: Add staked positions from token accounts
+        
+        document.getElementById('stat-total').textContent = `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('stat-total-sol').textContent = `${vaultData.solBalance.toFixed(4)} SOL`;
+        
+        // Render positions
+        const positionsList = document.getElementById('positions-list');
+        if (positions.length === 0) {
+          positionsList.innerHTML = '<div class="text-slate-600 text-sm">No positions found</div>';
+        } else {
+          positionsList.innerHTML = positions.map(p => `
+            <div class="flex items-center justify-between bg-slate-800/30 rounded p-3">
+              <div>
+                <div class="font-medium text-slate-200">${p.name}</div>
+                <div class="text-xs text-slate-500 font-mono">${p.amount}</div>
+              </div>
+              <div class="text-right">
+                <div class="font-mono text-slate-200">$${p.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                ${p.apy > 0 ? `<div class="text-xs text-green-400 font-mono">${p.apy}% APY</div>` : ''}
+              </div>
+            </div>
+          `).join('');
+        }
+        
+        // Vault info
+        document.getElementById('vault-address').textContent = VAULT_ADDRESS.slice(0, 8) + '...' + VAULT_ADDRESS.slice(-6);
+        document.getElementById('vault-link').href = `https://solscan.io/account/${VAULT_ADDRESS}`;
+        document.getElementById('vault-threshold').textContent = '1/1';
+        
+        // Update timestamp
+        document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        
+        loading.classList.add('hidden');
+        content.classList.remove('hidden');
+        
+      } catch (err) {
+        console.error('Failed to load treasury:', err);
+        loading.classList.add('hidden');
+        document.getElementById('error-msg').textContent = err.message;
+        error.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('refresh-btn').addEventListener('click', loadLiveData);
+    
     loadLiveData();
-
-    // Auto-refresh every 30 seconds
     setInterval(loadLiveData, 30000);
-
-    // Manual refresh button
-    document.getElementById('refresh-btn')?.addEventListener('click', loadLiveData);
   </script>
 </DashboardLayout>

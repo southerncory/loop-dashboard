@@ -1,299 +1,291 @@
 [
   {
     "id": "user-app",
-    "name": "📱 User App (Consumer)",
+    "name": "User App",
     "slug": "loop-app-native",
     "status": "complete",
-    "description": "Consumer mobile app - FEATURE COMPLETE",
+    "description": "Consumer mobile app - React Native (Expo)",
     "stack": "React Native (Expo) + TypeScript",
-    "highlights": ["Feature complete", "Deployed to app.looplocal.io", "Waiting on App Store approval"],
+    "highlights": ["Feature complete", "Deployed to app.looplocal.io", "App Store pending"],
     "tasks": {
       "todo": [
-        {"id": "user-app-builds", "title": "Build & submit to iOS/Android stores", "priority": "high", "note": "Blocked on Apple Developer"}
+        {"id": "user-app-builds", "title": "Submit to iOS/Android stores", "priority": "high", "note": "Blocked on Apple Developer"}
       ],
       "inProgress": [],
       "done": [
-        "✅ Referral system with $5 rewards (Feb 6)",
-        "✅ Achievement badges - 17 badges, auto-award (Feb 6)",
-        "✅ Offline caching with AsyncStorage (Feb 6)",
-        "✅ Real-time updates via Supabase Realtime (Feb 6)",
-        "✅ Empty state illustrations (Feb 6)",
-        "✅ 8-point polish: logo, username, QR, Terms, Avatar (Feb 6)",
-        "✅ Real QR codes with react-native-qrcode-svg (Feb 6)",
-        "✅ Profile settings persistence (Feb 6)",
-        "✅ Transaction detail screen (Feb 6)",
-        "✅ Avatar upload with Supabase Storage (Feb 6)",
-        "✅ All settings screens wired to Supabase (Feb 6)",
-        "✅ HomeScreen APY allocation (Feb 6)",
-        "✅ Professional SVG icons (44+) (Feb 6)",
-        "✅ Auth flow: Phone/Email OTP → Biometrics",
-        "✅ Orbital UI + HUD",
-        "✅ Deployed to app.looplocal.io"
+        "ClaimScreen for Auto-Earn notifications (Feb 12)",
+        "Yield-first cleanup - no redemption language (Feb 12)",
+        "Referral system with $5 rewards (Feb 6)",
+        "Achievement badges - 17 badges (Feb 6)",
+        "Offline caching with AsyncStorage (Feb 6)",
+        "Real-time updates via Supabase Realtime (Feb 6)",
+        "Avatar upload with Supabase Storage (Feb 6)",
+        "Auth flow: Phone/Email OTP + Biometrics",
+        "Deployed to app.looplocal.io"
+      ]
+    }
+  },
+  {
+    "id": "auto-earn",
+    "name": "Auto-Earn System",
+    "slug": "auto-earn",
+    "status": "complete",
+    "description": "Automatic rewards when customers shop at connected merchants",
+    "stack": "Supabase Edge Functions + Square/Stripe/Clover OAuth",
+    "highlights": ["14 Edge Functions", "Zero merchant action", "Yield-first model"],
+    "tasks": {
+      "todo": [
+        {"id": "auto-earn-test", "title": "End-to-end test with Square sandbox", "priority": "high"}
+      ],
+      "inProgress": [],
+      "done": [
+        "Square OAuth flow (Feb 12)",
+        "Stripe Connect OAuth flow (Feb 12)",
+        "Clover OAuth flow (Feb 12)",
+        "Webhook handlers for all 3 processors (Feb 12)",
+        "check-nearby-purchases function (Feb 12)",
+        "claim-purchase + claim-purchase-manual (Feb 12)",
+        "stack-rewards function (Feb 12)",
+        "send-push notification function (Feb 12)",
+        "Database: processor_connections table (Feb 12)",
+        "Database: merchant_transactions table (Feb 12)",
+        "Database: purchase_suggestions table (Feb 12)",
+        "Security fixes: CORS + XSS (Feb 12)",
+        "Square sandbox credentials in Supabase (Feb 12)"
       ]
     }
   },
   {
     "id": "treasury-system",
-    "name": "💰 Treasury System",
+    "name": "Treasury System",
     "slug": "loop-treasury",
     "status": "active",
-    "description": "Unified treasury: USD → USDC → Stake → Yield",
+    "description": "Unified treasury: USD to USDC to Stake to Yield",
     "stack": "Mercury + Bridge.xyz + Squads Multi-sig + Marinade/Kamino",
-    "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Bridge for USD↔USDC"],
+    "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Bridge for USD-USDC"],
     "tasks": {
       "todo": [
-        {"id": "marinade-integration", "title": "Integrate Marinade staking (~7-8% APY)", "priority": "high"},
-        {"id": "kamino-integration", "title": "Integrate Kamino lending (~5-15% APY)", "priority": "high"},
-        {"id": "withdrawal-flow", "title": "Build withdrawal request flow", "priority": "high"}
+        {"id": "marinade-integration", "title": "Integrate Marinade staking (7-8% APY)", "priority": "high"},
+        {"id": "kamino-integration", "title": "Integrate Kamino lending (5-15% APY)", "priority": "high"}
       ],
       "inProgress": [
-        {"id": "bridge-kyb", "title": "Bridge.xyz KYB Approval", "priority": "critical", "note": "Submitted Feb 6, ~1 week"}
+        {"id": "bridge-kyb", "title": "Bridge.xyz KYB Approval", "priority": "critical", "note": "Submitted Feb 6"}
       ],
       "done": [
-        "✅ Yield calculation cron - daily 2 AM UTC (Feb 5)",
-        "✅ Manual staking trigger in Command Center (Feb 5)",
-        "✅ Treasury database schema - 7 tables (Feb 4)",
-        "✅ Dynamic APY migration (Feb 4)",
-        "✅ USDC withdrawal option for merchants (Feb 4)",
-        "✅ Squads multi-sig vault: MmFao...5on4 (Feb 4)",
-        "✅ Kraken API Edge Functions (Feb 4)",
-        "✅ Architecture: Option C - Unified + Virtual Pools (Feb 4)",
-        "✅ Mercury business bank account (Feb 4)",
-        "✅ Bridge.xyz application submitted (Feb 4)",
-        "✅ Stripe pool deposits integrated (Feb 4)"
+        "Yield calculation cron - daily 2 AM UTC (Feb 5)",
+        "Treasury database schema - 7 tables (Feb 4)",
+        "Squads multi-sig vault: MmFao...5on4 (Feb 4)",
+        "Kraken API Edge Functions (Feb 4)",
+        "Mercury business bank account (Feb 4)",
+        "Stripe pool deposits integrated (Feb 4)"
       ]
     }
   },
   {
     "id": "merchant-portal",
-    "name": "🏪 Merchant Portal",
+    "name": "Merchant Portal",
     "slug": "loop-merchant",
     "status": "complete",
-    "description": "merchant.looplocal.io — B2B dashboard (PWA)",
+    "description": "merchant.looplocal.io - B2B dashboard",
     "stack": "React + Vite + Capacitor",
-    "highlights": ["10 pages built", "Stripe billing", "Pool management", "POS operations"],
+    "highlights": ["10 pages", "Stripe billing", "POS integrations"],
     "tasks": {
-      "todo": [
-        {"id": "merchant-app-builds", "title": "Build native apps for stores", "priority": "medium", "note": "PWA works, native optional"}
-      ],
+      "todo": [],
       "inProgress": [],
       "done": [
-        "✅ POS customer enrollment - create on the fly (Feb 6)",
-        "✅ APY display on Pool page (Feb 5)",
-        "✅ Custom icons + splash screens (Feb 4)",
-        "✅ Stripe billing integration (Feb 4)",
-        "✅ Pool deposits via Stripe (Feb 4)",
-        "✅ Capacitor for native builds (Feb 1)",
-        "✅ All 10 pages built (Feb 1)",
-        "✅ Dashboard, Auth, Onboarding",
-        "✅ Location management",
-        "✅ POS Award & Redeem flows",
-        "✅ Transaction history",
-        "✅ Pool management",
-        "✅ Analytics, Team, Settings, Billing",
-        "✅ Deployed to merchant.looplocal.io"
-      ]
-    }
-  },
-  {
-    "id": "wallet-pass",
-    "name": "📲 Wallet Pass Server",
-    "slug": "loop-wallet-pass",
-    "status": "pending",
-    "description": "Apple/Google Wallet passes for quick checkout ID",
-    "stack": "Node.js + Google Wallet API + Apple PassKit",
-    "highlights": ["Google Wallet configured", "Apple pending Dev account", "For customer identification"],
-    "tasks": {
-      "todo": [
-        {"id": "wallet-pass-deploy", "title": "Deploy to wallet.looplocal.io", "priority": "high"},
-        {"id": "apple-wallet-certs", "title": "Get Apple Wallet signing certificates", "priority": "high", "note": "Needs Apple Developer"}
-      ],
-      "inProgress": [],
-      "done": [
-        "✅ Google Wallet API configured (Feb 4)",
-        "✅ Service account credentials set up",
-        "✅ Pass generation logic built"
-      ]
-    }
-  },
-  {
-    "id": "checkout-solution",
-    "name": "🎯 Checkout Solution",
-    "slug": "checkout-friction",
-    "status": "planning",
-    "description": "How customers earn/redeem at merchant terminals",
-    "stack": "TBD - Card linking, Static QR, NFC, or phone-based",
-    "highlights": ["Zero POS integration needed", "Customer-driven flow", "For Newslink pilot"],
-    "tasks": {
-      "todo": [
-        {"id": "choose-approach", "title": "Choose checkout approach", "priority": "critical"},
-        {"id": "build-earn-flow", "title": "Build earning flow for chosen approach", "priority": "high"},
-        {"id": "build-redeem-flow", "title": "Build redemption flow", "priority": "high"}
-      ],
-      "inProgress": [],
-      "done": [
-        "✅ Options researched: Card linking, Static QR, NFC, phone lookup (Feb 6)"
+        "Integrations page for POS connections (Feb 12)",
+        "POS customer enrollment (Feb 6)",
+        "APY display on Pool page (Feb 5)",
+        "Stripe billing integration (Feb 4)",
+        "All 10 pages built (Feb 1)",
+        "Deployed to merchant.looplocal.io"
       ]
     }
   },
   {
     "id": "command-center",
-    "name": "🎛️ Command Center",
+    "name": "Command Center",
     "slug": "loop-dashboard",
     "status": "live",
-    "description": "command.looplocal.io — Alex's mission control",
-    "stack": "Astro + Tailwind + Supabase Edge Functions",
-    "highlights": ["11 pages", "Real data", "Treasury controls"],
+    "description": "command.looplocal.io - Mission control",
+    "stack": "Astro + Tailwind + Supabase",
+    "highlights": ["15 pages", "Professional design system", "Real data"],
     "tasks": {
       "todo": [],
       "inProgress": [],
       "done": [
-        "✅ 11/11 pages complete (Feb 4)",
-        "✅ Dashboard with real Loop metrics",
-        "✅ Treasury page with live APY, vault balance",
-        "✅ Merchants, Users, Analytics pages",
-        "✅ Settings, OXO Controls, Support Center",
-        "✅ Loops page, System Health, Solana page",
-        "✅ 8 Edge Functions for real data",
-        "✅ Deployed to command.looplocal.io"
+        "Design system overhaul - no emojis (Feb 13)",
+        "Support page redesign (Feb 13)",
+        "Trading page redesign (Feb 13)",
+        "Treasury page redesign (Feb 13)",
+        "15 pages built with consistent styling",
+        "8 Edge Functions for real data",
+        "Deployed to command.looplocal.io"
+      ]
+    }
+  },
+  {
+    "id": "trading-system",
+    "name": "Burt Trading",
+    "slug": "burt-trading",
+    "status": "rebuilding",
+    "description": "Hybrid AI trading system v2.1",
+    "stack": "OpenClaw + Bridge + Ollama + FreqTrade + Binance",
+    "highlights": ["79 tests", "Production-grade rebuild", "Survival mode"],
+    "tasks": {
+      "todo": [
+        {"id": "deploy-v21", "title": "Deploy v2.1 to A9", "priority": "high"}
+      ],
+      "inProgress": [],
+      "done": [
+        "Full audit - D+ grade identified (Feb 12)",
+        "Production rebuild with 79 tests (Feb 12)",
+        "Secrets secured in env vars (Feb 12)",
+        "Idempotency + rate limiting (Feb 12)",
+        "Circuit breakers + dead letter queue (Feb 12)",
+        "Trade reconciliation (Feb 12)",
+        "Docker Compose setup (Feb 12)",
+        "OpenAPI documentation (Feb 12)"
       ]
     }
   },
   {
     "id": "backend",
-    "name": "⚙️ Loop Backend",
+    "name": "Loop Backend",
     "slug": "oar-technologies-inc",
     "status": "active",
     "description": "Core backend infrastructure",
-    "stack": "Supabase (Postgres + 25 Edge Functions)",
-    "highlights": ["25 Edge Functions", "20+ migrations", "RLS policies"],
+    "stack": "Supabase (Postgres + 25+ Edge Functions)",
+    "highlights": ["25+ Edge Functions", "20+ migrations", "RLS policies"],
     "tasks": {
       "todo": [
-        {"id": "end-to-end-testing", "title": "Full end-to-end flow testing", "priority": "high"}
+        {"id": "push-migrations", "title": "Push pending migrations", "priority": "high", "note": "yield + deprecate redemption"}
       ],
       "inProgress": [],
       "done": [
-        "✅ send-welcome-sms Edge Function (Feb 6)",
-        "✅ Avatars storage bucket (Feb 6)",
-        "✅ POS customer enrollment (Feb 6)",
-        "✅ Referrals + Achievements tables (Feb 6)",
-        "✅ Security audit fixes (Feb 5)",
-        "✅ Treasury tables - 7 tables (Feb 4)",
-        "✅ Yield calculation function (Feb 4)",
-        "✅ Kraken API Edge Functions (Feb 4)",
-        "✅ Stripe Edge Functions (Feb 4)",
-        "✅ Support system tables",
-        "✅ 25 Edge Functions deployed",
-        "✅ 20+ DB migrations"
+        "Auto-Earn functions (Feb 12)",
+        "Security audit fixes (Feb 5)",
+        "Treasury tables - 7 tables (Feb 4)",
+        "25+ Edge Functions deployed",
+        "20+ DB migrations"
+      ]
+    }
+  },
+  {
+    "id": "wallet-pass",
+    "name": "Wallet Pass Server",
+    "slug": "loop-wallet-pass",
+    "status": "pending",
+    "description": "Apple/Google Wallet passes for customer ID",
+    "stack": "Node.js + Google Wallet API + Apple PassKit",
+    "highlights": ["Google Wallet configured", "Apple pending"],
+    "tasks": {
+      "todo": [
+        {"id": "wallet-pass-deploy", "title": "Deploy to wallet.looplocal.io", "priority": "medium"},
+        {"id": "apple-wallet-certs", "title": "Get Apple Wallet certificates", "priority": "medium"}
+      ],
+      "inProgress": [],
+      "done": [
+        "Google Wallet API configured (Feb 4)",
+        "Service account credentials set up",
+        "Pass generation logic built"
       ]
     }
   },
   {
     "id": "solana-protocol",
-    "name": "⛓️ Solana Protocol",
+    "name": "Solana Protocol",
     "slug": "loop-solana",
     "status": "deployed",
     "description": "On-chain Loop protocol (devnet)",
-    "stack": "Anchor + Rust → Solana",
-    "highlights": ["Deployed to devnet", "Program ID: 2Aw1H..."],
+    "stack": "Anchor + Rust",
+    "highlights": ["Deployed to devnet"],
     "tasks": {
       "todo": [
-        {"id": "solana-initialize", "title": "Initialize Protocol on Devnet", "priority": "medium"},
-        {"id": "solana-create-loop", "title": "Create First Loop (Miami)", "priority": "medium"}
+        {"id": "solana-initialize", "title": "Initialize Protocol on Devnet", "priority": "low"}
       ],
       "inProgress": [],
       "done": [
-        "✅ Program deployed to devnet (Feb 1)",
-        "✅ IDL uploaded",
-        "✅ Fixed stack overflow (split Initialize)",
-        "✅ Builds successfully (509KB)"
-      ]
-    }
-  },
-  {
-    "id": "loop-trader",
-    "name": "🤖 Loop Trader",
-    "slug": "loop-trader",
-    "status": "running",
-    "description": "Burt the Beast - AI trading bot",
-    "stack": "Freqtrade + GPT-4o + Python on A9 Max",
-    "highlights": ["Paper trading live", "XLM/XRP/HBAR on Kraken"],
-    "tasks": {
-      "todo": [
-        {"id": "trader-optimize", "title": "Optimize strategy based on results", "priority": "low"},
-        {"id": "trader-live", "title": "Enable live trading", "priority": "low"}
-      ],
-      "inProgress": [
-        {"id": "paper-trading", "title": "Paper trading phase", "priority": "medium"}
-      ],
-      "done": [
-        "✅ BURT THE BEAST LIVE (Feb 4)",
-        "✅ Strategy tuned for paper trading",
-        "✅ A9 Max: WSL + Docker + Freqtrade"
+        "Program deployed to devnet (Feb 1)",
+        "IDL uploaded",
+        "Builds successfully (509KB)"
       ]
     }
   },
   {
     "id": "marketing-site",
-    "name": "🌐 Marketing Site",
+    "name": "Marketing Site",
     "slug": "looplocal-marketing",
     "status": "live",
     "description": "looplocal.io",
-    "stack": "Astro + Tailwind → Vercel",
-    "highlights": ["10 pages", "Terms & Privacy pages"],
+    "stack": "Astro + Tailwind",
+    "highlights": ["10 pages", "Terms & Privacy"],
     "tasks": {
       "todo": [],
       "inProgress": [],
       "done": [
-        "✅ Terms & Privacy pages exist",
-        "✅ Text visibility fixed (Feb 4)",
-        "✅ All 10 pages built",
-        "✅ Deployed to looplocal.io"
+        "All 10 pages built",
+        "Terms & Privacy pages",
+        "Deployed to looplocal.io"
       ]
     }
   },
   {
     "id": "support-system",
-    "name": "🎧 Support System",
+    "name": "Support System",
     "slug": "loop-support",
     "status": "live",
     "description": "AI-powered customer support",
     "stack": "Cloudflare Workers + Supabase + GPT-4o",
-    "highlights": ["support@looplocal.io", "Auto-ticketing", "AI responses"],
+    "highlights": ["support@looplocal.io", "AI responses"],
     "tasks": {
       "todo": [],
       "inProgress": [],
       "done": [
-        "✅ support@looplocal.io → tickets",
-        "✅ AI response generation",
-        "✅ Support Center in Command Center"
+        "support@looplocal.io routing",
+        "AI response generation",
+        "Support Center in Command Center"
       ]
     }
   },
   {
     "id": "business",
-    "name": "🤝 Business & Legal",
+    "name": "Business & Legal",
     "slug": "loop-business",
     "status": "active",
     "description": "Business development & compliance",
     "stack": "OAR Technologies Inc (Wyoming C Corp)",
-    "highlights": ["EIN: 39-2669487", "Mercury bank account"],
+    "highlights": ["EIN: 39-2669487", "Mercury bank"],
     "tasks": {
       "todo": [
-        {"id": "newslink-pitch", "title": "Prepare Newslink pitch & demo", "priority": "high"},
-        {"id": "legal-docs", "title": "Legal review of Terms & Privacy", "priority": "high"},
-        {"id": "fintech-lawyer", "title": "Consult fintech lawyer", "priority": "high"},
-        {"id": "merchant-agreement", "title": "Merchant Service Agreement", "priority": "high"}
+        {"id": "newslink-pitch", "title": "Prepare Newslink pitch", "priority": "high"},
+        {"id": "fintech-lawyer", "title": "Consult fintech lawyer", "priority": "high"}
       ],
       "inProgress": [
         {"id": "apple-dev", "title": "Apple Developer Enrollment", "priority": "high"}
       ],
       "done": [
-        "✅ OAR Technologies Inc incorporated",
-        "✅ EIN: 39-2669487",
-        "✅ Mercury business bank account",
-        "✅ Stock Ledger for KYB",
-        "✅ Business model defined"
+        "OAR Technologies Inc incorporated",
+        "EIN: 39-2669487",
+        "Mercury business bank account"
+      ]
+    }
+  },
+  {
+    "id": "eternal-loop-game",
+    "name": "Eternal Loop Game",
+    "slug": "eternal-loop-game",
+    "status": "deployed",
+    "description": "AI multiplayer text adventure",
+    "stack": "React + Vite + Supabase Realtime + GPT-4o",
+    "highlights": ["Up to 4 players", "6 genres", "play.looplocal.io"],
+    "tasks": {
+      "todo": [],
+      "inProgress": [],
+      "done": [
+        "Game engine complete",
+        "Multiplayer sync via Realtime",
+        "Deployed to play.looplocal.io"
       ]
     }
   }

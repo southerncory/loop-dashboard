@@ -6,19 +6,19 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
   <div class="p-6">
     <header class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold">⚙️ Settings</h1>
+        <h1 class="text-3xl font-bold">Settings</h1>
         <p class="text-slate-400 mt-1">System configuration and access control</p>
       </div>
       <div class="flex items-center gap-3">
         <span id="last-update" class="text-sm text-slate-500"></span>
         <button onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm transition flex items-center gap-1">
-          🔄 Refresh
+          Refresh
         </button>
       </div>
     </header>
 
     <div id="loading" class="text-center py-20">
-      <div class="text-4xl mb-4 animate-pulse">⚙️</div>
+      <!-- Loading -->
       <p class="text-slate-400">Loading settings...</p>
     </div>
 
@@ -27,7 +27,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
         <!-- API Keys -->
         <div class="bg-slate-800 rounded-xl border border-slate-700">
           <div class="px-5 py-4 border-b border-slate-700">
-            <h2 class="font-semibold">🔑 API Keys</h2>
+            <h2 class="font-semibold"> API Keys</h2>
           </div>
           <div id="api-keys" class="p-5 space-y-3"></div>
         </div>
@@ -35,7 +35,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
         <!-- Team Access -->
         <div class="bg-slate-800 rounded-xl border border-slate-700">
           <div class="px-5 py-4 border-b border-slate-700">
-            <h2 class="font-semibold">👥 Team Access</h2>
+            <h2 class="font-semibold"> Team Access</h2>
           </div>
           <div id="team-access" class="p-5 space-y-3"></div>
         </div>
@@ -71,7 +71,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
       <!-- Audit Logs -->
       <div class="bg-slate-800 rounded-xl border border-slate-700">
         <div class="px-5 py-4 border-b border-slate-700">
-          <h2 class="font-semibold">📋 Audit Log</h2>
+          <h2 class="font-semibold"> Audit Log</h2>
         </div>
         <div id="audit-logs" class="divide-y divide-slate-700 max-h-96 overflow-y-auto">
           <div class="p-5 text-slate-500 text-center">No audit entries yet</div>
@@ -135,7 +135,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
       } catch (e) {
         console.error(e);
         document.getElementById('loading')!.innerHTML = `
-          <div class="text-4xl mb-4">⚠️</div>
+          <!-- Error -->
           <p class="text-red-400 mb-4">Failed to load settings</p>
           <button onclick="load()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Retry</button>
         `;
