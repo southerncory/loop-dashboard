@@ -166,15 +166,14 @@
     "slug": "oar-technologies-inc",
     "status": "active",
     "description": "Core backend infrastructure - Supabase Postgres + Edge Functions",
-    "stack": "Supabase (Postgres + 42 Edge Functions + 52 Migrations)",
+    "stack": "Supabase (Postgres + 36 Edge Functions + 52 Migrations)",
     "repo": "loop/OAR-Technologies-Inc",
-    "highlights": ["42 Edge Functions", "52 DB migrations", "RLS on all tables"],
+    "highlights": ["36 Edge Functions", "52 DB migrations", "RLS on all tables"],
     "architecture": {
       "functions": {
         "autoEarn": ["square-oauth", "square-callback", "square-webhook", "stripe-connect-oauth", "stripe-connect-callback", "stripe-connect-webhook", "clover-oauth", "clover-callback", "clover-webhook", "check-nearby-purchases", "claim-purchase", "claim-purchase-manual", "stack-rewards", "send-push", "send-welcome-sms"],
         "billing": ["stripe-checkout", "stripe-webhook", "stripe-deposit", "stripe-portal"],
         "treasury": ["treasury-status", "treasury-action", "treasury-live", "yield-distribution", "yield-positions", "kamino-deposit-tx"],
-        "kraken": ["kraken-balance", "kraken-buy-usdc", "kraken-sell-usdc", "kraken-deposit-address", "kraken-withdraw"],
         "dashboard": ["dashboard-status", "analytics-status", "loops-status", "merchants-status", "users-status", "oxo-status", "settings-status", "waitlist-status"],
         "support": ["support-tickets", "support-ai-response", "support-send-response"]
       },
@@ -196,7 +195,7 @@
         "Auto-Earn functions - 15 functions (Feb 12)",
         "Treasury tables - 7 tables (Feb 4)",
         "Security audit fixes (Feb 5)",
-        "42 Edge Functions deployed",
+        "36 Edge Functions deployed",
         "52 DB migrations applied"
       ]
     }
