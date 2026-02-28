@@ -3,10 +3,12 @@
     "id": "user-app",
     "name": "User App",
     "slug": "loop-app-native",
-    "status": "complete",
+    "status": "testflight",
     "description": "Consumer mobile app - React Native (Expo)",
     "stack": "React Native (Expo) + TypeScript",
-    "highlights": ["Feature complete", "Deployed to app.looplocal.io", "App Store pending"],
+    "repo": "loop/loop-app-native",
+    "url": "app.looplocal.io",
+    "highlights": ["Feature complete", "TestFlight live", "App Store pending"],
     "tasks": {
       "todo": [
         {"id": "user-app-builds", "title": "Submit to iOS/Android stores", "priority": "high", "note": "Blocked on Apple Developer"}
@@ -32,7 +34,7 @@
     "status": "complete",
     "description": "Automatic rewards when customers shop at connected merchants",
     "stack": "Supabase Edge Functions + Square/Stripe/Clover OAuth",
-    "highlights": ["14 Edge Functions", "Zero merchant action", "Yield-first model"],
+    "highlights": ["15 Edge Functions", "Zero merchant action", "Yield-first model"],
     "tasks": {
       "todo": [
         {"id": "auto-earn-test", "title": "End-to-end test with Square sandbox", "priority": "high"}
@@ -60,21 +62,25 @@
     "name": "Treasury System",
     "slug": "loop-treasury",
     "status": "active",
-    "description": "Unified treasury: USD to USDC to Stake to Yield",
-    "stack": "Mercury + Bridge.xyz + Squads Multi-sig + Marinade/Kamino",
-    "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Bridge for USD-USDC"],
+    "description": "Unified treasury: USD to USDC to Yield via Kamino",
+    "stack": "Squads Multi-sig + Bridge.xyz + Kamino USDC Lending",
+    "highlights": ["Option C: Unified Treasury", "Virtual Pools per Loop", "Kamino for yield"],
+    "architecture": {
+      "flow": "Stripe → Bridge → USDC → Kamino → Yield",
+      "vault": "MmFaoYbgrFG1H6JoC99xGSnzT7hGH143kV2ZEyc5on4"
+    },
     "tasks": {
       "todo": [
-        {"id": "marinade-integration", "title": "Integrate Marinade staking (7-8% APY)", "priority": "high"},
-        {"id": "kamino-integration", "title": "Integrate Kamino lending (5-15% APY)", "priority": "high"}
+        {"id": "kamino-manual-flow", "title": "Document Kamino manual deposit flow", "priority": "high"},
+        {"id": "kamino-sdk", "title": "Integrate Kamino SDK for automation", "priority": "medium", "note": "After manual flow proven"}
       ],
-      "inProgress": [
-        {"id": "bridge-kyb", "title": "Bridge.xyz KYB Approval", "priority": "critical", "note": "Submitted Feb 6"}
-      ],
+      "inProgress": [],
       "done": [
+        "Bridge.xyz KYB Approved (Feb 28)",
         "Yield calculation cron - daily 2 AM UTC (Feb 5)",
         "Treasury database schema - 7 tables (Feb 4)",
-        "Squads multi-sig vault: MmFao...5on4 (Feb 4)",
+        "Squads multi-sig vault created (Feb 4)",
+        "yield_positions table for DeFi tracking (Feb 8)",
         "Kraken API Edge Functions (Feb 4)",
         "Mercury business bank account (Feb 4)",
         "Stripe pool deposits integrated (Feb 4)"
@@ -85,14 +91,17 @@
     "id": "merchant-portal",
     "name": "Merchant Portal",
     "slug": "loop-merchant",
-    "status": "complete",
+    "status": "live",
     "description": "merchant.looplocal.io - B2B dashboard",
     "stack": "React + Vite + Capacitor",
-    "highlights": ["10 pages", "Stripe billing", "POS integrations"],
+    "repo": "loop/loop-merchant",
+    "url": "merchant.looplocal.io",
+    "highlights": ["10 pages", "Earn-only model", "POS integrations"],
     "tasks": {
       "todo": [],
       "inProgress": [],
       "done": [
+        "Earn-only compliance audit (Feb 25)",
         "Integrations page for POS connections (Feb 12)",
         "POS customer enrollment (Feb 6)",
         "APY display on Pool page (Feb 5)",
@@ -109,6 +118,8 @@
     "status": "live",
     "description": "command.looplocal.io - Mission control",
     "stack": "Astro + Tailwind + Supabase",
+    "repo": "loop/loop-dashboard",
+    "url": "command.looplocal.io",
     "highlights": ["15 pages", "Professional design system", "Real data"],
     "tasks": {
       "todo": [],
@@ -128,13 +139,13 @@
     "id": "trading-system",
     "name": "Burt Trading",
     "slug": "burt-trading",
-    "status": "rebuilding",
+    "status": "paused",
     "description": "Hybrid AI trading system v2.1",
     "stack": "OpenClaw + Bridge + Ollama + FreqTrade + Binance",
     "highlights": ["79 tests", "Production-grade rebuild", "Survival mode"],
     "tasks": {
       "todo": [
-        {"id": "deploy-v21", "title": "Deploy v2.1 to A9", "priority": "high"}
+        {"id": "deploy-v21", "title": "Deploy v2.1 to A9", "priority": "low", "note": "Paused - focus on Loop"}
       ],
       "inProgress": [],
       "done": [
@@ -154,20 +165,39 @@
     "name": "Loop Backend",
     "slug": "oar-technologies-inc",
     "status": "active",
-    "description": "Core backend infrastructure",
-    "stack": "Supabase (Postgres + 25+ Edge Functions)",
-    "highlights": ["25+ Edge Functions", "20+ migrations", "RLS policies"],
+    "description": "Core backend infrastructure - Supabase Postgres + Edge Functions",
+    "stack": "Supabase (Postgres + 42 Edge Functions + 52 Migrations)",
+    "repo": "loop/OAR-Technologies-Inc",
+    "highlights": ["42 Edge Functions", "52 DB migrations", "RLS on all tables"],
+    "architecture": {
+      "functions": {
+        "autoEarn": ["square-oauth", "square-callback", "square-webhook", "stripe-connect-oauth", "stripe-connect-callback", "stripe-connect-webhook", "clover-oauth", "clover-callback", "clover-webhook", "check-nearby-purchases", "claim-purchase", "claim-purchase-manual", "stack-rewards", "send-push", "send-welcome-sms"],
+        "billing": ["stripe-checkout", "stripe-webhook", "stripe-deposit", "stripe-portal"],
+        "treasury": ["treasury-status", "treasury-action", "treasury-live", "yield-distribution", "yield-positions", "kamino-deposit-tx"],
+        "kraken": ["kraken-balance", "kraken-buy-usdc", "kraken-sell-usdc", "kraken-deposit-address", "kraken-withdraw"],
+        "dashboard": ["dashboard-status", "analytics-status", "loops-status", "merchants-status", "users-status", "oxo-status", "settings-status", "waitlist-status"],
+        "support": ["support-tickets", "support-ai-response", "support-send-response"]
+      },
+      "tables": {
+        "core": ["profiles", "merchant_profiles", "merchant_locations", "merchant_settings", "loops"],
+        "rewards": ["user_cred_balances", "user_merchant_balances", "cred_transactions", "merchant_reward_pools"],
+        "autoEarn": ["processor_connections", "merchant_transactions", "purchase_suggestions"],
+        "treasury": ["treasury", "treasury_snapshots", "treasury_transactions", "merchant_pool_shares", "merchant_deposits", "merchant_withdrawals", "yield_distributions", "yield_distribution_details", "yield_positions", "yield_position_snapshots", "apy_history"],
+        "oxo": ["oxo_supply", "user_oxo_balances", "oxo_transactions", "merchant_stakes", "unlock_milestones"],
+        "support": ["support_tickets", "audit_logs", "waitlist", "pilot_applications", "referrals", "achievements"]
+      }
+    },
     "tasks": {
       "todo": [
-        {"id": "push-migrations", "title": "Push pending migrations", "priority": "high", "note": "yield + deprecate redemption"}
+        {"id": "push-migrations", "title": "Push pending migrations", "priority": "medium", "note": "yield + deprecate redemption"}
       ],
       "inProgress": [],
       "done": [
-        "Auto-Earn functions (Feb 12)",
-        "Security audit fixes (Feb 5)",
+        "Auto-Earn functions - 15 functions (Feb 12)",
         "Treasury tables - 7 tables (Feb 4)",
-        "25+ Edge Functions deployed",
-        "20+ DB migrations"
+        "Security audit fixes (Feb 5)",
+        "42 Edge Functions deployed",
+        "52 DB migrations applied"
       ]
     }
   },
@@ -178,11 +208,12 @@
     "status": "pending",
     "description": "Apple/Google Wallet passes for customer ID",
     "stack": "Node.js + Google Wallet API + Apple PassKit",
+    "repo": "loop/loop-wallet-pass",
     "highlights": ["Google Wallet configured", "Apple pending"],
     "tasks": {
       "todo": [
-        {"id": "wallet-pass-deploy", "title": "Deploy to wallet.looplocal.io", "priority": "medium"},
-        {"id": "apple-wallet-certs", "title": "Get Apple Wallet certificates", "priority": "medium"}
+        {"id": "wallet-pass-deploy", "title": "Deploy to wallet.looplocal.io", "priority": "low"},
+        {"id": "apple-wallet-certs", "title": "Get Apple Wallet certificates", "priority": "low", "note": "After Apple Developer enrollment"}
       ],
       "inProgress": [],
       "done": [
@@ -196,17 +227,38 @@
     "id": "solana-protocol",
     "name": "Solana Protocol",
     "slug": "loop-solana",
-    "status": "deployed",
-    "description": "On-chain Loop protocol (devnet)",
-    "stack": "Anchor + Rust",
-    "highlights": ["Deployed to devnet"],
+    "status": "devnet",
+    "description": "On-chain Loop protocol - USDC staking, OXO token, bonding curve",
+    "stack": "Anchor 0.29 + Rust + SPL Token-2022",
+    "repo": "loop/loop-solana",
+    "programId": "2Aw1Hvroyra5JBSvsgxDXbD28DCXpx9Eaa4bWunAi3dS",
+    "highlights": ["Deployed to devnet", "22 instructions", "509KB program"],
+    "architecture": {
+      "accounts": ["ProgramConfig", "LoopPool", "UserStake", "MerchantDeposit", "BondingCurve", "OxoVesting", "Treasury"],
+      "instructions": {
+        "admin": ["initialize", "initialize_treasury", "create_loop", "pause_loop", "unpause_loop", "pause_program", "unpause_program"],
+        "user": ["stake_user", "unstake_user", "claim_user_yield", "buy_oxo", "sell_oxo", "claim_vested_oxo"],
+        "merchant": ["deposit_merchant", "request_merchant_withdrawal", "complete_merchant_withdrawal", "claim_merchant_yield"],
+        "defi": ["allocate_to_defi (STUB)", "harvest_yield (STUB)", "distribute_yield (STUB)"],
+        "treasury": ["treasury_deposit", "treasury_buyback"]
+      },
+      "token": {
+        "name": "OXO",
+        "type": "SPL Token-2022",
+        "decimals": 6,
+        "pricing": "Bonding curve",
+        "vesting": "12-18 months"
+      }
+    },
     "tasks": {
       "todo": [
-        {"id": "solana-initialize", "title": "Initialize Protocol on Devnet", "priority": "low"}
+        {"id": "solana-initialize", "title": "Initialize Protocol on Devnet", "priority": "low", "note": "After treasury flow proven"},
+        {"id": "kamino-cpi", "title": "Implement Kamino CPI for DeFi instructions", "priority": "low", "note": "After manual flow works"}
       ],
       "inProgress": [],
       "done": [
         "Program deployed to devnet (Feb 1)",
+        "22 instructions implemented",
         "IDL uploaded",
         "Builds successfully (509KB)"
       ]
@@ -219,6 +271,8 @@
     "status": "live",
     "description": "looplocal.io",
     "stack": "Astro + Tailwind",
+    "repo": "loop/looplocal-marketing",
+    "url": "looplocal.io",
     "highlights": ["10 pages", "Terms & Privacy"],
     "tasks": {
       "todo": [],
@@ -255,16 +309,17 @@
     "status": "active",
     "description": "Business development & compliance",
     "stack": "OAR Technologies Inc (Wyoming C Corp)",
-    "highlights": ["EIN: 39-2669487", "Mercury bank"],
+    "highlights": ["EIN: 39-2669487", "Mercury bank", "Bridge KYB approved"],
     "tasks": {
       "todo": [
-        {"id": "newslink-pitch", "title": "Prepare Newslink pitch", "priority": "high"},
-        {"id": "fintech-lawyer", "title": "Consult fintech lawyer", "priority": "high"}
+        {"id": "newslink-pitch", "title": "Prepare Newslink pitch", "priority": "medium"},
+        {"id": "fintech-lawyer", "title": "Consult fintech lawyer", "priority": "medium"}
       ],
       "inProgress": [
         {"id": "apple-dev", "title": "Apple Developer Enrollment", "priority": "high"}
       ],
       "done": [
+        "Bridge.xyz KYB Approved (Feb 28)",
         "OAR Technologies Inc incorporated",
         "EIN: 39-2669487",
         "Mercury business bank account"
@@ -275,10 +330,13 @@
     "id": "eternal-loop-game",
     "name": "Eternal Loop Game",
     "slug": "eternal-loop-game",
-    "status": "deployed",
-    "description": "AI multiplayer text adventure",
+    "status": "live",
+    "description": "AI multiplayer text adventure (separate project)",
     "stack": "React + Vite + Supabase Realtime + GPT-4o",
-    "highlights": ["Up to 4 players", "6 genres", "play.looplocal.io"],
+    "repo": "eternal-loop-game",
+    "url": "play.looplocal.io",
+    "supabaseProject": "vlfpweozmphefoxsvvtw",
+    "highlights": ["Up to 4 players", "6 genres", "Separate Supabase project"],
     "tasks": {
       "todo": [],
       "inProgress": [],

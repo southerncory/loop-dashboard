@@ -1,4 +1,11 @@
 [
+  {"date": "2026-02-28", "action": "Backend/Blockchain architecture audit - created loop-architecture.md"},
+  {"date": "2026-02-28", "action": "Command Center projects updated - detailed architecture for Backend + Solana"},
+  {"date": "2026-02-28", "action": "Kamino manual flow documented - KAMINO-MANUAL-FLOW.md"},
+  {"date": "2026-02-28", "action": "Bridge.xyz KYB Approved - fiat to USDC ready"},
+  {"date": "2026-02-28", "action": "Treasury decision: Kamino USDC lending for yield (risk-off, auto-compound)"},
+  {"date": "2026-02-26", "action": "Agent model migration - Dex/Slip switched to Gemini 2.5 Pro (cost reduction)"},
+  {"date": "2026-02-25", "action": "Merchant Portal earn-only compliance audit complete"},
   {"date": "2026-02-13", "action": "Command Center design overhaul - all emojis removed, professional aesthetic"},
   {"date": "2026-02-13", "action": "Repo cleanup - deprecated projects moved to /archive"},
   {"date": "2026-02-13", "action": "Command Center data audit and update"},

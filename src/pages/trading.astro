@@ -3,7 +3,7 @@ import DashboardLayout from '../layouts/DashboardLayout.astro';
 import StatusDot from '../components/ui/StatusDot.astro';
 import Badge from '../components/ui/Badge.astro';
 
-const bridgeApiUrl = 'https://due-senior-first-scholar.trycloudflare.com';
+// Primary data source: Supabase (synced from A9 bridge every 30 min)
 const supabaseUrl = 'https://ibhjsutgxhujbjhrilwx.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaGpzdXRneGh1amJqaHJpbHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzkzODgsImV4cCI6MjA4NDk1NTM4OH0.5BWyde9ozVjf9KV-se6o0g6zf2MBWlUWU6pN98KaOO4';
 ---
@@ -14,7 +14,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold text-slate-100">Trading</h1>
-        <p class="text-slate-500 text-sm mt-0.5">Burt Hybrid AI System v2.1</p>
+        <p class="text-slate-500 text-sm mt-0.5">APEX PREDATOR v3.0 + Scalper</p>
       </div>
       <div class="flex items-center gap-3">
         <div id="connection-status" class="flex items-center gap-2 text-sm">
@@ -209,39 +209,8 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
     </div>
   </div>
 
-  <script define:vars={{ bridgeApiUrl, supabaseUrl, supabaseAnonKey }}>
-    async function fetchBridge(endpoint) {
-      try {
-        const res = await fetch(`${bridgeApiUrl}${endpoint}`, {
-          mode: 'cors',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-      } catch (err) {
-        console.warn(`Bridge fetch failed: ${endpoint}`, err);
-        return null;
-      }
-    }
-
-    async function postBridge(endpoint, body = {}) {
-      try {
-        const res = await fetch(`${bridgeApiUrl}${endpoint}`, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
-        return await res.json();
-      } catch (err) {
-        console.warn(`Bridge post failed: ${endpoint}`, err);
-        return null;
-      }
-    }
-
+  <script define:vars={{ supabaseUrl, supabaseAnonKey }}>
+    // Fetch from Supabase (primary data source)
     async function fetchSupabase(table, options = {}) {
       const params = new URLSearchParams();
       if (options.select) params.set('select', options.select);
@@ -249,13 +218,51 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       if (options.limit) params.set('limit', options.limit);
       
       const url = `${supabaseUrl}/rest/v1/${table}?${params}`;
-      const res = await fetch(url, {
-        headers: {
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${supabaseAnonKey}`
-        }
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          }
+        });
+        return res.json();
+      } catch (err) {
+        console.warn(`Supabase fetch failed: ${table}`, err);
+        return null;
+      }
+    }
+
+    // Get bot status from Supabase
+    async function getBotStatus() {
+      const data = await fetchSupabase('burt_status', { limit: '1' });
+      return data && data.length > 0 ? data[0] : null;
+    }
+
+    // Get recent trades from Supabase
+    async function getTrades(limit = 10) {
+      return fetchSupabase('burt_trades', { 
+        select: '*',
+        order: 'close_date.desc',
+        limit: limit.toString()
       });
-      return res.json();
+    }
+
+    // Get daily performance from Supabase
+    async function getDailyPerformance() {
+      return fetchSupabase('burt_daily', {
+        select: '*',
+        order: 'date.desc',
+        limit: '14'
+      });
+    }
+
+    // Get signals from Supabase
+    async function getSignals(limit = 10) {
+      return fetchSupabase('burt_signals', {
+        select: '*',
+        order: 'created_at.desc',
+        limit: limit.toString()
+      });
     }
 
     function formatCurrency(val) {
@@ -284,48 +291,60 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
     }
 
     async function updateHealth() {
-      const health = await fetchBridge('/health');
+      const status = await getBotStatus();
       const statusEl = document.getElementById('connection-status');
       
-      if (!health) {
-        statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-red-400">Offline</span>`;
+      if (!status) {
+        statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-red-400">No Data</span>`;
         return;
       }
       
-      statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span><span class="text-green-400">Online</span>`;
+      // Check if data is fresh (within last hour)
+      const lastUpdate = new Date(status.updated_at);
+      const ageMinutes = (Date.now() - lastUpdate.getTime()) / 60000;
+      const isFresh = ageMinutes < 60;
       
-      // Services
+      statusEl.innerHTML = isFresh
+        ? `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span><span class="text-green-400">Synced</span>`
+        : `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="text-amber-400">Stale (${Math.round(ageMinutes)}m)</span>`;
+      
+      // Services from system_status JSON
+      let services = {};
+      try {
+        services = typeof status.system_status === 'string' 
+          ? JSON.parse(status.system_status) 
+          : status.system_status || {};
+      } catch (e) {}
+      
       const svcFreq = document.getElementById('svc-freqtrade');
       const svcOllama = document.getElementById('svc-ollama');
       const svcBridge = document.getElementById('svc-bridge');
       const svcRecon = document.getElementById('svc-reconciler');
       
-      svcFreq.className = `w-2 h-2 rounded-full ${health.services?.freqtrade ? 'bg-green-500' : 'bg-red-500'}`;
-      svcOllama.className = `w-2 h-2 rounded-full ${health.services?.ollama ? 'bg-green-500' : 'bg-red-500'}`;
-      svcBridge.className = 'w-2 h-2 rounded-full bg-green-500';
-      svcRecon.className = `w-2 h-2 rounded-full ${health.services?.reconciler ? 'bg-green-500' : 'bg-amber-500'}`;
+      svcFreq.className = `w-2 h-2 rounded-full ${services.freqtrade ? 'bg-green-500' : 'bg-red-500'}`;
+      svcOllama.className = `w-2 h-2 rounded-full ${services.ollama ? 'bg-green-500' : 'bg-red-500'}`;
+      svcBridge.className = `w-2 h-2 rounded-full ${services.bridge ? 'bg-green-500' : 'bg-red-500'}`;
+      svcRecon.className = 'w-2 h-2 rounded-full bg-slate-600';
       
-      document.getElementById('svc-freqtrade-label').textContent = health.services?.freqtrade ? 'running' : 'stopped';
-      document.getElementById('svc-ollama-label').textContent = health.services?.ollama ? 'ready' : 'offline';
-      document.getElementById('svc-bridge-label').textContent = 'v2.1';
-      document.getElementById('svc-reconciler-label').textContent = health.services?.reconciler ? 'active' : 'idle';
+      document.getElementById('svc-freqtrade-label').textContent = services.freqtrade ? 'running' : 'stopped';
+      document.getElementById('svc-ollama-label').textContent = services.ollama ? 'ready' : 'offline';
+      document.getElementById('svc-bridge-label').textContent = services.bridge ? 'v3.0' : 'offline';
+      document.getElementById('svc-reconciler-label').textContent = 'n/a';
       
-      // DLQ
-      if (health.dlq) {
-        document.getElementById('dlq-pending').textContent = health.dlq.pending || 0;
-        document.getElementById('dlq-failed').textContent = health.dlq.failed || 0;
-      }
+      // DLQ not available via Supabase
+      document.getElementById('dlq-pending').textContent = '--';
+      document.getElementById('dlq-failed').textContent = '--';
       
       // Last update
-      document.getElementById('last-update').textContent = formatTime(new Date());
+      document.getElementById('last-update').textContent = formatTime(lastUpdate);
     }
 
     async function updateSurvival() {
-      const survival = await fetchBridge('/survival');
-      if (!survival) return;
+      const status = await getBotStatus();
+      if (!status) return;
       
       const badge = document.getElementById('survival-badge');
-      const status = survival.status || 'UNKNOWN';
+      const survivalStatus = status.survival_status || 'UNKNOWN';
       
       const colors = {
         THRIVING: 'bg-green-500/10 text-green-400',
@@ -334,32 +353,42 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
         CRITICAL: 'bg-red-500/20 text-red-400'
       };
       
-      badge.className = `px-2 py-0.5 rounded text-xs font-medium ${colors[status] || 'bg-slate-700 text-slate-400'}`;
-      badge.textContent = status;
+      badge.className = `px-2 py-0.5 rounded text-xs font-medium ${colors[survivalStatus] || 'bg-slate-700 text-slate-400'}`;
+      badge.textContent = survivalStatus;
       
-      // Update stats
-      if (survival.stats) {
-        const pnl = survival.stats.total_pnl || 0;
-        const pnlEl = document.getElementById('total-pnl');
-        pnlEl.textContent = formatCurrency(pnl);
-        pnlEl.className = `text-xl font-semibold font-mono ${colorForValue(pnl)}`;
-        
-        const pctEl = document.getElementById('total-pnl-pct');
-        const pct = survival.stats.total_pnl_pct || 0;
-        pctEl.textContent = formatPct(pct);
-        pctEl.className = `text-xs font-mono mt-0.5 ${colorForValue(pct)}`;
-        
-        document.getElementById('win-rate').textContent = `${(survival.stats.win_rate || 0).toFixed(1)}%`;
-        document.getElementById('trade-count').textContent = `${survival.stats.total_trades || 0} trades`;
-      }
+      // Update stats from status
+      const pnl = parseFloat(status.total_pnl) || 0;
+      const pnlEl = document.getElementById('total-pnl');
+      pnlEl.textContent = formatCurrency(pnl);
+      pnlEl.className = `text-xl font-semibold font-mono ${colorForValue(pnl)}`;
+      
+      const pctEl = document.getElementById('total-pnl-pct');
+      const pct = parseFloat(status.total_pnl_pct) || 0;
+      pctEl.textContent = formatPct(pct);
+      pctEl.className = `text-xs font-mono mt-0.5 ${colorForValue(pct)}`;
+      
+      document.getElementById('win-rate').textContent = `${(parseFloat(status.win_rate) || 0).toFixed(1)}%`;
+      document.getElementById('trade-count').textContent = `${status.total_trades || 0} trades`;
+      
+      // Fear & Greed
+      document.getElementById('fear-greed').textContent = status.fear_greed || '--';
+      document.getElementById('market-regime').textContent = status.market_regime || '--';
     }
 
     async function updatePositions() {
-      const data = await fetchBridge('/positions');
+      const status = await getBotStatus();
       const container = document.getElementById('positions-container');
       const label = document.getElementById('position-label');
       
-      if (!data || !data.positions || data.positions.length === 0) {
+      // Parse open_positions from status
+      let positions = [];
+      try {
+        positions = typeof status?.open_positions === 'string' 
+          ? JSON.parse(status.open_positions) 
+          : status?.open_positions || [];
+      } catch (e) {}
+      
+      if (!positions || positions.length === 0) {
         container.innerHTML = '<div class="text-center py-6 text-slate-600 text-sm">No open positions</div>';
         label.textContent = '0 positions';
         document.getElementById('open-count').textContent = '0';
@@ -367,7 +396,6 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
         return;
       }
       
-      const positions = data.positions;
       label.textContent = `${positions.length} position${positions.length !== 1 ? 's' : ''}`;
       document.getElementById('open-count').textContent = positions.length;
       
@@ -379,23 +407,18 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
             <thead>
               <tr class="text-slate-500 text-xs uppercase tracking-wide">
                 <th class="text-left py-2 px-2">Pair</th>
-                <th class="text-right py-2 px-2">Size</th>
-                <th class="text-right py-2 px-2">Entry</th>
-                <th class="text-right py-2 px-2">Current</th>
-                <th class="text-right py-2 px-2">P&L</th>
+                <th class="text-right py-2 px-2">Side</th>
+                <th class="text-right py-2 px-2">P&L %</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/30">
               ${positions.map(p => {
-                const pnl = parseFloat(p.unrealized_pnl) || 0;
-                totalUnrealized += pnl;
+                const pnlPct = parseFloat(p.profit_pct) || 0;
                 return `
                   <tr class="hover:bg-slate-800/30">
                     <td class="py-2 px-2 font-medium text-slate-200 font-mono">${p.pair}</td>
-                    <td class="py-2 px-2 text-right text-slate-400 font-mono">${parseFloat(p.amount).toFixed(4)}</td>
-                    <td class="py-2 px-2 text-right text-slate-400 font-mono">$${parseFloat(p.open_rate).toFixed(2)}</td>
-                    <td class="py-2 px-2 text-right text-slate-300 font-mono">$${parseFloat(p.current_rate).toFixed(2)}</td>
-                    <td class="py-2 px-2 text-right font-mono ${colorForValue(pnl)}">${formatCurrency(pnl)}</td>
+                    <td class="py-2 px-2 text-right text-slate-400 uppercase">${p.side}</td>
+                    <td class="py-2 px-2 text-right font-mono ${colorForValue(pnlPct)}">${formatPct(pnlPct)}</td>
                   </tr>
                 `;
               }).join('')}
@@ -405,39 +428,39 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       `;
       
       const openPnlEl = document.getElementById('open-pnl');
-      openPnlEl.textContent = `${formatCurrency(totalUnrealized)} unrealized`;
-      openPnlEl.className = `text-xs mt-0.5 ${colorForValue(totalUnrealized)}`;
+      openPnlEl.textContent = `${positions.length} open`;
+      openPnlEl.className = 'text-xs mt-0.5 text-slate-500';
     }
 
     async function updateSignals() {
-      const data = await fetchBridge('/signals');
+      const signals = await getSignals(10);
       const container = document.getElementById('signals-container');
       
-      if (!data || !data.signals || data.signals.length === 0) {
+      if (!signals || signals.length === 0) {
         container.innerHTML = '<div class="p-4 text-center text-slate-600 text-sm">No recent signals</div>';
         return;
       }
       
-      container.innerHTML = data.signals.slice(0, 10).map(s => `
+      container.innerHTML = signals.map(s => `
         <div class="p-2 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full ${s.action === 'BUY' ? 'bg-green-500' : 'bg-red-500'}"></span>
+            <span class="w-1.5 h-1.5 rounded-full ${s.direction === 'long' ? 'bg-green-500' : 'bg-red-500'}"></span>
             <span class="font-mono text-sm text-slate-300">${s.pair}</span>
-            <span class="text-xs text-slate-500 uppercase">${s.action}</span>
+            <span class="text-xs text-slate-500 uppercase">${s.direction}</span>
           </div>
           <div class="text-right">
-            <div class="text-xs text-slate-400">${s.conviction || '--'}</div>
-            <div class="text-xs text-slate-600 font-mono">${formatTime(s.timestamp)}</div>
+            <div class="text-xs text-slate-400">${(parseFloat(s.conviction) * 100).toFixed(0)}%</div>
+            <div class="text-xs text-slate-600 font-mono">${formatTime(s.created_at)}</div>
           </div>
         </div>
       `).join('');
     }
 
     async function updateTrades() {
-      const data = await fetchBridge('/trades?limit=10');
+      const trades = await getTrades(10);
       const container = document.getElementById('trades-container');
       
-      if (!data || !data.trades || data.trades.length === 0) {
+      if (!trades || trades.length === 0) {
         container.innerHTML = '<div class="p-4 text-center text-slate-600 text-sm">No recent trades</div>';
         return;
       }
@@ -446,7 +469,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       let todayCount = 0;
       const today = new Date().toDateString();
       
-      container.innerHTML = data.trades.map(t => {
+      container.innerHTML = trades.map(t => {
         const pnl = parseFloat(t.profit_abs) || 0;
         const tradeDate = new Date(t.close_date || t.open_date).toDateString();
         if (tradeDate === today) {
@@ -457,12 +480,13 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
         return `
           <div class="p-2 flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full ${t.is_open ? 'bg-blue-500' : (pnl >= 0 ? 'bg-green-500' : 'bg-red-500')}"></span>
+              <span class="w-1.5 h-1.5 rounded-full ${pnl >= 0 ? 'bg-green-500' : 'bg-red-500'}"></span>
               <span class="font-mono text-sm text-slate-300">${t.pair}</span>
+              <span class="text-xs text-slate-500 uppercase">${t.side}</span>
             </div>
             <div class="text-right">
               <div class="font-mono text-sm ${colorForValue(pnl)}">${formatCurrency(pnl)}</div>
-              <div class="text-xs text-slate-600 font-mono">${formatTime(t.close_date || t.open_date)}</div>
+              <div class="text-xs text-slate-600 font-mono">${formatTime(t.close_date)}</div>
             </div>
           </div>
         `;
@@ -475,20 +499,21 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
     }
 
     async function updateDailyChart() {
-      const data = await fetchBridge('/performance/daily?days=14');
+      const daily = await getDailyPerformance();
       const container = document.getElementById('daily-chart');
       
-      if (!data || !data.daily || data.daily.length === 0) {
-        container.innerHTML = '<div class="text-slate-600 text-sm">No data</div>';
+      if (!daily || daily.length === 0) {
+        container.innerHTML = '<div class="text-slate-600 text-sm">No daily data yet</div>';
         return;
       }
       
-      const maxVal = Math.max(...data.daily.map(d => Math.abs(d.pnl)));
+      const maxVal = Math.max(...daily.map(d => Math.abs(parseFloat(d.pnl) || 0)));
       const scale = maxVal > 0 ? 100 / maxVal : 1;
       
-      container.innerHTML = data.daily.map(d => {
-        const height = Math.max(4, Math.abs(d.pnl) * scale);
-        const color = d.pnl >= 0 ? 'bg-green-500/60' : 'bg-red-500/60';
+      container.innerHTML = daily.reverse().map(d => {
+        const pnl = parseFloat(d.pnl) || 0;
+        const height = Math.max(4, Math.abs(pnl) * scale);
+        const color = pnl >= 0 ? 'bg-green-500/60' : 'bg-red-500/60';
         return `
           <div class="flex-1 flex flex-col items-center gap-1">
             <div class="w-full ${color} rounded-sm" style="height: ${height}px"></div>
@@ -512,16 +537,14 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
     // Event listeners
     document.getElementById('refresh-btn').addEventListener('click', updateAll);
     
-    document.getElementById('pause-toggle').addEventListener('click', async () => {
-      const current = document.getElementById('pause-label').textContent;
-      const action = current === 'Running' ? 'stop' : 'start';
-      await postBridge(`/trading/${action}`);
-      setTimeout(updateSurvival, 500);
+    // Pause toggle - requires direct bridge access (not available via Supabase)
+    document.getElementById('pause-toggle').addEventListener('click', () => {
+      alert('Pause control requires direct bridge access. Use A9 console.');
     });
 
-    document.getElementById('process-dlq').addEventListener('click', async () => {
-      await postBridge('/dlq/process');
-      setTimeout(updateHealth, 500);
+    // DLQ process - requires direct bridge access
+    document.getElementById('process-dlq').addEventListener('click', () => {
+      alert('DLQ control requires direct bridge access. Use A9 console.');
     });
 
     // Initial load
